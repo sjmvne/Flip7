@@ -130,13 +130,25 @@
             text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
         }
 
-        /* Glassmorphism Score Badge near player name */
+        /* Glassmorphism Score Badge */
         .badge-score {
-            background: linear-gradient(135deg, rgba(251, 191, 36, 0.3), rgba(245, 158, 11, 0.2));
-            border: 1px solid rgba(251, 191, 36, 0.3);
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(245, 158, 11, 0.1));
+            border: 1px solid rgba(251, 191, 36, 0.4);
             color: #fbbf24;
-            font-weight: 700;
-            box-shadow: 0 0 15px rgba(251, 191, 36, 0.2);
+            font-weight: 800;
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.15);
+            padding: 4px 10px;
+            border-radius: 20px;
+            text-shadow: 0 0 8px rgba(251, 191, 36, 0.3);
+            letter-spacing: 0.5px;
+        }
+
+        /* Hit/Stay Buttons Icons */
+        .btn svg {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            fill: white;
         }
 
         /* SIDEBARS */
@@ -150,7 +162,7 @@
             backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
             z-index: 2000;
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: transform 0.3s ease-out;
             padding: 20px;
             border-radius: 20px;
             overflow-y: auto;
@@ -183,8 +195,8 @@
 
         .sidebar-tab {
             position: fixed;
-            top: 50%;
-            transform: translateY(-50%);
+            top: 15%;
+            transform: translateY(0);
             width: 40px;
             height: 80px;
             background: rgba(255, 255, 255, 0.1);
@@ -196,7 +208,7 @@
             font-size: 20px;
             cursor: pointer;
             z-index: 1999;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s ease-out;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: rgba(255, 255, 255, 0.8);
@@ -213,14 +225,16 @@
             left: 0;
             border-top-right-radius: 16px;
             border-bottom-right-radius: 16px;
-            border-left: none;
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
         }
 
         .sidebar-tab.right {
             right: 0;
             border-top-left-radius: 16px;
             border-bottom-left-radius: 16px;
-            border-right: none;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
         }
 
         .history-list {
@@ -389,19 +403,13 @@
                 0 12px 20px rgba(0, 0, 0, 0.4);
         }
 
-        .btn-3d:active {
+        .btn-3d:active,
+        .btn-3d.clicked {
             transform: translateY(4px);
             box-shadow:
                 0 2px 0 rgba(0, 0, 0, 0.3),
                 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        /* Reset button state on click */
-        .btn-3d.clicked {
-            transform: translateY(0);
-            box-shadow:
-                0 6px 0 rgba(0, 0, 0, 0.3),
-                0 8px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.05s ease-out;
         }
 
         .btn-carta {
@@ -430,11 +438,14 @@
                 0 4px 8px rgba(0, 0, 0, 0.2);
         }
 
-        .btn:disabled {
-            background: rgba(255, 255, 255, 0.1);
-            box-shadow: none;
+        .btn:disabled,
+        .btn.btn-cooldown {
+            background: rgba(255, 255, 255, 0.15) !important;
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2) !important;
             cursor: not-allowed;
-            opacity: 0.5;
+            opacity: 0.6;
+            filter: grayscale(80%);
+            transform: translateY(0) !important;
         }
 
         .btn-secondary {
@@ -937,6 +948,17 @@
             opacity: 1 !important;
         }
 
+        /* Stayed (player stopped) indicator */
+        .player-zone.stayed {
+            border-color: rgba(59, 130, 246, 0.5) !important;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3), inset 0 0 20px rgba(59, 130, 246, 0.1);
+        }
+
+        .badge-stayed {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            font-size: 12px;
+        }
+
         /* Bust Overlay */
         .bust-overlay {
             position: absolute;
@@ -1262,6 +1284,56 @@
             }
         }
 
+        @keyframes shuffleWiggle {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(0deg) scale(1);
+            }
+
+            10% {
+                transform: translateY(-8px) rotate(-5deg) scale(1.03);
+            }
+
+            20% {
+                transform: translateY(3px) rotate(4deg) scale(0.98);
+            }
+
+            30% {
+                transform: translateY(-6px) rotate(-3deg) scale(1.02);
+            }
+
+            40% {
+                transform: translateY(4px) rotate(5deg) scale(0.99);
+            }
+
+            50% {
+                transform: translateY(-10px) rotate(-6deg) scale(1.04);
+            }
+
+            60% {
+                transform: translateY(5px) rotate(3deg) scale(0.97);
+            }
+
+            70% {
+                transform: translateY(-5px) rotate(-4deg) scale(1.01);
+            }
+
+            80% {
+                transform: translateY(3px) rotate(2deg) scale(0.98);
+            }
+
+            90% {
+                transform: translateY(-3px) rotate(-1deg) scale(1);
+            }
+        }
+
+        .deck.shuffling {
+            animation: shuffleWiggle 0.6s ease-in-out infinite;
+            filter: brightness(1.15);
+            z-index: 100;
+        }
+
         .fly-in {
             animation: flyInAnim 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
             z-index: 100;
@@ -1270,27 +1342,31 @@
 
         #customToast {
             position: fixed;
-            top: 20px;
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%);
-            background: rgba(139, 92, 246, 0.95);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 12px 24px;
-            border-radius: 50px;
+            transform: translate(-50%, -50%) scale(0.9);
+            width: 90%;
+            max-width: 400px;
+            background: rgba(26, 22, 37, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 16px 28px;
+            border-radius: 16px;
             color: white;
             font-weight: 600;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-            z-index: 2000;
+            font-size: 16px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
+            z-index: 6000;
             opacity: 0;
             pointer-events: none;
-            transition: all 0.3s ease;
-            transform: translate(-50%, -20px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-align: center;
         }
 
         #customToast.active {
             opacity: 1;
-            transform: translate(-50%, 0);
+            transform: translate(-50%, -50%) scale(1);
         }
 
         /* Recap Overlay */
@@ -1634,7 +1710,16 @@
 
 <body>
     <header class="header">
-        <h1 id="headerTitle" style="font-size:18px; font-weight:600; margin:0;">Flip 7</h1>
+        <h1 id="headerTitle" style="font-size:18px; font-weight:600; margin:0; cursor:pointer;"
+            onclick="location.reload()">Flip 7</h1>
+
+        <!-- Game Status in Header (hidden by default, shown during game) -->
+        <div id="headerGameStatus"
+            style="display:none; align-items:center; gap:12px; background:rgba(139,92,246,0.2); padding:4px 12px; border-radius:20px; backdrop-filter:blur(10px); border:1px solid rgba(139,92,246,0.3);">
+            <span style="font-size:12px; font-weight:600; color:#34d399;">🎯 <span id="turnName">-</span></span>
+            <span style="font-size:12px; font-weight:600; color:#60a5fa;">Round <span id="roundNum">1</span></span>
+        </div>
+
         <button id="btnRules" title="Regole">
             <svg viewBox="0 0 24 24">
                 <path
@@ -1644,7 +1729,8 @@
     </header>
 
     <div class="lobby glass" id="lobby">
-        <img src="assets/Flip7 Logo.webp" alt="Flip 7" style="height:80px; margin-bottom:15px;">
+        <img src="assets/Flip7 Logo.webp" alt="Flip 7" style="height:80px; margin-bottom:15px; cursor:pointer;"
+            onclick="location.reload()">
         <h2>Benvenuto!</h2>
         <p>Sfida i tuoi amici! Il primo che arriva a 200 punti, vince! 🏆</p>
 
@@ -1680,16 +1766,6 @@
     </div>
 
     <div class="game-container" id="gameContainer">
-        <!-- Game Status Bar - Fixed Visibility -->
-        <div id="gameStatusBar"
-            style="display:flex; justify-content:center; gap:12px; padding:10px 15px; margin-bottom:15px; background:rgba(139,92,246,0.15); border-radius:15px; border:1px solid rgba(139,92,246,0.3);">
-            <span style="display:flex; align-items:center; gap:5px; color:#fbbf24; font-weight:600; font-size:13px;">👑
-                <span id="dealerName">-</span></span>
-            <span style="display:flex; align-items:center; gap:5px; color:#34d399; font-weight:600; font-size:13px;">🎯
-                <span id="turnName">-</span></span>
-            <span style="display:flex; align-items:center; gap:5px; color:#60a5fa; font-weight:600; font-size:13px;">🔄
-                Round <span id="roundNum">1</span></span>
-        </div>
 
         <!-- Left Sidebar: Leaderboard -->
         <div id="leaderboardSidebar" class="sidebar left glass">
@@ -1716,135 +1792,225 @@
 
         <div class="deck-area"
             style="display:flex; align-items:center; justify-content:center; gap:15px; margin:20px 0;">
+
+            <!-- Personal Score -->
+            <div class="glass" style="padding:10px 16px; border-radius:16px; text-align:center; min-width: 70px;">
+                <div
+                    style="font-size:9px; opacity:0.7; text-transform:uppercase; letter-spacing:1px; margin-bottom:2px;">
+                    Punti</div>
+                <div style="font-size:22px; font-weight:800; color:#A78BFA; text-shadow:0 0 15px rgba(167, 139, 250, 0.4);"
+                    id="personalTot">0</div>
+            </div>
+
+            <!-- Deck -->
             <div class="deck"
-                style="width:90px; height:126px; border-radius:12px; box-shadow: 0 8px 0 #5b21b6, 0 12px 25px rgba(0,0,0,0.4); transform-style:preserve-3d; transition:all 0.3s;">
+                style="width:90px; height:126px; border-radius:12px; box-shadow: 0 8px 0 #5b21b6, 0 12px 25px rgba(0,0,0,0.4); transform-style:preserve-3d; transition:all 0.3s; cursor:default; position:relative;">
                 <img src="assets/cards/back.webp" class="card-img"
                     style="width:100%; height:100%; border-radius:12px; object-fit:cover;">
             </div>
-            <div class="glass" style="padding:12px 18px; border-radius:15px; text-align:center;">
-                <div style="font-size:28px; font-weight:800; color:#fbbf24;" id="deckCount">-</div>
-                <div style="font-size:10px; opacity:0.7; text-transform:uppercase; letter-spacing:1px;">Carte</div>
+
+            <!-- Deck Count (right of deck) -->
+            <div class="glass" style="padding:10px 16px; border-radius:16px; text-align:center; min-width: 70px;">
+                <div
+                    style="font-size:9px; opacity:0.7; text-transform:uppercase; letter-spacing:1px; margin-bottom:2px;">
+                    Carte</div>
+                <div style="font-size:22px; font-weight:800; color:#fbbf24; text-shadow:0 0 15px rgba(251, 191, 36, 0.4);"
+                    id="deckCount">0</div>
             </div>
         </div>
 
         <div class="players-area" id="playersArea"></div>
 
-        <div class="controls glass" id="controls">
-            <button class="btn btn-3d btn-carta" id="btnHit" disabled>� Carta</button>
-            <button class="btn btn-3d btn-stop" id="btnStay" disabled>✋ Stop</button>
+        <div class="controls glass" id="controls" role="group" aria-label="Azioni gioco">
+            <button class="btn btn-3d btn-carta" id="btnHit" disabled aria-label="Pesca una carta">🎲 Carta</button>
+            <button class="btn btn-3d btn-stop" id="btnStay" disabled aria-label="Fermati">✋ Stop</button>
         </div>
     </div>
 
     <div class="modal" id="rulesModal">
         <div class="modal-content glass"
-            style="max-width: 600px; max-height: 85vh; display:flex; flex-direction:column;">
+            style="max-width: 600px; max-height: 90vh; display:flex; flex-direction:column; padding: 0;">
+
             <div
-                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-shrink:0;">
-                <h3 style="margin:0">📜 Regole di Gioco</h3>
+                style="padding: 20px 20px 10px 20px; display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <h3
+                    style="margin:0; font-size: 22px; background: linear-gradient(135deg, #fff, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                    📜 Regole del Gioco</h3>
                 <button onclick="document.getElementById('rulesModal').classList.remove('active')"
-                    style="background:none; border:none; color:white; font-size:24px; cursor:pointer; padding:5px;">&times;</button>
+                    style="background:rgba(255,255,255,0.1); border:none; width:32px; height:32px; border-radius:50%; color:white; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.2s;">&times;</button>
             </div>
 
-            <div class="rules-tabs" style="display:flex; gap:10px; margin-bottom:15px; flex-shrink:0;">
+            <div class="rules-tabs" style="display:flex; gap:10px; padding: 15px 20px 5px 20px;">
                 <button class="tab-btn active" onclick="switchTab('tab-general')">Generale</button>
                 <button class="tab-btn" onclick="switchTab('tab-cards')">Carte</button>
                 <button class="tab-btn" onclick="switchTab('tab-actions')">Azioni</button>
             </div>
 
-            <div class="rules-body" style="overflow-y:auto; padding-right:5px; flex-grow:1;">
+            <div class="rules-body" style="overflow-y:auto; padding: 10px 20px 20px 20px; flex-grow:1;">
                 <!-- GENERAL TAB -->
                 <div id="tab-general" class="tab-content active">
-                    <p><strong>🎯 Obiettivo:</strong> Fai punti sommando le carte numero. Vince chi ha più punti quando
-                        qualcuno raggiunge 200.</p>
-                    <div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:10px; margin:10px 0;">
-                        <strong>⚠️ BUST!</strong>
-                        <p style="font-size:13px; margin-top:5px; opacity:0.8;">Se peschi un numero che hai già in mano,
-                            perdi tutti i punti del round!</p>
+                    <p style="font-size:15px; line-height:1.5; margin-bottom:15px;">
+                        Flip 7 è un gioco di carte "push-your-luck". L'obiettivo è accumulare punti sommando i valori
+                        delle carte numeriche, ma attenzione a non sballare!
+                    </p>
+
+                    <div
+                        style="background:rgba(244, 63, 94, 0.15); padding:15px; border-radius:12px; margin-bottom:15px; border:1px solid rgba(244, 63, 94, 0.3);">
+                        <strong style="color:#fca5a5; display:block; margin-bottom:5px;">⚠️ BUST (Sballare)</strong>
+                        <p style="font-size:13px; margin:0; opacity:0.9;">
+                            Se peschi una carta numerica che <strong>hai già nella tua mano</strong>, fai BUST!
+                            Perdi tutti i punti accumulati in questo round e vieni eliminato fino al prossimo.
+                        </p>
                     </div>
-                    <div style="display:flex; gap:10px; margin:15px 0; align-items:center;">
-                        <span style="font-size:24px;">🔥</span>
+
+                    <div
+                        style="background:linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(139, 92, 246, 0.1)); padding:15px; border-radius:12px; margin-bottom:15px; border:1px solid rgba(168, 85, 247, 0.3); display:flex; gap:12px; align-items:center;">
+                        <span style="font-size:28px;">🔥</span>
                         <div>
-                            <strong>FLIP 7 BONUS</strong>
-                            <p style="font-size:13px; opacity:0.8;">Ottieni 7 numeri UNICI per finire subito il round e
-                                vincere +15 punti extra!</p>
+                            <strong style="color:#d8b4fe;">FLIP 7 BONUS</strong>
+                            <p style="font-size:13px; margin-top:4px; opacity:0.9;">
+                                Se riesci a collezionare <strong>7 carte numeriche UNICHE</strong> (cioè senza
+                                doppioni), ottieni un Bonus FLIP 7!
+                                Il round termina immediatamente e vinci +15 punti extra!
+                            </p>
                         </div>
                     </div>
-                    <p><strong>Struttura Round:</strong></p>
-                    <ol style="padding-left:20px; font-size:13px; line-height:1.6; opacity:0.9;">
-                        <li>Il Mazziere distribuisce 1 carta a testa.</li>
-                        <li>Se esce un'Azione, si risolve SUBITO.</li>
-                        <li>Al tuo turno scegli: <strong>Hit</strong> (pesca) o <strong>Stay</strong> (fermati).</li>
-                        <li>Il mazzo NON viene mescolato a fine round! Contare le carte è strategia.</li>
+
+                    <p style="font-weight:600; margin-bottom:8px;">Svolgimento del Round:</p>
+                    <ol style="padding-left:20px; font-size:14px; line-height:1.6; opacity:0.9; margin-bottom:10px;">
+                        <li>Il Mazziere distribuisce una carta a testa per iniziare.</li>
+                        <li>Al tuo turno, puoi scegliere:
+                            <ul style="margin-top:4px; margin-bottom:4px;">
+                                <li><strong>Hit (Carta):</strong> Peschi una nuova carta dal mazzo centrale.</li>
+                                <li><strong>Stay (Stop):</strong> Ti fermi con il punteggio attuale. Sei al sicuro.</li>
+                            </ul>
+                        </li>
+                        <li>Se peschi un'Azione, questa viene risolta immediatamente.</li>
+                        <li>Il round finisce quando tutti i giocatori si sono fermati o hanno sballato.</li>
                     </ol>
+                    <p style="font-size:13px; color:var(--text-secondary); font-style:italic;">
+                        Nota: Il mazzo NON viene rimescolato tra i round. Le carte uscite rimangono negli scarti.
+                        Contare le carte è una strategia vincente!
+                    </p>
                 </div>
 
                 <!-- CARDS TAB -->
                 <div id="tab-cards" class="tab-content">
-                    <div class="rules-section">
-                        <h4>Numeri (0-12)</h4>
-                        <div style="display:flex; gap:10px; margin:10px 0;">
+                    <div class="rules-section" style="margin-bottom:20px;">
+                        <h4
+                            style="color:#fbbf24; margin-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:5px;">
+                            Carte Numero (0-12)</h4>
+                        <p style="font-size:14px; margin-bottom:10px;">Costituiscono la base del tuo punteggio. Somma i
+                            loro valori.</p>
+
+                        <div style="display:flex; gap:10px; margin:15px 0; justify-content:center;">
+                            <div class="card num-12" style="transform:none; width:40px; height:56px;"><span
+                                    class="card-value" style="font-size:16px">12</span></div>
                             <div class="card num-7" style="transform:none; width:40px; height:56px;"><span
-                                    class="card-value">7</span></div>
-                            <div class="card num-3" style="transform:none; width:40px; height:56px;"><span
-                                    class="card-value">3</span></div>
-                            <div class="card num-0" style="transform:none; width:40px; height:56px;"><span
-                                    class="card-value">0</span></div>
+                                    class="card-value" style="font-size:16px">7</span></div>
+                            <div class="card num-1" style="transform:none; width:40px; height:56px;"><span
+                                    class="card-value" style="font-size:16px">1</span></div>
                         </div>
-                        <p style="font-size:13px;">Più alto è il numero, più copie ci sono nel mazzo! (Dodici 12, undici
-                            11... uno 1, uno 0).</p>
+
+                        <div style="background:rgba(255,255,255,0.05); padding:12px; border-radius:8px;">
+                            <strong style="display:block; margin-bottom:5px; font-size:14px;">📊 Quantità nel
+                                Mazzo</strong>
+                            <p style="font-size:13px; opacity:0.8; margin:0;">
+                                La quantità di copie di una carta è uguale al suo valore!
+                                <br>• Ci sono <strong>dodici</strong> carte da 12.
+                                <br>• Ci sono <strong>sette</strong> carte da 7.
+                                <br>• C'è solo <strong>una</strong> carta da 1 e <strong>una</strong> da 0.
+                                <br><em>Più alto è il numero, più è probabile pescarlo (e fare Bust)!</em>
+                            </p>
+                        </div>
                     </div>
 
                     <div class="rules-section">
-                        <h4>Modificatori</h4>
-                        <div style="display:flex; gap:10px; margin:10px 0;">
-                            <div class="card modifier" style="transform:none; width:40px; height:56px;"><span
-                                    class="card-value" style="font-size:14px">+5</span></div>
-                            <div class="card modifier" style="transform:none; width:40px; height:56px;"><span
-                                    class="card-value" style="font-size:14px">x2</span></div>
+                        <h4
+                            style="color:#60a5fa; margin-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:5px;">
+                            Carte Modificatore</h4>
+                        <div style="display:flex; gap:15px; margin:15px 0;">
+                            <div style="flex:1;">
+                                <div style="display:flex; align-items:center; gap:8px; margin-bottom:5px;">
+                                    <div class="card modifier" style="transform:none; width:30px; height:42px;"><span
+                                            class="card-value" style="font-size:12px">+5</span></div>
+                                    <strong>Punti Bonus (+)</strong>
+                                </div>
+                                <p style="font-size:13px; opacity:0.8;">Aggiungono punti extra al tuo totale. Non
+                                    contano come numero unico per il Flip 7.</p>
+                            </div>
+                            <div style="flex:1;">
+                                <div style="display:flex; align-items:center; gap:8px; margin-bottom:5px;">
+                                    <div class="card modifier" style="transform:none; width:30px; height:42px;"><span
+                                            class="card-value" style="font-size:12px">x2</span></div>
+                                    <strong>Moltiplicatore (x2)</strong>
+                                </div>
+                                <p style="font-size:13px; opacity:0.8;">Raddoppia la somma dei soli numeri. Se ne hai
+                                    più di uno, si moltiplicano tra loro!</p>
+                            </div>
                         </div>
-                        <p style="font-size:13px;"><strong>+Punti:</strong> Si aggiungono alla
-                            somma.<br><strong>x2:</strong> Raddoppia la somma dei soli NUMERI.</p>
                     </div>
                 </div>
 
                 <!-- ACTIONS TAB -->
                 <div id="tab-actions" class="tab-content">
+                    <p style="font-size:13px; margin-bottom:15px; opacity:0.8;">Le Carte Azione si attivano
+                        immediatamente quando vengono pescate.</p>
+
                     <div class="action-rule"
-                        style="margin-bottom:15px; border-left:3px solid #38bdf8; padding-left:10px;">
-                        <div style="display:flex; align-items:center; gap:8px;">
-                            <div class="card action" style="transform:none; width:30px; height:42px;"><span
-                                    class="card-value" style="font-size:12px">❄️</span></div>
-                            <strong>Freeze</strong>
+                        style="margin-bottom:15px; background:rgba(56, 189, 248, 0.1); border-radius:10px; padding:12px; border:1px solid rgba(56, 189, 248, 0.3);">
+                        <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+                            <div class="card action"
+                                style="transform:none; width:36px; height:50px; border-color:#38bdf8;"><span
+                                    class="card-value" style="font-size:16px; color:#38bdf8;">❄️</span></div>
+                            <strong style="font-size:16px;">Freeze (Congela)</strong>
                         </div>
-                        <p style="font-size:13px; opacity:0.8;">Congela un giocatore. Diventa "Stay" forzato e non può
-                            più pescare.</p>
+                        <p style="font-size:13px; opacity:0.9; margin:0;">
+                            Scegli un avversario da congelare. Quel giocatore <strong>non potrà più pescare
+                                carte</strong> per questo round (è costretto allo "Stay").
+                            <br><span style="font-size:12px; opacity:0.7;">Se rimani solo tu, ti congeli da solo!</span>
+                        </p>
                     </div>
 
                     <div class="action-rule"
-                        style="margin-bottom:15px; border-left:3px solid #f59e0b; padding-left:10px;">
-                        <div style="display:flex; align-items:center; gap:8px;">
-                            <div class="card action" style="transform:none; width:30px; height:42px;"><span
-                                    class="card-value" style="font-size:12px">⚡</span></div>
-                            <strong>Flip 3</strong>
+                        style="margin-bottom:15px; background:rgba(245, 158, 11, 0.1); border-radius:10px; padding:12px; border:1px solid rgba(245, 158, 11, 0.3);">
+                        <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+                            <div class="card action"
+                                style="transform:none; width:36px; height:50px; border-color:#f59e0b;"><span
+                                    class="card-value" style="font-size:16px; color:#f59e0b;">⚡</span></div>
+                            <strong style="font-size:16px;">Flip 3 (Pesca 3)</strong>
                         </div>
-                        <p style="font-size:13px; opacity:0.8;">Bersaglia un giocatore. Deve pescare 3 carte di fila! Se
-                            esce un'altra azione nel mentre, si risolve DOPO.</p>
+                        <p style="font-size:13px; opacity:0.9; margin:0;">
+                            Scegli un avversario che dovrà <strong>pescare 3 carte consecutivamente</strong>!
+                            <br>È molto rischioso per chi subisce l'azione (alto rischio Bust).
+                            <br><span style="font-size:12px; opacity:0.7;">Se escono altre azioni durante le 3 carte,
+                                vengono messe in coda e risolte dopo.</span>
+                        </p>
                     </div>
 
-                    <div class="action-rule" style="border-left:3px solid #f43f5e; padding-left:10px;">
-                        <div style="display:flex; align-items:center; gap:8px;">
-                            <div class="card action" style="transform:none; width:30px; height:42px;"><span
-                                    class="card-value" style="font-size:12px">❤️</span></div>
-                            <strong>Second Chance</strong>
+                    <div class="action-rule"
+                        style="background:rgba(244, 63, 94, 0.1); border-radius:10px; padding:12px; border:1px solid rgba(244, 63, 94, 0.3);">
+                        <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+                            <div class="card action"
+                                style="transform:none; width:36px; height:50px; border-color:#f43f5e;"><span
+                                    class="card-value" style="font-size:16px; color:#f43f5e;">❤️</span></div>
+                            <strong style="font-size:16px;">Second Chance (Seconda Chance)</strong>
                         </div>
-                        <p style="font-size:13px; opacity:0.8;">Salva da un BUST una volta. Se ne peschi una seconda,
-                            devi regalarla!</p>
+                        <p style="font-size:13px; opacity:0.9; margin:0;">
+                            Tienila davanti a te. Se dovessi fare BUST, questa carta ti salva:
+                            <br>1. La carta sballata e la Second Chance vengono scartate.
+                            <br>2. Il tuo round continua normalmente.
+                            <br><span style="font-size:12px; opacity:0.7;">Se peschi una seconda Second Chance mentre ne
+                                hai già una, devi regalarla a un altro giocatore!</span>
+                        </p>
                     </div>
                 </div>
             </div>
 
-            <button class="btn" style="width:100%; margin-top:10px;"
-                onclick="document.getElementById('rulesModal').classList.remove('active')">Ho capito!</button>
+            <div style="padding:15px 20px; border-top:1px solid rgba(255,255,255,0.1); text-align:center;">
+                <button class="btn" style="width:100%;"
+                    onclick="document.getElementById('rulesModal').classList.remove('active')">Ho capito!</button>
+            </div>
         </div>
         <style>
             .rules-tabs .tab-btn {
@@ -2136,7 +2302,19 @@
             state.round = 1;
             state.dealer = 0;
             resetRound(); qs('#lobby').style.display = 'none'; qs('#gameContainer').classList.add('active');
-            dealInit();
+
+            // Shuffle Animation (Visual only)
+            const deckEl = qs('.deck');
+            if (deckEl) {
+                deckEl.classList.add('shuffling');
+                showToast("Mescolo le carte... 🔀");
+                setTimeout(() => {
+                    deckEl.classList.remove('shuffling');
+                    dealInit();
+                }, 1200);
+            } else {
+                dealInit();
+            }
         }
 
         function restartGame() {
@@ -2239,7 +2417,7 @@
             }
 
             state.dealIndex++;
-            setTimeout(dealLoop, 600); // Delay between deals
+            setTimeout(dealLoop, 900); // Delay > animation duration (800ms) to prevent overlap
         }
 
         function showCardSplash(type, who = null) {
@@ -2281,10 +2459,22 @@
             }, 2000); // 2 seconds block
         }
 
-        // Helper for Buttons
+        // Helper for Buttons - reset 3D state
         function resetButton(btn) {
             btn.classList.add('clicked');
-            setTimeout(() => btn.classList.remove('clicked'), 200);
+            btn.blur(); // Force release of :active/:focus state
+            setTimeout(() => btn.classList.remove('clicked'), 150);
+        }
+
+        function applyCooldown() {
+            const btnHit = qs('#btnHit');
+            const btnStay = qs('#btnStay');
+            btnHit.classList.add('btn-cooldown');
+            btnStay.classList.add('btn-cooldown');
+            setTimeout(() => {
+                btnHit.classList.remove('btn-cooldown');
+                btnStay.classList.remove('btn-cooldown');
+            }, 1000);
         }
 
         let lastClickTime = 0;
@@ -2293,6 +2483,7 @@
             if (Date.now() - lastClickTime < 1000) return; // Rate Limit 1s
             lastClickTime = Date.now();
             resetButton(this);
+            applyCooldown();
             isHost ? handleAct(myId, 'hit') : sendHost({ t: 'act', a: 'hit' });
         };
         qs('#btnStay').onclick = function () {
@@ -2300,6 +2491,7 @@
             if (Date.now() - lastClickTime < 1000) return; // Rate Limit 1s
             lastClickTime = Date.now();
             resetButton(this);
+            applyCooldown();
             isHost ? handleAct(myId, 'stay') : sendHost({ t: 'act', a: 'stay' });
         };
 
@@ -2429,7 +2621,7 @@
                 }
             } else if (c.type === 'modifier') {
                 p.mods.push(c); p.cards.push(c); p.pts = calcPts(p);
-                addToHistory(`${p.name} ha pescato modificatore ${c.value > 0 ? '+' : ''}${c.value}`, 'normal');
+                addToHistory(`${p.name} ha pescato modificatore ${c.value}`, 'normal');
             }
             else if (c.type === 'action') {
                 showCardSplash(c.value, p.name); // Trigger splash visually
@@ -2477,13 +2669,22 @@
                 if (c.value === 'freeze') {
                     p.cards.push(c);
                     if (activeCount <= 1) {
-                        // Freeze self
-                        p.frozen = true;
-                        p.st = 'stayed';
+                        // Freeze self with dramatic sequence
                         setTimeout(() => {
-                            if (state.dealingPhase) dealLoop(); // Resume deal
-                            else { nextTurn(); sync(); updateGame(); }
-                        }, 2200);
+                            showToast("Hai pescato Freeze! ❄️");
+
+                            setTimeout(() => {
+                                showToast("Sei l'ultimo! Ti congeli... 🥶");
+
+                                setTimeout(() => {
+                                    p.frozen = true;
+                                    p.st = 'stayed';
+
+                                    if (state.dealingPhase) dealLoop(); // Resume deal
+                                    else { nextTurn(); sync(); updateGame(); }
+                                }, 2000);
+                            }, 1500);
+                        }, 500);
 
                     } else {
                         // Choose target
@@ -2714,7 +2915,14 @@
 
         function nextTurn() {
             let i = 0; do { state.turn = (state.turn + 1) % state.players.length; i++; } while (state.players[state.turn].st !== 'active' && i < state.players.length);
-            if (state.players.every(p => p.st !== 'active')) endRound();
+            if (state.players.every(p => p.st !== 'active')) { endRound(); return; }
+
+            // Global toast for turn start - stored in state for sync to all clients
+            const currentPlayer = state.players[state.turn];
+            if (currentPlayer) {
+                state.globalToast = `🎯 ${currentPlayer.name} - Round ${state.round}`;
+            }
+
             sync(); updateGame();
         }
 
@@ -2904,20 +3112,33 @@
                 return; // Stop further updates when game ended
             }
 
-            qs('#dealerName').innerText = state.players[state.dealer]?.name || '-';
+            // Show header game status during game
+            const hgs = qs('#headerGameStatus');
+            if (hgs) hgs.style.display = 'flex';
+
             qs('#turnName').innerText = state.players[state.turn]?.name || '-';
             qs('#roundNum').innerText = state.round;
             qs('#deckCount').innerText = state.deck.length;
+
+            // Global Toast - visible to all clients
+            if (state.globalToast) {
+                showToast(state.globalToast);
+                state.globalToast = null; // Clear after showing locally
+            }
+
+            // Personal Score Update
+            const meP = state.players.find(p => p.id === myId);
+            if (meP && qs('#personalTot')) qs('#personalTot').innerText = meP.tot;
 
             // SIDEBAR UPDATES
             // 1. Leaderboard
             const sortedLeaderboard = [...state.players].sort((a, b) => b.tot - a.tot);
             const lbHtml = sortedLeaderboard.map((p, i) => {
                 const isWinner = p.tot >= 200;
-                return `< div class="leaderboard-row ${p.id === myId ? 'me' : ''}" style = "${isWinner ? 'color:#fbbf24; font-weight:bold' : ''}" >
+                return `<div class="leaderboard-row ${p.id === myId ? 'me' : ''}" style="${isWinner ? 'color:#fbbf24; font-weight:bold' : ''}">
                     <span>${i + 1}. ${p.name} ${p.id === myId ? '(Tu)' : ''}</span>
                     <span>${p.tot}</span>
-                </div > `;
+                </div>`;
             }).join('');
             qs('#sidebarLeaderboardContent').innerHTML = lbHtml;
 
@@ -2925,10 +3146,10 @@
             const historyHtml = state.history ? state.history.map(h => {
                 const isSpecial = h.type === 'special';
                 const timeStr = new Date(h.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                return `< div class="history-item" style = "${isSpecial ? 'border-color:#fbbf24; background:rgba(251,191,36,0.1)' : ''}" >
+                return `<div class="history-item" style="${isSpecial ? 'border-color:#fbbf24; background:rgba(251,191,36,0.1)' : ''}">
                     <div style="font-size:10px; opacity:0.6; margin-bottom:2px;">${timeStr}</div>
                     <span>${h.t}</span>
-                </div > `;
+                </div>`;
             }).join('') : '';
             qs('#sidebarHistoryContent').innerHTML = historyHtml || '<div style="text-align:center; padding:20px; color:var(--text-secondary); font-style:italic">Nessuna azione ancora...</div>';
 
@@ -2958,11 +3179,8 @@
                 const isMe = p.id === myId;
                 const isTurn = i === state.turn;
 
-                // Update Header if it's turn
-                if (isTurn) {
-                    const ht = qs('#headerTitle');
-                    if (ht) ht.innerHTML = `Turno di: <span style="color:${isMe ? '#fbbf24' : '#fff'}">${p.name}</span>`;
-                }
+                // Turn info is now in headerGameStatus glassmorph element
+                // No need to update headerTitle during game
 
                 // Track card counts to identify new cards for animation
                 if (!localPlayerCardCounts[p.id]) localPlayerCardCounts[p.id] = { nums: 0, mods: 0 };
@@ -3001,31 +3219,31 @@
                 }).join('');
 
                 return `
-                        < div class="player-zone ${isTurn && p.st === 'active' ? 'active-turn' : ''} ${p.st === 'bust' ? 'bust' : ''} ${p.frozen ? 'frozen' : ''} ${p.id === myId ? 'my-zone' : ''}" id = "pzone-${i}" >
-                <div class="player-info">
-                    <span class="p-name" data-pts="${p.pts}">${p.name} ${i === state.dealer ? '👑' : ''}</span>
-                    <div class="p-badges">
-                        ${p.sc ? '<span class="badge badge-sc">❤️ SC</span>' : ''}
-                        ${p.frozen ? '<span class="badge badge-frozen">❄️</span>' : ''}
-                        <span class="badge badge-score">${p.pts} pts</span>
+                        <div class=\"player-zone ${isTurn && p.st === 'active' ? 'active-turn' : ''} ${p.st === 'bust' ? 'bust' : ''} ${p.frozen ? 'frozen' : ''} ${p.id === myId ? 'my-zone' : ''}\" id=\"pzone-${i}\">
+                <div class=\"player-info\">
+                    <span class=\"p-name\" data-pts=\"${p.pts}\">${p.name} ${i === state.dealer ? '👑' : ''}</span>
+                    <div class=\"p-badges\">
+                        ${p.sc ? '<span class=\"badge badge-sc\">❤️ SC</span>' : ''}
+                        ${p.frozen ? '<span class=\"badge badge-frozen\">❄️</span>' : ''}
+                        <span class=\"badge badge-score\">${p.pts} pts</span>
                     </div>
                 </div>
                 
-                <div class="cards-container">
-                    <div class="player-cards">
+                <div class=\"cards-container\">
+                    <div class=\"player-cards\">
                         ${cardsHtml}
                     </div>
-                    ${modsHtml ? `<div class="modifiers-row">${modsHtml}</div>` : ''}
+                    ${modsHtml ? `<div class=\"modifiers-row\">${modsHtml}</div>` : ''}
                 </div>
                 
                 
                 ${p.st === 'bust' ? (
                         Date.now() - (p.bustTime || 0) < 2000
-                            ? '<div class="bust-overlay">BUST!</div>'
+                            ? '<div class=\"bust-overlay\">BUST!</div>'
                             : ''
                     ) : ''
                     }
-            </div > `
+            </div>`
             }).join('');
 
             const me = reorderedPlayers.find(p => p.id === myId);
@@ -3063,8 +3281,8 @@
                     const tx = deckCenterX - cardCenterX;
                     const ty = deckCenterY - cardCenterY;
 
-                    card.style.setProperty('--tx', `${tx} px`);
-                    card.style.setProperty('--ty', `${ty} px`);
+                    card.style.setProperty('--tx', `${tx}px`);
+                    card.style.setProperty('--ty', `${ty}px`);
 
                     // Unpause animation now that variables are set
                     card.style.animationPlayState = 'running';
@@ -3093,7 +3311,7 @@
             qs('#roomInfo').style.display = 'block';
             if (qs('#qrcode').innerHTML === '') updateRoomLinkInfo();
             if (!isHost) qs('.room-link').style.display = 'block';
-            qs('#playersList').innerHTML = state.players.map((p, i) => `< div class="player-item ${i === 0 ? 'host' : ''}" > ${p.name}${p.id === myId ? ' (Tu)' : ''} ${i === 0 ? '👑' : ''}</div > `).join('');
+            qs('#playersList').innerHTML = state.players.map((p, i) => `<div class="player-item ${i === 0 ? 'host' : ''}">${p.name}${p.id === myId ? ' (Tu)' : ''} ${i === 0 ? '👑' : ''}</div>`).join('');
 
             const statusMsg = isHost ? "In attesa di partecipanti..." : "In attesa che l'host avvii la partita...";
             qs('#lobbyStatusMsg').innerText = statusMsg;
@@ -3154,7 +3372,7 @@
         function preloadImages() {
             assets.forEach(name => {
                 const img = new Image();
-                img.src = `assets / cards / ${name}.webp`;
+                img.src = `assets/cards/${name}.webp`;
                 cardImages[name] = img;
             });
         }
@@ -3176,10 +3394,10 @@
             const names = { freeze: 'FREEZE!', flip3: 'FLIP THREE!', second_chance: 'SECOND CHANCE!' };
             const splash = qs('#cardSplash');
             splash.innerHTML = `
-                        < div class="splash-title ${cardValue}" > ${names[cardValue]}</div >
-                            <div class="splash-card">
-                                <img src="assets/cards/action_${cardValue}.webp" style="width:100%; height:100%; object-fit:contain; border-radius:10px;">
-                            </div>
+                <div class="splash-title ${cardValue}">${names[cardValue]}</div>
+                <div class="splash-card">
+                    <img src="assets/cards/action_${cardValue}.webp" style="width:100%; height:100%; object-fit:contain; border-radius:10px;">
+                </div>
             `;
             splash.classList.add('active');
             setTimeout(() => splash.classList.remove('active'), 2000);
