@@ -106,23 +106,36 @@
 
         .game-info {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
         .badge {
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-            padding: 6px 12px;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(168, 85, 247, 0.2));
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 6px 14px;
             border-radius: 30px;
             font-size: 12px;
-            font-weight: 500;
+            font-weight: 600;
             white-space: nowrap;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2);
         }
 
         .badge strong {
-            color: var(--accent);
+            color: #fbbf24;
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+        }
+
+        /* Glassmorphism Score Badge near player name */
+        .badge-score {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.3), rgba(245, 158, 11, 0.2));
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            color: #fbbf24;
+            font-weight: 700;
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.2);
         }
 
         #btnRules {
@@ -1628,45 +1641,48 @@
                     p.nums.add(c.value); p.cards.push(c); p.pts = calcPts(p);
                     if (p.nums.size >= 7) { p.st = 'flip7'; p.pts = calcPts(p); SFX.play('flip7'); fireConfetti('flip7'); qs('body').classList.add('flip7-glow'); setTimeout(() => qs('body').classList.remove('flip7-glow'), 2000); endRound(); return; }
                 }
-            } else if (c.type === 'modifier') { p.mods.push(c); p.pts = calcPts(p); }
+            } else if (c.type === 'modifier') { p.mods.push(c); p.cards.push(c); p.pts = calcPts(p); }
             else if (c.type === 'action') {
                 showCardSplash(c.value);
                 SFX.play('action');
 
-                // If in Flip 3 loop, just add to hand, don't trigger effects
+                // If in Flip 3 loop, still add to hand but ALLOW Flip3/Freeze to be played
                 if (isFlip3) {
                     p.cards.push(c);
-                    // If it's SC, set flag? Yes, Flip 3 could give you SC.
                     if (c.value === 'second_chance') p.sc = true;
+                    // Flip3 drawn during Flip3 should still trigger targeting
+                    if (c.value === 'flip3' || c.value === 'freeze') {
+                        state.pending = { t: c.value, from: idx };
+                    }
                     return;
                 }
+            }
 
-                // Solo/Last Player Logic
-                const activeCount = state.players.filter(pl => pl.st === 'active').length;
-                if (activeCount <= 1) {
-                    if (c.value === 'second_chance') {
-                        if (p.sc) { state.discards.push(c); } else { p.sc = true; p.cards.push(c); }
-                        if (p.st === 'active') nextTurn();
-                    }
-                    else if (c.value === 'flip3' || c.value === 'freeze') {
-                        state.pending = { t: c.value, from: idx };
-                        resAct(idx); // Target Self immediately
-                    }
-                } else {
-                    if (c.value === 'second_chance') {
-                        // Donation Logic: If already have SC, offer to give it.
-                        // IMPORTANT: Turn does NOT pass if donating.
-                        if (p.sc) {
-                            state.pending = { t: 'give_sc', from: idx };
-                            // Do NOT call nextTurn() here. Wait for resAct.
-                        } else {
-                            p.sc = true;
-                            p.cards.push(c);
-                            // Standard turn logic continues (draw loop or next)
-                        }
-                    }
-                    else state.pending = { t: c.value, from: idx };
+            // Solo/Last Player Logic
+            const activeCount = state.players.filter(pl => pl.st === 'active').length;
+            if (activeCount <= 1) {
+                if (c.value === 'second_chance') {
+                    if (p.sc) { state.discards.push(c); } else { p.sc = true; p.cards.push(c); }
+                    if (p.st === 'active') nextTurn();
                 }
+                else if (c.value === 'flip3' || c.value === 'freeze') {
+                    state.pending = { t: c.value, from: idx };
+                    resAct(idx); // Target Self immediately
+                }
+            } else {
+                if (c.value === 'second_chance') {
+                    // Donation Logic: If already have SC, offer to give it.
+                    // IMPORTANT: Turn does NOT pass if donating.
+                    if (p.sc) {
+                        state.pending = { t: 'give_sc', from: idx };
+                        // Do NOT call nextTurn() here. Wait for resAct.
+                    } else {
+                        p.sc = true;
+                        p.cards.push(c);
+                        // Standard turn logic continues (draw loop or next)
+                    }
+                }
+                else state.pending = { t: c.value, from: idx };
             }
         }
 
@@ -1742,7 +1758,13 @@
             const tgt = state.players[tgtIdx], a = state.pending.t;
             state.pending = null; // Clear pending first
 
-            if (a === 'freeze') { tgt.frozen = true; tgt.st = 'stayed'; nextTurn(); }
+            if (a === 'freeze') {
+                tgt.frozen = true;
+                tgt.st = 'stayed';
+                // Delay before next turn to show what happened
+                setTimeout(() => { nextTurn(); sync(); updateGame(); }, 1500);
+                return; // Don't call sync/updateGame immediately
+            }
             else if (a === 'give_sc') {
                 tgt.sc = true;
                 tgt.cards.push({ type: 'action', value: 'second_chance' });
@@ -1759,7 +1781,8 @@
                         setTimeout(drawLoop, 1200); // Wait for animation
                     } else {
                         tgt.flip3Active = false;
-                        nextTurn(); sync(); updateGame();
+                        // Delay before next turn to show what happened
+                        setTimeout(() => { nextTurn(); sync(); updateGame(); }, 1500);
                     }
                 }
                 drawLoop(); // Start async loop. Next turn called after loop.
