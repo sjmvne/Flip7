@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Flip 7 - Multiplayer Card Game</title>
+    <link rel="icon" type="image/png" href="assets/favicon.png">
     <meta name="description" content="Play Flip 7 card game online with friends">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -175,6 +176,7 @@
             margin-bottom: 8px;
             background: linear-gradient(135deg, #fff, var(--accent));
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
@@ -574,6 +576,105 @@
             border-radius: 12px;
             font-size: 10px;
             font-weight: bold;
+        }
+
+        /* SC Burn Animation */
+        .card.burning {
+            animation: burnCard 2s forwards !important;
+        }
+
+        @keyframes burnCard {
+            0% {
+                transform: scale(1);
+                filter: brightness(1);
+            }
+
+            30% {
+                transform: scale(1.1);
+                filter: brightness(1.5) sepia(1) saturate(3);
+                box-shadow: 0 0 30px #ff6b00, 0 0 60px #ff3300;
+            }
+
+            50% {
+                transform: scale(1.05);
+                filter: brightness(2) sepia(1) saturate(4);
+                box-shadow: 0 0 50px #ff6b00, 0 0 80px #ff0000;
+            }
+
+            100% {
+                transform: scale(0) rotate(45deg);
+                opacity: 0;
+                filter: brightness(3);
+            }
+        }
+
+        /* Enhanced Freeze Effect */
+        .player-zone.frozen {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(14, 165, 233, 0.15)) !important;
+            box-shadow: 0 0 30px rgba(56, 189, 248, 0.5), inset 0 0 20px rgba(56, 189, 248, 0.2) !important;
+            border: 2px solid rgba(56, 189, 248, 0.6) !important;
+            border-radius: 20px;
+            animation: freezePulse 2s infinite;
+        }
+
+        .player-zone.frozen::before {
+            content: '❄️ FROZEN';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 32px;
+            font-weight: 900;
+            color: #38bdf8;
+            text-shadow: 0 0 20px #0ea5e9, 0 0 40px #38bdf8;
+            z-index: 100;
+            animation: iceFloat 1.5s ease-in-out infinite;
+        }
+
+        .player-zone.frozen .card {
+            filter: brightness(0.7) saturate(0.5);
+            opacity: 0.7;
+        }
+
+        @keyframes freezePulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 25px rgba(56, 189, 248, 0.4);
+            }
+
+            50% {
+                box-shadow: 0 0 45px rgba(56, 189, 248, 0.7), inset 0 0 30px rgba(56, 189, 248, 0.15);
+            }
+        }
+
+        @keyframes iceFloat {
+
+            0%,
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            50% {
+                transform: translate(-50%, -55%) scale(1.05);
+            }
+        }
+
+        /* Block UI during animations */
+        body.animation-blocked .controls button {
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        body.animation-blocked::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 999;
+            pointer-events: none;
         }
 
         /* Overrides if multiple statuses? 
@@ -1222,6 +1323,19 @@
                 flex-shrink: 0;
             }
 
+            /* Ensure game-info-bar is visible on mobile */
+            .game-info-bar {
+                display: flex !important;
+                flex-wrap: wrap;
+                gap: 5px;
+                padding: 6px 10px !important;
+            }
+
+            .game-info-bar .badge {
+                font-size: 9px;
+                padding: 3px 8px;
+            }
+
             .deck-area {
                 margin: 10px auto;
             }
@@ -1308,7 +1422,7 @@
 
 <body>
     <header class="header">
-        <h1 style="cursor:pointer" onclick="location.reload()">
+        <h1 style="cursor:pointer" onclick="window.location.href = window.location.pathname;">
             <img src="assets/Flip7 Logo.webp" alt="Flip 7" style="height:40px; vertical-align:middle;">
         </h1>
         <button id="btnRules" title="Regole">
@@ -1356,12 +1470,15 @@
     </div>
 
     <div class="game-container" id="gameContainer">
-        <!-- Game Info Badges (visible only in game) -->
-        <div class="game-info-bar glass"
-            style="display:flex; justify-content:center; gap:10px; padding:8px 15px; margin-bottom:15px; border-radius:15px;">
-            <span class="badge" id="badgeDealer">👑 <strong>-</strong></span>
-            <span class="badge" id="badgeTurn">🎯 <strong>-</strong></span>
-            <span class="badge" id="badgeRound">🔄 Round <strong>1</strong></span>
+        <!-- Game Status Bar - Fixed Visibility -->
+        <div id="gameStatusBar"
+            style="display:flex; justify-content:center; gap:12px; padding:10px 15px; margin-bottom:15px; background:rgba(139,92,246,0.15); border-radius:15px; border:1px solid rgba(139,92,246,0.3);">
+            <span style="display:flex; align-items:center; gap:5px; color:#fbbf24; font-weight:600; font-size:13px;">👑
+                <span id="dealerName">-</span></span>
+            <span style="display:flex; align-items:center; gap:5px; color:#34d399; font-weight:600; font-size:13px;">🎯
+                <span id="turnName">-</span></span>
+            <span style="display:flex; align-items:center; gap:5px; color:#60a5fa; font-weight:600; font-size:13px;">🔄
+                Round <span id="roundNum">1</span></span>
         </div>
 
         <div class="scoreboard glass" id="scoreboard">
@@ -1643,9 +1760,13 @@
         }
 
         function resetRound() {
-            state.players.forEach(p => { p.cards = []; p.mods = []; p.nums = new Set(); p.pts = 0; p.st = 'active'; p.sc = false; });
+            state.players.forEach(p => {
+                p.cards = []; p.mods = []; p.nums = new Set(); p.pts = 0;
+                p.st = 'active'; p.sc = false; p.frozen = false; p.flip3Active = false;
+            });
             state.last = null; state.pending = null; state.flip3 = 0;
             localPlayerCardCounts = {}; // Reset local animation tracking
+            qs('body').classList.remove('animation-blocked'); // Ensure UI is unlocked
         }
 
         function dealInit() {
@@ -1692,9 +1813,20 @@
                         // Logic:
 
                         SFX.play('bust'); // Play sound to scare them
-                        qs('body').classList.add('shake'); setTimeout(() => qs('body').classList.remove('shake'), 400);
+                        qs('body').classList.add('shake', 'animation-blocked');
+                        setTimeout(() => qs('body').classList.remove('shake'), 400);
 
-                        // Trigger async burn
+                        // Show the burn animation
+                        sync(); updateGame();
+
+                        // Trigger burn animation on SC card after a moment
+                        setTimeout(() => {
+                            // Find and animate SC card burning
+                            const scCard = document.querySelector('.card.action[alt*="second_chance"], .card[src*="second_chance"]');
+                            if (scCard) scCard.classList.add('burning');
+                        }, 500);
+
+                        // Complete burn sequence after animation
                         setTimeout(() => {
                             // Burn Sequence
                             // Remove the SC card
@@ -1710,11 +1842,13 @@
                             // Add to discards
                             state.discards.push({ type: 'action', value: 'second_chance' }, c);
 
-                            // SFX for Burn/Save?
                             SFX.play('action');
 
+                            // Unblock UI
+                            qs('body').classList.remove('animation-blocked');
+
                             sync(); updateGame();
-                        }, 2000); // 2 seconds delay
+                        }, 2500); // Wait for burn animation to complete
 
                         // We return here? No, we need to sync the 'show card' state first.
                         // But we must NOT set p.st = 'bust'.
@@ -2087,9 +2221,9 @@
                 return; // Stop further updates when game ended
             }
 
-            qs('#badgeDealer strong').innerText = state.players[state.dealer]?.name || '-';
-            qs('#badgeTurn strong').innerText = state.players[state.turn]?.name || '-';
-            qs('#badgeRound strong').innerText = state.round;
+            qs('#dealerName').innerText = state.players[state.dealer]?.name || '-';
+            qs('#turnName').innerText = state.players[state.turn]?.name || '-';
+            qs('#roundNum').innerText = state.round;
             qs('#deckCount').innerText = state.deck.length;
 
             // DYNAMIC DECK DEPTH
