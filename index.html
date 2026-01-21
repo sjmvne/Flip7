@@ -15,6 +15,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
+    <!-- Chart.js for Stats Dashboard -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <style>
         :root {
             --primary: #8B5CF6;
@@ -467,6 +469,49 @@
             }
         }
 
+        @keyframes fadePop {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.5);
+            }
+
+            15% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.1);
+            }
+
+            30% {
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            85% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+        }
+
+        @keyframes scaleIn {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+
+            60% {
+                transform: scale(1.1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
         @keyframes bounceEnter {
             0% {
                 transform: scale(0);
@@ -722,7 +767,7 @@
             height: 88px;
             background: var(--card-gradient);
             backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
+            /* border: 1px solid var(--glass-border);  NO BORDI */
             border-radius: 10px;
             display: inline-flex;
             flex-direction: column;
@@ -756,7 +801,7 @@
 
         .card.num-0,
         .card.num-1 {
-            border-color: #64748B;
+            /* border-color: #64748B; NO BORDI */
         }
 
         .card.num-2,
@@ -764,19 +809,19 @@
         .card.num-4,
         .card.num-5,
         .card.num-6 {
-            border-color: #3B82F6;
+            /* border-color: #3B82F6; NO BORDI */
         }
 
         .card.num-7,
         .card.num-8,
         .card.num-9 {
-            border-color: #10B981;
+            /* border-color: #10B981; NO BORDI */
         }
 
         .card.num-10,
         .card.num-11,
         .card.num-12 {
-            border-color: #F59E0B;
+            /* border-color: #F59E0B; NO BORDI */
         }
 
         .card.action {
@@ -790,12 +835,12 @@
         }
 
         .card.modifier {
-            border-color: #3B82F6;
+            /* border-color: #3B82F6; NO BORDI */
             background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.05));
         }
 
         .card.modifier .card-value {
-            color: #60A5FA;
+            /* color: #60A5FA; NO BORDI */
         }
 
         .players-area {
@@ -809,9 +854,13 @@
             padding: 16px;
             transition: all 0.3s ease;
             position: relative;
-            border: 1px solid transparent;
+            border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 16px;
             /* Round borders for everyone */
+        }
+
+        .player-zone.my-zone {
+            border-color: var(--primary-light);
         }
 
         .player-info {
@@ -917,7 +966,7 @@
         }
 
         .player-zone.frozen::before {
-            content: '❄️ FROZEN';
+            content: '❄️ CONGELATO';
             position: absolute;
             top: 50%;
             left: 50%;
@@ -1873,13 +1922,140 @@
             font-weight: bold;
             font-size: 18px;
         }
+
+        /* Stats Dashboard Bottom Sheet */
+        #statsSheet {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 70vh;
+            max-height: 600px;
+            background: rgba(26, 22, 37, 0.95);
+            backdrop-filter: blur(20px);
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            z-index: 1500;
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        #statsSheet.open {
+            transform: translateY(0);
+        }
+
+        .stats-handle {
+            width: 40px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+            margin: 12px auto 8px;
+            cursor: grab;
+        }
+
+        .stats-header {
+            padding: 0 20px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stats-header h3 {
+            margin: 0;
+            font-size: 18px;
+            background: linear-gradient(135deg, #FF6B35, #fbbf24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stats-close {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .stats-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .chart-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .chart-card h4 {
+            margin: 0 0 12px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chart-card canvas {
+            max-height: 200px;
+        }
+
+        /* Stats Button */
+        .btn-stats {
+            background: linear-gradient(135deg, #FF6B35, #f59e0b) !important;
+            color: white !important;
+        }
+
+        /* End-game stats section */
+        .endgame-stats {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .endgame-stats h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 20px;
+            background: linear-gradient(135deg, #FF6B35, #fbbf24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        @media (min-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .chart-card.full-width {
+                grid-column: span 2;
+            }
+        }
     </style>
 </head>
 
 <body>
     <header class="header">
         <h1 id="headerTitle" style="font-size:18px; font-weight:600; margin:0; cursor:pointer;"
-            onclick="location.reload()">Flip 7</h1>
+            onclick="window.location.href = window.location.origin + window.location.pathname">Flip 7</h1>
 
         <!-- Game Status in Header (hidden by default, shown during game) -->
         <div id="headerGameStatus"
@@ -1898,7 +2074,7 @@
 
     <div class="lobby glass" id="lobby">
         <img src="assets/Flip7 Logo.webp" alt="Flip 7" style="height:80px; margin-bottom:15px; cursor:pointer;"
-            onclick="location.reload()">
+            onclick="window.location.href = window.location.origin + window.location.pathname">
         <h2>Benvenuto!</h2>
         <p>Sfida i tuoi amici! Il primo che arriva a 200 punti, vince! 🏆</p>
 
@@ -2030,6 +2206,43 @@
                 <img src="https://em-content.zobj.net/source/microsoft-teams/400/head-shaking-horizontally_1f642-200d-2194-fe0f.png"
                     alt="Stop" style="height:40px; width:auto; pointer-events:none;">
             </button>
+            <button class="btn btn-3d btn-stats" id="btnStats" disabled aria-label="Statistiche"
+                style="flex:1; min-width:50px;">
+                <span style="font-size:24px;">📊</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats Bottom Sheet -->
+    <div id="statsSheet">
+        <div class="stats-handle"></div>
+        <div class="stats-header">
+            <h3>📊 Statistiche Partita</h3>
+            <button class="stats-close" onclick="closeStatsSheet()">&times;</button>
+        </div>
+        <div class="stats-content">
+            <div class="stats-grid">
+                <div class="chart-card full-width">
+                    <h4>📈 Punteggio Cumulativo</h4>
+                    <canvas id="chartLine"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h4>📊 Azioni per Giocatore</h4>
+                    <canvas id="chartBar"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h4>🎯 Distribuzione Azioni</h4>
+                    <canvas id="chartDonut"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h4>🔥 Carte vs Outcome</h4>
+                    <canvas id="chartHeatmap"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h4>⭐ Performance Giocatori</h4>
+                    <canvas id="chartRadar"></canvas>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -2297,6 +2510,8 @@
         <div id="endGameLeaderboard"
             style="width:100%; max-width:400px; background:rgba(255,255,255,0.08); border-radius:16px; padding:20px; border:1px solid rgba(255,255,255,0.1);">
         </div>
+        <div id="endgameStatsContainer" class="endgame-stats"
+            style="width:100%; max-width:500px; max-height:300px; overflow-y:auto;"></div>
         <button class="btn" id="btnRestartGame" onclick="restartGame()" style="margin-top:25px;">🔄 Nuova
             Partita</button>
     </div>
@@ -2407,7 +2622,7 @@
             bust: [
                 ASSETS.bust,
                 ASSETS.bust_alt,
-                `${FLUENT_BASE}/Smilies/Melting%20Face.png`,
+                `${FLUENT_BASE}/Smilies/Woozy%20Face.png`,
                 `${FLUENT_BASE}/Smilies/Exploding%20Head.png`,
                 `${FLUENT_BASE}/Smilies/Face%20Vomiting.png`
             ],
@@ -2486,6 +2701,368 @@
 
         let localLastToastId = 0;
 
+        // ========== STATS DASHBOARD (READ-ONLY TRACKING) ==========
+        let gameStats = {
+            players: [], // Will be populated with PlayerStats objects
+            rounds: 0,
+            totalCardsDealt: 0,
+            flip7Total: 0,
+            actionTypes: { freeze: 0, flip3: 0, secondChance: 0 }
+        };
+
+        let statsCharts = {}; // Store chart instances
+
+        function initGameStats() {
+            gameStats = {
+                players: state.players.map(p => ({
+                    id: p.id,
+                    name: p.name,
+                    bust: 0,
+                    stay: 0,
+                    flip7: 0,
+                    secondChance: 0,
+                    totalCards: 0,
+                    totalScore: 0,
+                    rounds: []
+                })),
+                rounds: 0,
+                totalCardsDealt: 0,
+                flip7Total: 0,
+                actionTypes: { freeze: 0, flip3: 0, secondChance: 0 }
+            };
+        }
+
+        function getPlayerStats(playerId) {
+            return gameStats.players.find(p => p.id === playerId);
+        }
+
+        // TRACKING FUNCTIONS (called passively from existing logic)
+        function trackBust(playerId) {
+            const ps = getPlayerStats(playerId);
+            if (ps) ps.bust++;
+        }
+
+        function trackStay(playerId) {
+            const ps = getPlayerStats(playerId);
+            if (ps) ps.stay++;
+        }
+
+        function trackFlip7(playerId) {
+            const ps = getPlayerStats(playerId);
+            if (ps) ps.flip7++;
+            gameStats.flip7Total++;
+        }
+
+        function trackSecondChance(playerId) {
+            const ps = getPlayerStats(playerId);
+            if (ps) ps.secondChance++;
+            gameStats.actionTypes.secondChance++;
+        }
+
+        function trackCardDealt(playerId) {
+            const ps = getPlayerStats(playerId);
+            if (ps) ps.totalCards++;
+            gameStats.totalCardsDealt++;
+        }
+
+        function trackAction(actionType) {
+            if (gameStats.actionTypes[actionType] !== undefined) {
+                gameStats.actionTypes[actionType]++;
+            }
+        }
+
+        function trackRoundEnd() {
+            gameStats.rounds++;
+            state.players.forEach(p => {
+                const ps = getPlayerStats(p.id);
+                if (ps) {
+                    ps.rounds.push(p.st === 'bust' ? 'bust' : p.pts);
+                    ps.totalScore = p.tot;
+                }
+            });
+        }
+
+        // STATS SHEET CONTROLS
+        function openStatsSheet() {
+            document.getElementById('statsSheet').classList.add('open');
+            renderStatsCharts();
+        }
+
+        function closeStatsSheet() {
+            document.getElementById('statsSheet').classList.remove('open');
+        }
+
+        function toggleStatsSheet() {
+            const sheet = document.getElementById('statsSheet');
+            if (sheet.classList.contains('open')) {
+                closeStatsSheet();
+            } else {
+                openStatsSheet();
+            }
+        }
+
+        // CHART RENDERING
+        function renderStatsCharts() {
+            if (!window.Chart) return; // Chart.js not loaded
+
+            const playerColors = ['#FF6B35', '#8B5CF6', '#10B981', '#3B82F6', '#F59E0B', '#EC4899'];
+            const playerNames = gameStats.players.map(p => p.name);
+
+            // 1. LINE CHART - Cumulative Score
+            const lineCtx = document.getElementById('chartLine');
+            if (lineCtx) {
+                if (statsCharts.line) statsCharts.line.destroy();
+                const roundLabels = Array.from({ length: gameStats.rounds || 1 }, (_, i) => `R${i + 1}`);
+                const datasets = gameStats.players.map((p, i) => {
+                    let cumulative = 0;
+                    const data = p.rounds.map(r => {
+                        if (r !== 'bust') cumulative += r;
+                        return cumulative;
+                    });
+                    return {
+                        label: p.name,
+                        data: data.length ? data : [0],
+                        borderColor: playerColors[i % playerColors.length],
+                        backgroundColor: playerColors[i % playerColors.length] + '33',
+                        tension: 0.3,
+                        fill: false
+                    };
+                });
+                statsCharts.line = new Chart(lineCtx, {
+                    type: 'line',
+                    data: { labels: roundLabels.length ? roundLabels : ['R1'], datasets },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { labels: { usePointStyle: true, color: '#fff' } } },
+                        scales: {
+                            x: { ticks: { color: '#aaa' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                            y: { ticks: { color: '#aaa' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+                        }
+                    }
+                });
+            }
+
+            // 2. BAR CHART - Actions per Player
+            const barCtx = document.getElementById('chartBar');
+            if (barCtx) {
+                if (statsCharts.bar) statsCharts.bar.destroy();
+                statsCharts.bar = new Chart(barCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: playerNames,
+                        datasets: [
+                            { label: 'Bust', data: gameStats.players.map(p => p.bust), backgroundColor: '#EF4444' },
+                            { label: 'Stay', data: gameStats.players.map(p => p.stay), backgroundColor: '#10B981' },
+                            { label: 'Flip7', data: gameStats.players.map(p => p.flip7), backgroundColor: '#8B5CF6' }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { labels: { usePointStyle: true, color: '#fff' } } },
+                        scales: {
+                            x: { ticks: { color: '#aaa' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                            y: { ticks: { color: '#aaa' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+                        }
+                    }
+                });
+            }
+
+            // 3. DONUT CHART - Action Distribution
+            const donutCtx = document.getElementById('chartDonut');
+            if (donutCtx) {
+                if (statsCharts.donut) statsCharts.donut.destroy();
+                statsCharts.donut = new Chart(donutCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Freeze', 'Flip3', 'Second Chance', 'Flip7 Bonus'],
+                        datasets: [{
+                            data: [
+                                gameStats.actionTypes.freeze,
+                                gameStats.actionTypes.flip3,
+                                gameStats.actionTypes.secondChance,
+                                gameStats.flip7Total
+                            ],
+                            backgroundColor: ['#38BDF8', '#FBBF24', '#F87171', '#A78BFA']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { labels: { usePointStyle: true, color: '#fff' } } }
+                    }
+                });
+            }
+
+            // 4. HEATMAP (simplified as stacked bar) - Cards vs Outcome
+            const heatCtx = document.getElementById('chartHeatmap');
+            if (heatCtx) {
+                if (statsCharts.heat) statsCharts.heat.destroy();
+                statsCharts.heat = new Chart(heatCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: playerNames,
+                        datasets: [
+                            { label: 'Carte Pescate', data: gameStats.players.map(p => p.totalCards), backgroundColor: '#3B82F6' },
+                            { label: 'Punti Totali', data: gameStats.players.map(p => p.totalScore), backgroundColor: '#10B981' }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { labels: { usePointStyle: true, color: '#fff' } } },
+                        scales: {
+                            x: { ticks: { color: '#aaa' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                            y: { ticks: { color: '#aaa' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+                        }
+                    }
+                });
+            }
+
+            // 5. RADAR CHART - Performance vs Average
+            const radarCtx = document.getElementById('chartRadar');
+            if (radarCtx) {
+                if (statsCharts.radar) statsCharts.radar.destroy();
+                const avgBust = gameStats.players.reduce((a, p) => a + p.bust, 0) / (gameStats.players.length || 1);
+                const avgStay = gameStats.players.reduce((a, p) => a + p.stay, 0) / (gameStats.players.length || 1);
+                const avgCards = gameStats.players.reduce((a, p) => a + p.totalCards, 0) / (gameStats.players.length || 1);
+                const avgScore = gameStats.players.reduce((a, p) => a + p.totalScore, 0) / (gameStats.players.length || 1);
+
+                const datasets = gameStats.players.map((p, i) => ({
+                    label: p.name,
+                    data: [p.bust, p.stay, p.totalCards / 10, p.totalScore / 20, p.flip7],
+                    borderColor: playerColors[i % playerColors.length],
+                    backgroundColor: playerColors[i % playerColors.length] + '44'
+                }));
+
+                statsCharts.radar = new Chart(radarCtx, {
+                    type: 'radar',
+                    data: {
+                        labels: ['Bust', 'Stay', 'Carte/10', 'Punti/20', 'Flip7'],
+                        datasets
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { labels: { usePointStyle: true, color: '#fff' } } },
+                        scales: {
+                            r: {
+                                angleLines: { color: 'rgba(255,255,255,0.2)' },
+                                grid: { color: 'rgba(255,255,255,0.1)' },
+                                pointLabels: { color: '#aaa' },
+                                ticks: { display: false }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // END-GAME STATS RENDER
+        function renderEndgameStats(container) {
+            if (!window.Chart || !container) return;
+
+            container.innerHTML = `
+                <h3>📊 Statistiche Finali</h3>
+                <div class="stats-grid">
+                    <div class="chart-card full-width"><h4>📈 Punteggio Cumulativo</h4><canvas id="endChartLine"></canvas></div>
+                    <div class="chart-card"><h4>📊 Azioni per Giocatore</h4><canvas id="endChartBar"></canvas></div>
+                    <div class="chart-card"><h4>🎯 Distribuzione Azioni</h4><canvas id="endChartDonut"></canvas></div>
+                    <div class="chart-card"><h4>⚖️ Carte vs Punti</h4><canvas id="endChartHeatmap"></canvas></div>
+                    <div class="chart-card"><h4>🕸️ Performance Radar</h4><canvas id="endChartRadar"></canvas></div>
+                </div>
+            `;
+
+            // Re-render simplified charts
+            setTimeout(() => {
+                const playerColors = ['#FF6B35', '#8B5CF6', '#10B981', '#3B82F6', '#F59E0B', '#EC4899'];
+                const playerNames = gameStats.players.map(p => p.name);
+                const roundLabels = Array.from({ length: gameStats.rounds || 1 }, (_, i) => `R${i + 1}`);
+
+                // Line
+                const lineData = gameStats.players.map((p, i) => {
+                    let cum = 0;
+                    return {
+                        label: p.name,
+                        data: p.rounds.map(r => { if (r !== 'bust') cum += r; return cum; }),
+                        borderColor: playerColors[i % playerColors.length],
+                        tension: 0.3, fill: false
+                    };
+                });
+                new Chart(document.getElementById('endChartLine'), {
+                    type: 'line',
+                    data: { labels: roundLabels.length ? roundLabels : ['R1'], datasets: lineData },
+                    options: {
+                        responsive: true, plugins: { legend: { labels: { usePointStyle: true, color: '#fff' } } },
+                        scales: { x: { ticks: { color: '#aaa' } }, y: { ticks: { color: '#aaa' } } }
+                    }
+                });
+
+                // Bar
+                new Chart(document.getElementById('endChartBar'), {
+                    type: 'bar',
+                    data: {
+                        labels: playerNames,
+                        datasets: [
+                            { label: 'Bust', data: gameStats.players.map(p => p.bust), backgroundColor: '#EF4444' },
+                            { label: 'Stay', data: gameStats.players.map(p => p.stay), backgroundColor: '#10B981' }
+                        ]
+                    },
+                    options: { responsive: true, plugins: { legend: { labels: { usePointStyle: true, color: '#fff' } } } }
+                });
+
+                // Donut
+                new Chart(document.getElementById('endChartDonut'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Freeze', 'Flip3', 'Second Chance', 'Flip7'],
+                        datasets: [{ data: [gameStats.actionTypes.freeze, gameStats.actionTypes.flip3, gameStats.actionTypes.secondChance, gameStats.flip7Total], backgroundColor: ['#38BDF8', '#FBBF24', '#F87171', '#A78BFA'] }]
+                    },
+                    options: { responsive: true, plugins: { legend: { labels: { usePointStyle: true, color: '#fff' } } } }
+                });
+
+                // Heatmap (Stacked Bar)
+                new Chart(document.getElementById('endChartHeatmap'), {
+                    type: 'bar',
+                    data: {
+                        labels: playerNames,
+                        datasets: [
+                            { label: 'Carte Pescate', data: gameStats.players.map(p => p.totalCards), backgroundColor: '#3B82F6' },
+                            { label: 'Punti Totali', data: gameStats.players.map(p => p.totalScore), backgroundColor: '#10B981' }
+                        ]
+                    },
+                    options: {
+                        responsive: true, plugins: { legend: { labels: { usePointStyle: true, color: '#fff' } } },
+                        scales: { x: { ticks: { color: '#aaa' } }, y: { ticks: { color: '#aaa' } } }
+                    }
+                });
+
+                // Radar
+                const radarDatasets = gameStats.players.map((p, i) => ({
+                    label: p.name,
+                    data: [p.bust, p.stay, p.totalCards / 10, p.totalScore / 20, p.flip7],
+                    borderColor: playerColors[i % playerColors.length],
+                    backgroundColor: playerColors[i % playerColors.length] + '44'
+                }));
+                new Chart(document.getElementById('endChartRadar'), {
+                    type: 'radar',
+                    data: {
+                        labels: ['Bust', 'Stay', 'Carte/10', 'Punti/20', 'Flip7'],
+                        datasets: radarDatasets
+                    },
+                    options: {
+                        responsive: true, plugins: { legend: { labels: { usePointStyle: true, color: '#fff' } } },
+                        scales: {
+                            r: {
+                                angleLines: { color: 'rgba(255,255,255,0.2)' },
+                                grid: { color: 'rgba(255,255,255,0.1)' },
+                                pointLabels: { color: '#aaa' },
+                                ticks: { display: false }
+                            }
+                        }
+                    }
+                });
+            }, 100);
+        }
+        // ========== END STATS DASHBOARD ==========
+
+
         function toggleSidebar(id) {
             const el = document.getElementById(id);
             // Close others
@@ -2549,8 +3126,8 @@
 
         function bc(d) { conns.forEach(c => c.send(d)); }
         function sendHost(d) { if (conns[0]) conns[0].send(d); }
-        function serState() { return { ...state, players: state.players.map(p => ({ ...p, nums: Array.from(p.nums || []) })) }; }
-        function desState(s) { state = { ...s, players: s.players.map(p => ({ ...p, nums: new Set(p.nums || []) })) }; }
+        function serState() { return { ...state, players: state.players.map(p => ({ ...p, nums: Array.from(p.nums || []) })), gameStats: gameStats }; }
+        function desState(s) { state = { ...s, players: s.players.map(p => ({ ...p, nums: new Set(p.nums || []) })) }; if (s.gameStats) gameStats = s.gameStats; }
 
         // === REACTION SYSTEM ===
         function showReaction(pId, rId) {
@@ -2569,13 +3146,62 @@
                 overlay = zone;
             }
 
+            // Special Prominent Handling for BUST
+            if (rId === 'bust') {
+                const bustEmojis = [
+                    `${FLUENT_BASE}/Smilies/Skull.png`,
+                    `${FLUENT_BASE}/Smilies/Loudly%20Crying%20Face.png`,
+                    `${FLUENT_BASE}/Smilies/Face%20with%20Symbols%20on%20Mouth.png`,
+                    `${FLUENT_BASE}/Smilies/Exploding%20Head.png`,
+                    `${FLUENT_BASE}/Smilies/Woozy%20Face.png` // Using correct path
+                ];
+                const randomBustEmoji = bustEmojis[Math.floor(Math.random() * bustEmojis.length)];
+
+                const rect = zone.getBoundingClientRect();
+                const bustEl = document.createElement('div');
+                bustEl.innerHTML = `<img src="${randomBustEmoji}" style="width:80px; height:80px; filter:drop-shadow(0 0 15px rgba(255,0,0,0.8));">`;
+                bustEl.style.cssText = `position:fixed; left:${rect.left + rect.width / 2}px; top:${rect.top + rect.height / 2}px; transform:translate(-50%, -50%); z-index:3000; pointer-events:none; animation: popIn 0.3s ease-out;`;
+                document.body.appendChild(bustEl);
+                setTimeout(() => bustEl.remove(), 3000);
+
+                SFX.play('card');
+                return; // Skip standard bubble
+            }
+
+            // Special Handling for STOP (Stay)
+            if (rId === 'stop') {
+                const stopsEl = document.createElement('div');
+                stopsEl.innerHTML = `<img src="${rData.src}" style="height:40px; filter:drop-shadow(0 0 5px green); animation: popIn 0.3s ease-out;">`;
+                // Append directly to overlay (flex container) so it sits next to other icons
+                // ensure overlay is the flex container
+                if (overlay.classList.contains('reaction-overlay')) {
+                    overlay.appendChild(stopsEl);
+                    // Remove after sometime? Or keep it? 
+                    // Usually 'Stay' is a status. But this is a reaction.
+                    // "Quando un player si ferma... visualizziamo l'APNG"
+                    // If it's the 'Stop' SIGN, it might be transient.
+                    // But if they stay, they stay. 
+                    // Let's make it transient as it's a "Reaction". 
+                    // Permanent status is handled by badges/border/opacity.
+                    setTimeout(() => stopsEl.remove(), 3000);
+                } else {
+                    // Fallback if overlay not found (floating)
+                    stopsEl.style.cssText = `position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:100; pointer-events:none; animation: fadePop 3s ease-out;`;
+                    overlay.appendChild(stopsEl);
+                    setTimeout(() => stopsEl.remove(), 3000);
+                }
+                SFX.play('click');
+                return;
+            }
+
             const el = document.createElement('div');
             el.innerHTML = `<img src="${rData.src}" style="width:50px; height:50px; filter:drop-shadow(0 4px 8px rgba(0,0,0,0.3));">`;
             el.className = 'reaction-bubble';
-            el.style.cssText = `position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:100; pointer-events:none; animation: popIn 0.3s ease-out;`;
+            // Use fadePop here
+            el.style.cssText = `position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:100; pointer-events:none; animation: fadePop 3s ease-out;`;
 
             overlay.appendChild(el);
-            setTimeout(() => el.remove(), 2500);
+            setTimeout(() => el.remove(), 2900); // Remove slightly before animation ends
 
             SFX.play('card'); // Pop sound
         }
@@ -2633,6 +3259,12 @@
         // Defer init
         setTimeout(initReactions, 500);
 
+        // Stats Button Click Handler
+        setTimeout(() => {
+            const statsBtn = qs('#btnStats');
+            if (statsBtn) statsBtn.onclick = toggleStatsSheet;
+        }, 500);
+
         function showCardSplash(type, who) {
             const overlay = document.createElement('div');
             overlay.className = 'action-splash';
@@ -2641,7 +3273,8 @@
             // Use getRandAsset to pick varied 3D emojis
             // If type is a URL (from showCardSplash call), use it directly.
             // If type is a key (bust, flip7), use getRandAsset.
-            const src = (type.startsWith('http') ? type : (getRandAsset(type) || ASSETS[type] || ASSETS.warning));
+            // MOD: Use Flip7 Logo for star/flip7
+            const src = (type === 'star' || type === 'flip7') ? 'assets/Flip7 Logo.webp' : (type.startsWith('http') ? type : (getRandAsset(type) || ASSETS[type] || ASSETS.warning));
 
             let html = `<div class="card action" style="transform:scale(1.8); box-shadow:0 0 30px rgba(0,0,0,0.5); background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);">
                 <img src="${src}" style="width:80%; height:auto; filter:drop-shadow(0 0 10px rgba(255,255,255,0.5));">
@@ -2754,6 +3387,7 @@
             state.discards = [];
             state.round = 1;
             state.dealer = 0;
+            initGameStats(); // Initialize stats tracking
             resetRound(); qs('#lobby').style.display = 'none'; qs('#gameContainer').classList.add('active');
 
             // Shuffle Animation (Visual only)
@@ -3059,10 +3693,12 @@
                     }
                     else {
                         p.st = 'bust'; p.pts = 0; p.bustTime = Date.now();
+                        trackBust(p.id); // Stats tracking
                         SFX.play('bust');
 
                         // Auto Reaction Bust & Smoke (Real Smoke Effect)
                         spawnSmokeOnPlayer(p.id);
+
                         const bustReact = 'bust';
                         showReaction(p.id, bustReact);
                         if (isHost) bc({ t: 'reaction', who: p.id, id: bustReact });
@@ -3080,8 +3716,10 @@
                     }
                 } else {
                     p.nums.add(c.value); p.cards.push(c); p.pts = calcPts(p);
+                    trackCardDealt(p.id); // Stats tracking
                     if (p.nums.size >= 7) {
                         p.st = 'flip7'; p.pts = calcPts(p);
+                        trackFlip7(p.id); // Stats tracking
                         SFX.play('flip7');
                         // Only fire if I am this player
                         if (p.id === myId) {
@@ -3120,6 +3758,11 @@
                 if (isFlip3) {
                     p.cards.push(c);
                     if (c.value === 'second_chance') p.sc = true;
+                    // Queue logic
+                    if (['flip3', 'freeze'].includes(c.value)) {
+                        state.flip3Queue.push({ t: c.value, from: idx, card: c });
+                        showToast(`Azione ${c.value} in coda!`);
+                    }
                     return;
                 }
 
@@ -3162,10 +3805,10 @@
                     if (activeCount <= 1) {
                         // Freeze self with dramatic sequence
                         setTimeout(() => {
-                            showToast("Hai pescato Freeze! ❄️");
+                            if (p.id === myId) showToast("Hai pescato Freeze! ❄️");
 
                             setTimeout(() => {
-                                showToast("Sei l'ultimo! Ti congeli... 🥶");
+                                if (p.id === myId) showToast("Sei l'ultimo! Ti congeli... 🥶");
 
                                 setTimeout(() => {
                                     p.frozen = true;
@@ -3218,6 +3861,7 @@
                     } else {
                         // Keep it as extra life
                         p.sc = true;
+                        trackSecondChance(p.id); // Stats tracking
                         p.cards.push(c);
                     }
                     // If dealing, we need to resume! 
@@ -3273,6 +3917,7 @@
             } else if (act === 'stay' && idx === state.turn) {
                 SFX.play('click');
                 p.st = 'stayed';
+                trackStay(p.id); // Stats tracking
                 addToHistory(`${p.name} si è fermato`, 'normal');
                 // Show Stop reaction with broadcast
                 showReaction(p.id, 'stop');
@@ -3297,6 +3942,10 @@
 
             qs('#targetButtons').innerHTML = '';
             state.players.forEach((p, i) => {
+                // Filter: Must be active. 
+                // Specific Filter for SC: Cannot give to someone who already has SC (including self).
+                if (state.pending.t === 'give_sc' && (p.sc || p.id === myId)) return;
+
                 if (p.st === 'active') {
                     const b = document.createElement('button'); b.className = 'target-btn'; b.innerText = p.name;
                     b.onclick = () => { tm.classList.remove('active'); isHost ? handleAct(myId, 'tgt', i) : sendHost({ t: 'act', a: 'tgt', tgt: i }); };
@@ -3309,10 +3958,14 @@
         function startFlip3Sequence(tgtIdx, fromIdx) {
             const tgt = state.players[tgtIdx];
             tgt.flip3Active = true;
+            trackAction('flip3'); // Stats tracking
 
             // Auto Reaction Flip 3 (Anxiety!)
             showReaction(tgt.id, 'shock');
             bc({ t: 'reaction', who: tgt.id, id: 'shock' });
+
+            // Set Context for queue processing
+            state.flip3Context = { from: fromIdx, to: tgtIdx };
 
             sync(); updateGame();
 
@@ -3325,65 +3978,64 @@
 
                     // Check if last card was Action (triggered 2s splash)
                     const isAction = state.last && state.last.type === 'action';
-                    const delay = isAction ? 3600 : 2200; // Increased delay (+1s) as requested
+                    const delay = isAction ? 3600 : 2200;
 
                     setTimeout(flip3Loop, delay);
                 } else {
                     tgt.flip3Active = false;
-                    // Check Queue
-                    if (state.flip3Queue.length > 0) {
-                        const queued = state.flip3Queue.shift();
-                        showToast(`Risolvo azione accodata: ${queued.t}`);
-                        setTimeout(() => {
-                            if (queued.t === 'freeze') {
-                                // Who to freeze? The person who drew it (tgtIdx).
-                                // Or the person who played it? 
-                                // Rules: "If another Flip Three or Freeze card is revealed they are resolved AFTER"
-                                // The card was revealed by `tgt`. So `tgt` effectively drew it.
-                                // So `tgt` must choose a target? Or does it apply to `tgt`?
-                                // "Action cards can be played on any active player".
-                                // So `tgt` becomes the source of the action.
-                                const activeC = state.players.filter(p => p.st === 'active').length;
-                                if (activeC <= 1) {
-                                    tgt.frozen = true; tgt.st = 'stayed';
-                                    setTimeout(finishFlip3, 1000);
-                                } else {
-                                    state.pending = { t: 'freeze', from: tgtIdx, isQueue: true };
-                                    showTgt();
-                                }
-                            } else if (queued.t === 'flip3') {
-                                // Same logic, `tgt` drew it, so `tgt` must choose target.
-                                const activeC = state.players.filter(p => p.st === 'active').length;
-                                if (activeC <= 1) {
-                                    // Recursive Flip 3 on self!
-                                    startFlip3Sequence(tgtIdx, tgtIdx);
-                                } else {
-                                    state.pending = { t: 'flip3', from: tgtIdx, isQueue: true };
-                                    showTgt();
-                                }
-                            }
-                        }, 1000);
-                    } else {
-                        setTimeout(finishFlip3, 1000);
-                    }
-                }
-            }
-
-            function finishFlip3() {
-                if (state.dealingPhase) dealLoop();
-                else {
-                    // CHECK IF TURN CONTINUES FOR ATTACKER
-                    if (fromIdx === state.turn && state.players[fromIdx].st === 'active') {
-                        // Turn continues for attacker!
-                        showToast(`${state.players[fromIdx].name} continua il turno!`);
-                        sync(); updateGame();
-                    } else {
-                        nextTurn(); sync(); updateGame();
-                    }
+                    // Check logic queue via Global function
+                    processFlip3Queue();
                 }
             }
 
             setTimeout(flip3Loop, 1500);
+        }
+
+        // Global definition for processing queue and finishing sequence
+        function processFlip3Queue() {
+            if (state.flip3Queue.length > 0) {
+                const queued = state.flip3Queue.shift();
+                const tgtIdx = state.flip3Context?.to;
+                const tgt = state.players[tgtIdx];
+
+                showToast(`Risolvo azione accodata: ${queued.t}`);
+
+                setTimeout(() => {
+                    if (queued.t === 'freeze') {
+                        const activeC = state.players.filter(p => p.st === 'active').length;
+                        if (activeC <= 1) {
+                            tgt.frozen = true; tgt.st = 'stayed';
+                            setTimeout(finishFlip3Sequence, 1000);
+                        } else {
+                            state.pending = { t: 'freeze', from: tgtIdx, isQueue: true };
+                            showTgt();
+                        }
+                    } else if (queued.t === 'flip3') {
+                        const activeC = state.players.filter(p => p.st === 'active').length;
+                        if (activeC <= 1) {
+                            startFlip3Sequence(tgtIdx, tgtIdx);
+                        } else {
+                            state.pending = { t: 'flip3', from: tgtIdx, isQueue: true };
+                            showTgt();
+                        }
+                    }
+                }, 1000);
+            } else {
+                finishFlip3Sequence();
+            }
+        }
+
+        function finishFlip3Sequence() {
+            if (state.dealingPhase) dealLoop();
+            else {
+                const fromIdx = state.flip3Context?.from;
+                if (fromIdx !== undefined && fromIdx === state.turn && state.players[fromIdx].st === 'active') {
+                    showToast(`${state.players[fromIdx].name} continua il turno!`);
+                    sync(); updateGame();
+                } else {
+                    nextTurn(); sync(); updateGame();
+                }
+            }
         }
 
         // New Async handling for Flip 3 animation in Host
@@ -3397,14 +4049,13 @@
             if (a === 'freeze') {
                 tgt.frozen = true;
                 tgt.st = 'stayed';
+                trackAction('freeze'); // Stats tracking
                 sync(); updateGame(); // Show frozen state immediately
 
                 setTimeout(() => {
                     if (state.dealingPhase) dealLoop();
                     else if (isQueue) {
-                        // Queue logic might need to check queue again or just proceed?
-                        // Current logic was just nextTurn.
-                        nextTurn();
+                        processFlip3Queue();
                     } else {
                         nextTurn();
                     }
@@ -3413,6 +4064,7 @@
             }
             else if (a === 'give_sc') {
                 tgt.sc = true;
+                trackSecondChance(tgt.id); // Stats tracking
                 tgt.cards.push({ type: 'action', value: 'second_chance' });
                 sync(); updateGame(); // Show transfer immediately
 
@@ -3459,6 +4111,9 @@
 
         function endRound() {
             state.players.forEach(p => {
+                // Force active players to 'stayed' so they bank points (Rule: Flip7 saves everyone active)
+                if (p.st === 'active') p.st = 'stayed';
+
                 // If SC wasn't used, discard it
                 if (p.sc) {
                     const scIdx = p.cards.findIndex(x => x.type === 'action' && x.value === 'second_chance');
@@ -3473,6 +4128,7 @@
                 if (p.st !== 'bust') p.tot += p.pts;
                 state.discards.push(...p.cards);
             });
+            trackRoundEnd(); // Stats tracking
             const w = state.players.filter(p => p.tot >= 200);
             if (w.length >= 1) { // Handle case where multiple pass 200 (though usually 1 turn at a time)
                 state.phase = 'end';
@@ -3504,7 +4160,7 @@
                     ro.setAttribute('data-round', state.round);
                     const sortedRound = [...state.players].sort((a, b) => b.pts - a.pts);
                     const tableHtml = `
-                        <div class="recap-card glass" style="width:95%; max-width:450px; padding:20px; animation: popIn 0.5s;">
+                        <div class="recap-card glass" style="width:95%; max-width:450px; padding:20px; animation: scaleIn 0.5s;">
                             <h2 style="text-align:center; margin-bottom:15px; color:#fbbf24; font-size:24px;">Fine Round ${state.round - 1}</h2>
                             <table class="recap-table">
                                 <thead><tr><th style="color:rgba(255,255,255,0.6)">Giocatore</th><th style="text-align:center">Round</th><th style="text-align:right">Totale</th></tr></thead>
@@ -3570,11 +4226,11 @@
                     }
 
                     const statusHtml = amIWinner ? `
-                        < div style = "font-size:60px; margin-bottom:10px;" >👑</div >
+                        <div style="font-size:60px; margin-bottom:10px;">👑</div>
                         <h1 style="font-size:42px; margin:0; background:linear-gradient(135deg, #fbbf24, #f59e0b, #eab308); -webkit-background-clip:text; -webkit-text-fill-color:transparent; text-shadow: 0 0 40px rgba(251, 191, 36, 0.5);">VITTORIA!</h1>
                         <p style="color:rgba(255,255,255,0.7); margin:10px 0;">Hai raggiunto ${winner.tot} punti!</p>
                     ` : `
-                        < div style = "font-size:50px; margin-bottom:10px; filter:grayscale(100%);" >😔</div >
+                        <div style="font-size:50px; margin-bottom:10px; filter:grayscale(100%);">😔</div>
                         <h1 style="font-size:36px; margin:0; color:#888;">SCONFITTA</h1>
                         <p style="color:rgba(255,255,255,0.5); margin:10px 0;">${winner.name} ha vinto la partita</p>
                     `;
@@ -3583,7 +4239,7 @@
                     // Leaderboard
                     const medals = ['🥇', '🥈', '🥉'];
                     const leaderboardHtml = `
-                        < h3 style = "text-align:center; margin:0 0 15px; color:white; font-size:18px;" >📊 Classifica Finale</h3 >
+                        <h3 style="text-align:center; margin:0 0 15px; color:white; font-size:18px;">📊 Classifica Finale</h3>
                             ${sortedPlayers.map((p, i) => {
                         const isWinner = p.tot >= 200;
                         const isMe = p.id === myId;
@@ -3620,6 +4276,10 @@
                     }
 
                     ego.style.display = 'flex';
+
+                    // Render end-game stats charts
+                    const statsContainer = qs('#endgameStatsContainer');
+                    if (statsContainer) renderEndgameStats(statsContainer);
 
                     // Effects only for winner
                     if (amIWinner) {
@@ -3783,19 +4443,10 @@
                     return renderCard(c, isAnimating, p);
                 }).join('');
 
-                // Status Badges construction
-                let badgesHtml = '';
+                // Status Badges construction (Moved to modifiers-row)
+                // let badgesHtml = ''; 
 
-                // Stayed
-                if (p.st === 'stayed' && !p.frozen) badgesHtml += `<div class="badge" style="background:var(--success); color:white; display:flex; align-items:center; gap:4px; margin-right:4px;">
-                    <img src="${ASSETS.stop}" style="height:16px;"> STOP
-                </div>`;
-
-                // Near Win / Fear (6 cards, not bust)
                 const numCount = p.cards.filter(c => c.type === 'number').length;
-                if (p.st !== 'bust' && numCount === 6) badgesHtml += `<div class="badge" style="background:var(--accent); color:white; display:flex; align-items:center; gap:4px; margin-right:4px; animation: pulseGlow 0.5s infinite;">
-                    <img src="${ASSETS.fear}" style="height:16px;"> -1!
-                </div>`;
 
                 const zoneClass = `player-zone ${isTurn && p.st === 'active' ? 'active-turn' : ''} ${p.st === 'bust' ? 'bust' : ''} ${p.st === 'stayed' ? 'stayed' : ''} ${p.frozen ? 'frozen' : ''} ${p.id === myId ? 'my-zone' : ''} ${p.flip3Active ? 'flip3' : ''} ${p.sc ? 'bonus-sc' : ''}`;
 
@@ -3806,7 +4457,7 @@
                            ${p.id === state.dealer ? `<img src="${ASSETS.crown}" style="height:16px;" title="Dealer">` : ''}
                         </span>
                         <div class="p-badges" style="display:flex; align-items: center;">
-                            ${badgesHtml}
+                            <!-- Removed badgesHtml -->
                             <div class="round-score-glass">${p.pts}</div>
                          </div>
                     </div>
@@ -3821,6 +4472,8 @@
                             ${p.sc ? `<img src="${ASSETS.sc}" style="height:40px; filter:drop-shadow(0 0 5px red); animation:pulse 1.5s infinite;" title="Second Chance">` : ''}
                             ${p.frozen ? `<img src="${ASSETS.frozen}" style="height:40px; filter:drop-shadow(0 0 5px cyan);" title="Congelato">` : ''}
                             ${p.flip3Active ? `<img src="${ASSETS.lightning}" style="height:40px; filter:drop-shadow(0 0 5px yellow);" title="Flip 3">` : ''}
+                            ${(p.st === 'stayed' && !p.frozen) ? `<img src="${ASSETS.stop}" style="height:40px; filter:drop-shadow(0 0 5px green);" title="Stop">` : ''}
+                            ${(p.st !== 'bust' && numCount === 6) ? `<img src="${ASSETS.fear}" style="height:40px; filter:drop-shadow(0 0 5px orange); animation:pulse 0.5s infinite;" title="-1 Card!">` : ''}
                         </div>
                     </div>
                     ${p.st === 'bust' && Date.now() - (p.bustTime || 0) < 2000 ? '<div class="bust-overlay">BUST!</div>' : ''}
@@ -3836,8 +4489,10 @@
             // Enable Reaction Button if game is active
             if (state.phase === 'game') {
                 qs('#btnReact').disabled = false;
+                qs('#btnStats').disabled = false;
             } else {
                 qs('#btnReact').disabled = true;
+                qs('#btnStats').disabled = true;
             }
 
             // GEOMETRY-BASED FLY-IN ANIMATION
