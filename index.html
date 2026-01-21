@@ -1107,8 +1107,8 @@
 
         /* Stayed (player stopped) indicator */
         .player-zone.stayed {
-            border-color: rgba(59, 130, 246, 0.5) !important;
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3), inset 0 0 20px rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 246, 87, 0.5) !important;
+            box-shadow: 0 0 15px rgba(59, 246, 87, 0.3), inset 0 0 20px rgba(59, 246, 87, 0.1);
         }
 
         .badge-stayed {
@@ -3159,6 +3159,7 @@
 
                 const rect = zone.getBoundingClientRect();
                 const bustEl = document.createElement('div');
+                bustEl.className = 'bust-reaction';
                 bustEl.innerHTML = `<img src="${randomBustEmoji}" style="width:80px; height:80px; filter:drop-shadow(0 0 15px rgba(255,0,0,0.8));">`;
                 bustEl.style.cssText = `position:fixed; left:${rect.left + rect.width / 2}px; top:${rect.top + rect.height / 2}px; transform:translate(-50%, -50%); z-index:3000; pointer-events:none; animation: popIn 0.3s ease-out;`;
                 document.body.appendChild(bustEl);
@@ -3333,6 +3334,7 @@
             try {
                 await initPeer(roomId); isHost = true; myId = roomId;
                 state.players.push({ id: myId, name: myName, cards: [], mods: [], nums: new Set(), pts: 0, tot: 0, st: 'active', sc: false });
+                window.isCreatingRoom = true; // Flag to customize toast
                 window.location.hash = roomId; showRoom();
             } catch (e) { showToast('❌ Errore creazione stanza'); }
         };
@@ -3465,6 +3467,8 @@
                 setTimeout(dealLoop, 200);
                 return;
             }
+            if (state.pending) return;
+
             if (state.dealIndex >= state.players.length) {
                 // Done Dealing
                 state.dealingPhase = false;
@@ -3475,8 +3479,6 @@
                     startTurn = (startTurn + 1) % state.players.length;
                     attempts++;
                 }
-                state.turn = startTurn;
-
                 state.turn = startTurn;
 
                 state.globalToast = { id: Date.now(), msg: "Inizia il round!" };
@@ -3490,23 +3492,19 @@
             // Deal card
             if (p.st === 'active') {
                 drawCard(pIdx);
-                // Checks if Action triggered Pause
-                if (state.pending) {
-                    // Paused! Wait for handleAct/resAct to call dealLoop again
-                    // But we increment dealIndex NOW so next resume moves on?
-                    // NO. If we resume, we want to move to next player.
+                // Synchronous Pending or Flip 3 Sequence
+                if (state.pending || (state.players.some(x => x.flip3Active))) {
                     state.dealIndex++;
-                    // Don't call recursive dealLoop here. Processing action.
-                    if (isHost) {
-                        const delay = (state.last && state.last.type === 'action') ? 2200 : 0;
-                        setTimeout(showTgt, delay);
-                    }
+                    // Do not schedule recursion. Action resolution will handle it.
                     return;
                 }
             }
 
             state.dealIndex++;
-            setTimeout(dealLoop, 900); // Delay > animation duration (800ms) to prevent overlap
+            // Async Action safeguard (Freeze splash delay ~2.5s)
+            const isAction = state.last && state.last.type === 'action';
+            const delay = isAction ? 2600 : 900;
+            setTimeout(dealLoop, delay);
         }
 
         function showCardSplash(type, who = null) {
@@ -3881,9 +3879,12 @@
                 p.cards = []; p.mods = []; p.nums = new Set(); p.pts = 0; p.st = 'active'; p.sc = false;
                 // Reset statuses
                 p.frozen = false; p.flip3Active = false;
+                p.bustTime = 0; // State cleanup
             });
             state.last = null; state.pending = null; state.flip3 = 0;
             localPlayerCardCounts = {}; localAnimatingCards = {};
+            // Cleanup visual artifacts (Ghost Skulls)
+            document.querySelectorAll('.bust-reaction, .reaction-bubble').forEach(e => e.remove());
         }
 
         // Duplicate endRound removed - see startRecapSequence below
@@ -4152,6 +4153,192 @@
 
         function sync() { if (isHost) bc({ t: 'state', s: serState() }); }
 
+        // === SMART RENDER HELPERS ===
+        function smartRenderPlayers(container, players, isMeGlobal, myIdGlobal, turnGlobal, stateGlobal) {
+            players.forEach((p, idxList) => {
+                const originalIdx = stateGlobal.players.findIndex(x => x.id === p.id);
+                const zoneId = `pzone-${originalIdx}`;
+                let zone = document.getElementById(zoneId);
+
+                if (!zone) {
+                    zone = document.createElement('div');
+                    zone.id = zoneId;
+                    zone.className = `player-zone`;
+                    zone.innerHTML = `
+                        <div class="player-info" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <span class="p-name" style="font-weight:700; font-size:14px; display:flex; align-items:center; gap:6px;"></span>
+                            <div class="p-badges" style="display:flex; align-items: center;">
+                                <div class="round-score-glass">0</div>
+                            </div>
+                        </div>
+                        <div class="player-cards"></div>
+                        <div class="modifiers-row" style="margin-top:8px; min-height:40px; display:flex; align-items:center; position:relative;">
+                            <div class="mods-container" style="flex:1; display:flex; justify-content:center; gap:5px;"></div>
+                            <div class="reaction-overlay" style="position:absolute; right:0; display:flex; gap:5px; align-items:center; min-width:60px; height:50px; justify-content:flex-end;"></div>
+                        </div>
+                        <div class="bust-overlay-container"></div>
+                    `;
+                }
+                container.appendChild(zone);
+                updatePlayerZone(zone, p, p.id === myIdGlobal, originalIdx === turnGlobal, stateGlobal);
+            });
+
+            // Remove detached zones
+            Array.from(container.children).forEach(child => {
+                // If child is not in players list (by checking if we just appended it?)
+                // Since we appended all current players, they are at the end.
+                // Any child not touched/moved is at the beginning?
+                // Actually if I move node A, it leaves its old spot.
+                // So all valid nodes are moved to end.
+                // If there were extra nodes (Z), they remain at start.
+                // But container.children changes live.
+                // So if we have 5 children, and we append 2 existing ones.
+                // Those 2 move to index 3, 4?
+                // No, node is removed from old pos and added to new.
+                // So if Z, A, B.
+                // Append A -> Z, B, A.
+                // Append B -> Z, A, B.
+                // Z remains at 0.
+                // So we remove children from 0 to (count - players.length).
+                while (container.children.length > players.length) {
+                    container.firstChild.remove();
+                }
+            });
+        }
+
+        function updatePlayerZone(zone, p, isMe, isTurn, state) {
+            // === Animation Tracking ===
+            if (!localPlayerCardCounts[p.id]) localPlayerCardCounts[p.id] = { nums: 0, mods: 0 };
+            if (!localAnimatingCards[p.id]) localAnimatingCards[p.id] = { nums: {}, mods: {} };
+
+            const numCards = p.cards.filter(c => c.type === 'number');
+            const modCards = p.cards.filter(c => c.type === 'modifier' || (c.type === 'action' && c.value === 'second_chance'));
+
+            if (numCards.length > localPlayerCardCounts[p.id].nums) {
+                for (let k = localPlayerCardCounts[p.id].nums; k < numCards.length; k++) {
+                    localAnimatingCards[p.id].nums[k] = Date.now();
+                }
+            }
+            if (modCards.length > localPlayerCardCounts[p.id].mods) {
+                for (let k = localPlayerCardCounts[p.id].mods; k < modCards.length; k++) {
+                    localAnimatingCards[p.id].mods[k] = Date.now();
+                }
+            }
+            localPlayerCardCounts[p.id] = { nums: numCards.length, mods: modCards.length };
+            // ==========================
+
+            const numCount = numCards.length;
+            const isMeZone = isMe;
+            // Note: p.id === myId is used in original class logic for 'my-zone'
+            const finalZoneClass = `player-zone ${isTurn && p.st === 'active' ? 'active-turn' : ''} ${p.st === 'bust' ? 'bust' : ''} ${p.st === 'stayed' ? 'stayed' : ''} ${p.frozen ? 'frozen' : ''} ${isMeZone ? 'my-zone' : ''} ${p.flip3Active ? 'flip3' : ''} ${p.sc ? 'bonus-sc' : ''}`;
+
+            if (zone.className !== finalZoneClass) zone.className = finalZoneClass;
+
+            const nameEl = zone.querySelector('.p-name');
+            const suffix = isMe ? ' (Tu)' : '';
+            const dealerIcon = p.id === state.dealer ? `<img src="${ASSETS.crown}" style="height:16px;" title="Dealer">` : '';
+            const nameHtml = `${p.name} ${suffix} ${dealerIcon}`;
+            if (nameEl.innerHTML !== nameHtml) nameEl.innerHTML = nameHtml;
+            nameEl.style.fontSize = isMe ? '16px' : '14px';
+
+            const scoreEl = zone.querySelector('.round-score-glass');
+            if (scoreEl.innerText != p.pts) scoreEl.innerText = p.pts;
+
+
+
+            smartUpdateCards(zone.querySelector('.player-cards'), numCards, p, isMe, 'nums');
+            smartUpdateCards(zone.querySelector('.mods-container'), modCards, p, isMe, 'mods');
+
+            const rOv = zone.querySelector('.reaction-overlay');
+            const ovHtml = `
+                ${p.sc ? `<img src="${ASSETS.sc}" style="height:40px; filter:drop-shadow(0 0 5px red); animation:pulse 1.5s infinite;" title="Second Chance">` : ''}
+                ${p.frozen ? `<img src="${ASSETS.frozen}" style="height:40px; filter:drop-shadow(0 0 5px cyan);" title="Congelato">` : ''}
+                ${p.flip3Active ? `<img src="${ASSETS.lightning}" style="height:40px; filter:drop-shadow(0 0 5px yellow);" title="Flip 3">` : ''}
+                ${(p.st === 'stayed' && !p.frozen) ? `<img src="${ASSETS.stop}" style="height:40px; filter:drop-shadow(0 0 5px green);" title="Stop">` : ''}
+                ${(p.st !== 'bust' && numCount === 6) ? `<img src="${ASSETS.fear}" style="height:40px; filter:drop-shadow(0 0 5px orange); animation:pulse 0.5s infinite;" title="-1 Card!">` : ''}
+            `.trim();
+            if (rOv.innerHTML !== ovHtml) rOv.innerHTML = ovHtml;
+
+            const bCont = zone.querySelector('.bust-overlay-container');
+            const showBust = p.st === 'bust' && Date.now() - (p.bustTime || 0) < 2000;
+            if (showBust) {
+                if (!bCont.firstChild) bCont.innerHTML = '<div class="bust-overlay">BUST!</div>';
+            } else {
+                if (bCont.firstChild) bCont.innerHTML = '';
+            }
+        }
+
+        function smartUpdateCards(container, cards, p, isMe, typeStr) {
+            if (!localPlayerCardCounts[p.id]) localPlayerCardCounts[p.id] = { nums: 0, mods: 0 };
+            if (!localAnimatingCards[p.id]) localAnimatingCards[p.id] = { nums: {}, mods: {} };
+
+            let totalSlots = cards.length;
+            if (isMe && typeStr === 'nums') totalSlots = Math.max(7, cards.length);
+
+            const children = Array.from(container.children);
+
+            for (let i = 0; i < totalSlots; i++) {
+                const card = (i < cards.length) ? cards[i] : null;
+                let child = children[i];
+
+                if (!child) {
+                    const temp = document.createElement('div');
+                    if (card) {
+                        const animTime = localAnimatingCards[p.id][typeStr][i];
+                        const isAnimating = animTime && (Date.now() - animTime < 800);
+                        temp.innerHTML = renderCard(card, isAnimating, p);
+                    } else {
+                        temp.innerHTML = '<div class="card-placeholder"></div>';
+                    }
+                    container.appendChild(temp.firstChild);
+                    continue;
+                }
+
+                if (!card) {
+                    if (!child.classList.contains('card-placeholder')) {
+                        const temp = document.createElement('div');
+                        temp.innerHTML = '<div class="card-placeholder"></div>';
+                        container.replaceChild(temp.firstChild, child);
+                    }
+                } else {
+                    const animTime = localAnimatingCards[p.id][typeStr][i];
+                    const isAnimating = animTime && (Date.now() - animTime < 800);
+
+                    if (child.classList.contains('card-placeholder')) {
+                        const temp = document.createElement('div');
+                        temp.innerHTML = renderCard(card, isAnimating, p);
+                        container.replaceChild(temp.firstChild, child);
+                        continue;
+                    }
+
+                    const path = 'assets/cards/';
+                    let src = '';
+                    if (card.type === 'number') src = `${path}number_${card.value}.webp`;
+                    else if (card.type === 'modifier') src = `${path}modifier_${card.value}.webp`;
+                    else if (card.type === 'action') src = `${path}action_${card.value}.webp`;
+                    else src = `${path}back.webp`;
+
+                    if (child.src && !child.src.includes(src)) child.src = src;
+
+                    const bustClass = card.isBustCause ? 'bust-cause' : '';
+                    const newClass = isAnimating ? 'fly-in' : '';
+                    const isBounce = isAnimating && card.type === 'number' && card.value >= 8;
+                    const isShiny = card.type === 'action' || (card.type === 'number' && card.value >= 10) || (card.type === 'modifier' && card.value === 'x2');
+                    let extra = '';
+                    if (isBounce) extra += ' bounce';
+                    if (isShiny) extra += ' shiny';
+                    if (card.isBustCause && p && p.bustTime && Date.now() - p.bustTime < 600) extra += ' bust-shake';
+                    if (p && p.scBurn && (card.value === 'second_chance' || card.isBustCause)) extra += ' burning';
+
+                    const finalClass = `card ${card.type} ${bustClass} ${newClass}${extra}`;
+                    if (child.className !== finalClass) child.className = finalClass;
+                }
+            }
+            while (container.children.length > totalSlots) {
+                container.lastChild.remove();
+            }
+        }
+
         function updateGame() {
             // Recap Overlay Logic
             const ro = qs('#recapOverlay');
@@ -4380,105 +4567,8 @@
                 ? [state.players[myIdx], ...state.players.filter((_, i) => i !== myIdx)]
                 : state.players;
 
-            qs('#playersArea').innerHTML = reorderedPlayers.map((p) => {
-                const originalIdx = state.players.findIndex(pl => pl.id === p.id);
-                const i = originalIdx;
-                const isMe = p.id === myId;
-                const isTurn = i === state.turn;
+            smartRenderPlayers(qs('#playersArea'), reorderedPlayers, true, myId, state.turn, state);
 
-                // Turn info is now in headerGameStatus glassmorph element
-                // No need to update headerTitle during game
-
-                // Track card counts to identify new cards for animation
-                if (!localPlayerCardCounts[p.id]) localPlayerCardCounts[p.id] = { nums: 0, mods: 0 };
-                if (!localAnimatingCards[p.id]) localAnimatingCards[p.id] = { nums: {}, mods: {} };
-
-                const numCards = p.cards.filter(c => c.type === 'number');
-                const modCards = p.cards.filter(c => c.type === 'modifier' || (c.type === 'action' && c.value === 'second_chance'));
-
-                // Check for new NUM cards
-                if (numCards.length > localPlayerCardCounts[p.id].nums) {
-                    for (let k = localPlayerCardCounts[p.id].nums; k < numCards.length; k++) {
-                        localAnimatingCards[p.id].nums[k] = Date.now();
-                    }
-                }
-                // Check for new MOD cards
-                if (modCards.length > localPlayerCardCounts[p.id].mods) {
-                    for (let k = localPlayerCardCounts[p.id].mods; k < modCards.length; k++) {
-                        localAnimatingCards[p.id].mods[k] = Date.now();
-                    }
-                }
-
-                // Update counts
-                localPlayerCardCounts[p.id] = { nums: numCards.length, mods: modCards.length };
-
-                // Render loops
-                // Render loops
-                let cardsHtml = '';
-                if (isMe) {
-                    // Dynamic 7 slots for ME
-                    const totalSlots = Math.max(7, numCards.length);
-                    cardsHtml = Array.from({ length: totalSlots }).map((_, idx) => {
-                        if (idx < numCards.length) {
-                            const c = numCards[idx];
-                            const animTime = localAnimatingCards[p.id].nums[idx];
-                            const isAnimating = animTime && (Date.now() - animTime < 800);
-                            return renderCard(c, isAnimating, p);
-                        } else {
-                            return '<div class="card-placeholder"></div>';
-                        }
-                    }).join('');
-                } else {
-                    // Standard rendering for others
-                    cardsHtml = numCards.map((c, idx) => {
-                        const animTime = localAnimatingCards[p.id].nums[idx];
-                        const isAnimating = animTime && (Date.now() - animTime < 800);
-                        return renderCard(c, isAnimating, p);
-                    }).join('');
-                }
-
-                const modsHtml = modCards.map((c, idx) => {
-                    const animTime = localAnimatingCards[p.id].mods[idx];
-                    const isAnimating = animTime && (Date.now() - animTime < 800);
-                    return renderCard(c, isAnimating, p);
-                }).join('');
-
-                // Status Badges construction (Moved to modifiers-row)
-                // let badgesHtml = ''; 
-
-                const numCount = p.cards.filter(c => c.type === 'number').length;
-
-                const zoneClass = `player-zone ${isTurn && p.st === 'active' ? 'active-turn' : ''} ${p.st === 'bust' ? 'bust' : ''} ${p.st === 'stayed' ? 'stayed' : ''} ${p.frozen ? 'frozen' : ''} ${p.id === myId ? 'my-zone' : ''} ${p.flip3Active ? 'flip3' : ''} ${p.sc ? 'bonus-sc' : ''}`;
-
-                return `<div class="${zoneClass}" id="pzone-${i}">
-                    <div class="player-info" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                        <span class="p-name" style="font-weight:700; font-size:${isMe ? '16px' : '14px'}; display:flex; align-items:center; gap:6px;">
-                           ${p.name} ${isMe ? '(Tu)' : ''} 
-                           ${p.id === state.dealer ? `<img src="${ASSETS.crown}" style="height:16px;" title="Dealer">` : ''}
-                        </span>
-                        <div class="p-badges" style="display:flex; align-items: center;">
-                            <!-- Removed badgesHtml -->
-                            <div class="round-score-glass">${p.pts}</div>
-                         </div>
-                    </div>
-                    <div class="player-cards">
-                        ${cardsHtml}
-                    </div>
-                    <div class="modifiers-row" style="margin-top:8px; min-height:40px; display:flex; align-items:center; position:relative;">
-                        <div style="flex:1; display:flex; justify-content:center; gap:5px;">
-                            ${modsHtml}
-                        </div>
-                        <div class="reaction-overlay" style="position:absolute; right:0; display:flex; gap:5px; align-items:center; min-width:60px; height:50px; justify-content:flex-end;">
-                            ${p.sc ? `<img src="${ASSETS.sc}" style="height:40px; filter:drop-shadow(0 0 5px red); animation:pulse 1.5s infinite;" title="Second Chance">` : ''}
-                            ${p.frozen ? `<img src="${ASSETS.frozen}" style="height:40px; filter:drop-shadow(0 0 5px cyan);" title="Congelato">` : ''}
-                            ${p.flip3Active ? `<img src="${ASSETS.lightning}" style="height:40px; filter:drop-shadow(0 0 5px yellow);" title="Flip 3">` : ''}
-                            ${(p.st === 'stayed' && !p.frozen) ? `<img src="${ASSETS.stop}" style="height:40px; filter:drop-shadow(0 0 5px green);" title="Stop">` : ''}
-                            ${(p.st !== 'bust' && numCount === 6) ? `<img src="${ASSETS.fear}" style="height:40px; filter:drop-shadow(0 0 5px orange); animation:pulse 0.5s infinite;" title="-1 Card!">` : ''}
-                        </div>
-                    </div>
-                    ${p.st === 'bust' && Date.now() - (p.bustTime || 0) < 2000 ? '<div class="bust-overlay">BUST!</div>' : ''}
-                </div>`
-            }).join('');
 
             const me = reorderedPlayers.find(p => p.id === myId);
             const meIdx = state.players.findIndex(p => p.id === myId);
@@ -4601,7 +4691,12 @@
                 qs('.lobby h2').innerText = "Unisciti alla partita";
                 qs('#nickname').focus();
                 roomId = h;
-                showToast('🔗 Codice stanza rilevato!');
+                if (window.isCreatingRoom) {
+                    showToast('✅ Stanza creata!');
+                    window.isCreatingRoom = false;
+                } else {
+                    showToast('🔗 Codice stanza rilevato!');
+                }
             }
         }
 
