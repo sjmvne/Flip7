@@ -4,8 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Flip 7 - Multiplayer Card Game</title>
+    <title>Flip 7</title>
+    <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" href="assets/favicon.png">
+    <link rel="apple-touch-icon" href="assets/Flip7%20Logo.webp">
+    <meta name="apple-mobile-web-app-title" content="Flip 7">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#1a1625">
     <meta name="description" content="Play Flip 7 card game online with friends">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1499,22 +1505,38 @@
             font-size: 22px;
         }
 
-        .target-btn {
-            display: block;
+        .target-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             width: 100%;
             margin: 8px 0;
-            padding: 14px;
+            padding: 12px 16px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--glass-border);
             border-radius: 12px;
             color: var(--text);
             cursor: pointer;
-            font-size: 15px;
+            transition: all 0.2s;
+            text-align: left;
         }
 
-        .target-btn:hover {
+        .target-item:hover {
             border-color: var(--primary);
-            background: rgba(139, 92, 246, 0.2);
+            background: rgba(139, 92, 246, 0.15);
+            transform: translateX(5px);
+        }
+
+        .target-item.high-risk {
+            border-color: rgba(239, 68, 68, 0.4);
+            background: rgba(239, 68, 68, 0.1);
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.1);
+        }
+
+        .target-item.high-risk:hover {
+            border-color: rgba(239, 68, 68, 0.8);
+            background: rgba(239, 68, 68, 0.2);
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
         }
 
         @keyframes slideIn {
@@ -2859,8 +2881,8 @@
             stop: 'https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Face%20Exhaling.png',
             carta: 'https://em-content.zobj.net/source/microsoft-teams/400/palm-up-hand_medium-light-skin-tone_1faf4-1f3fc_1f3fc.png',
             frozen: 'https://em-content.zobj.net/source/microsoft-teams/400/cold-face_1f976.png',
-            sc: 'https://em-content.zobj.net/source/microsoft-teams/400/heart-on-fire_2764-fe0f-200d-1f525.png',
-            fire: 'https://em-content.zobj.net/source/microsoft-teams/400/fire_1f525.png',
+            sc: 'https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Heart%20on%20Fire.png',
+            fire: 'https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/Fire.png',
             star: 'https://em-content.zobj.net/source/microsoft-teams/400/star-struck_1f929.png',
             bust: 'https://em-content.zobj.net/source/microsoft-teams/400/loudly-crying-face_1f62d.png',
             bust_alt: 'https://em-content.zobj.net/source/microsoft-teams/400/face-with-symbols-on-mouth_1f92c.png',
@@ -4331,18 +4353,62 @@
             };
             qs('#modalTitle').innerText = titles[state.pending.t] || `Scegli bersaglio`;
 
-            qs('#targetButtons').innerHTML = '';
+            qs('#targetButtons').innerHTML = ''; // Clear
+
+            // Gather Candidates
+            let candidates = [];
             state.players.forEach((p, i) => {
-                // Filter: Must be active. 
-                // Specific Filter for SC: Cannot give to someone who already has SC (including self).
+                // Must be active
+                if (p.st !== 'active') return;
+
+                // SC Filter: Cannot give to someone who already has SC (including self)
                 if (state.pending.t === 'give_sc' && (p.sc || p.id === myId)) return;
 
-                if (p.st === 'active') {
-                    const b = document.createElement('button'); b.className = 'target-btn'; b.innerText = p.name;
-                    b.onclick = () => { tm.classList.remove('active'); isHost ? handleAct(myId, 'tgt', i) : sendHost({ t: 'act', a: 'tgt', tgt: i }); };
-                    qs('#targetButtons').appendChild(b);
-                }
+                // Freeze/Flip3: Can target self? Rules say yes usually, but UI implies attack.
+                // Current logic allows targeting self if active (unless restricted elsewhere).
+                // Let's keep logic: all active players.
+
+                candidates.push({ p: p, i: i });
             });
+
+            // SORT: By Total Score Descending (High Risk first), then Round Points
+            // If it's 'give_sc', maybe sort by score ascending? (Helping loser). 
+            // User requested "Freeze... Ordina per punteggio". We'll use Leaderboard sort (Desc) as default.
+            candidates.sort((a, b) => (b.p.tot - a.p.tot) || (b.p.pts - a.p.pts));
+
+            // Determine Highest Score for highlighting
+            const maxScore = candidates.length > 0 ? candidates[0].p.tot : 0;
+
+            candidates.forEach(c => {
+                const p = c.p;
+                const i = c.i;
+                const isHighRisk = (p.tot === maxScore && p.tot > 0);
+
+                const div = document.createElement('div');
+                div.className = 'target-item';
+                if (isHighRisk) div.classList.add('high-risk');
+
+                // Content
+                div.innerHTML = `
+                    <div style="flex:1;">
+                        <div style="font-weight:700; font-size:16px; display:flex; align-items:center; gap:6px;">
+                            ${p.name}
+                            ${isHighRisk ? '<span title="High Score Danger">🔥</span>' : ''}
+                        </div>
+                        <div style="font-size:12px; opacity:0.8; margin-top:2px;">
+                            Round: <strong>${p.pts}</strong> | Tot: <strong>${p.tot}</strong>
+                        </div>
+                    </div>
+                    <div style="font-size:20px; opacity:0.6;">🎯</div>
+                `;
+
+                div.onclick = () => {
+                    tm.classList.remove('active');
+                    isHost ? handleAct(myId, 'tgt', i) : sendHost({ t: 'act', a: 'tgt', tgt: i });
+                };
+                qs('#targetButtons').appendChild(div);
+            });
+
             tm.classList.add('active');
         }
 
@@ -5406,5 +5472,4 @@
         <p style="font-size:18px; color:rgba(255,255,255,0.7);">+15 Punti Bonus! 🎉</p>
     </div>
 </body>
-
 </html>
