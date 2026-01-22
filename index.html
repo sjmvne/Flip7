@@ -773,7 +773,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            margin: 4px;
+            margin: 2px;
+            /*4 era troppo */
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
             position: relative;
             overflow: hidden;
@@ -825,12 +826,12 @@
         }
 
         .card.action {
-            border-color: var(--danger);
+            /* border-color: var(--danger); */
             background: linear-gradient(135deg, rgba(244, 63, 94, 0.2), rgba(244, 63, 94, 0.05));
         }
 
         .card.action .card-value {
-            color: var(--danger);
+            /* color: var(--danger); */
             font-size: 18px;
         }
 
@@ -854,7 +855,7 @@
             padding: 16px;
             transition: all 0.3s ease;
             position: relative;
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            /* border: 1px solid rgba(255, 255, 255, 0.15); tolto per tenere estetica minimal*/
             border-radius: 16px;
             /* Round borders for everyone */
         }
@@ -864,7 +865,7 @@
         }
 
         .player-info {
-            margin: 10px;
+            /* margin: 10px; non serve*/
         }
 
         .player-zone.current-turn {
@@ -926,6 +927,187 @@
             display: none;
         }
 
+        /* ========== DYNAMIC LAYOUT ZONES ========== */
+
+        /* Active player zone (under deck) */
+        .active-player-zone {
+            margin: 16px auto;
+            max-width: 420px;
+            min-height: 0;
+            padding: 0;
+            border-radius: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .active-player-zone:empty {
+            display: none !important;
+        }
+
+        .active-player-zone .player-zone {
+            margin: 0;
+            border-radius: 16px;
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+        }
+
+        /* Action target zone (dual display during Freeze/Flip3) */
+        .action-target-zone {
+            margin: 8px auto 16px;
+            max-width: 420px;
+            padding: 0;
+            border-radius: 16px;
+            border: 2px solid var(--warning);
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+        }
+
+        .action-target-zone .player-zone {
+            margin: 0;
+            border-radius: 14px;
+        }
+
+        /* My hand zone (inside controls, always visible) */
+        .my-hand-zone {
+            width: 100%;
+            margin-bottom: 12px;
+        }
+
+        .my-hand-zone:empty {
+            display: none;
+        }
+
+        .my-hand-zone .player-zone {
+            margin: 0;
+            border-radius: 16px 16px 8px 8px;
+            /* background: rgba(139, 92, 246, 0.08); teniamo zona minimal! */
+        }
+
+        /* Controls restructured for column layout */
+        #controls {
+            display: flex;
+            flex-direction: column;
+            padding: 12px;
+            /* padding-top: 0; brutto, non lasciava un po' di bordo!*/
+        }
+
+        .buttons-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            align-items: stretch;
+        }
+
+        /* ========== BROADCAST TOASTS ========== */
+        .broadcast-toast {
+            position: fixed;
+            top: 80px;
+            /* left: 50%; */
+            transform: translateX(-50%);
+            z-index: 5000;
+            max-width: 90vw;
+            /* Wider toasts */
+            padding: 16px 24px;
+            border-radius: 16px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+            font-size: 15px;
+            color: white;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            animation: toastSlideIn 0.4s ease-out;
+        }
+
+        /* Modifier Container Animation */
+        .mods-container {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-top: 0;
+        }
+
+        .mods-container.has-cards {
+            max-height: 120px;
+            opacity: 1;
+            margin-top: 10px;
+        }
+
+        .broadcast-toast.freeze {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.95), rgba(14, 165, 233, 0.95));
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .broadcast-toast.flip3 {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.95), rgba(234, 88, 12, 0.95));
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .broadcast-toast.second-chance {
+            background: linear-gradient(135deg, rgba(248, 113, 113, 0.95), rgba(239, 68, 68, 0.95));
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        @keyframes toastSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-30px) scale(0.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0) scale(1);
+            }
+        }
+
+        @keyframes toastSlideOut {
+            from {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0) scale(1);
+            }
+
+            to {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px) scale(0.9);
+            }
+        }
+
+        /* ========== FLOATING REACTIONS ========== */
+        .floating-reaction {
+            position: fixed;
+            right: 16px;
+            padding: 10px 16px;
+            border-radius: 12px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            animation: reactionSlideIn 0.3s ease-out;
+            z-index: 4000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        @keyframes reactionSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+
         /* SC Burn Animation */
         .card.burning {
             animation: burnCard 2s forwards !important;
@@ -966,7 +1148,7 @@
         }
 
         .player-zone.frozen::before {
-            content: '❄️ CONGELATO';
+            content: '❄️';
             position: absolute;
             top: 50%;
             left: 50%;
@@ -1061,10 +1243,10 @@
         }
 
         .player-cards {
-            min-height: 96px;
+            /* min-height: 96px; lasciamo che si adatti da solo*/
             display: flex;
             flex-wrap: wrap;
-            gap: 4px;
+            /* gap: 4px; può non servire*/
         }
 
         /* Modifiers Row - below numbers */
@@ -1080,10 +1262,9 @@
         }
 
         .modifiers-row .card {
-            transform: scale(0.9);
+            transform: scale(1);
             /* Slightly larger */
-            transform-origin: top left;
-            margin-right: -10px;
+            transform-origin: top center;
             /* Slight overlap */
             transition: all 0.3s ease;
         }
@@ -1226,6 +1407,11 @@
         }
 
 
+        .controls {
+            z-index: 3100;
+            /* Ensure above valid recapOverlay (3000) */
+        }
+
         .controls .btn {
             /* min-width: 140px; Causa problemi e allunga più del necessario i bottoni */
             font-size: 18px;
@@ -1246,7 +1432,7 @@
                 bottom: 0;
                 left: 0;
                 right: 0;
-                z-index: 100;
+                z-index: 3100;
                 background: rgba(26, 22, 37, 0.95);
                 backdrop-filter: blur(20px);
                 border-top: 1px solid var(--glass-border);
@@ -1256,6 +1442,10 @@
                 display: flex;
                 gap: 12px;
                 box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
+                /* FIX: Enable interactions during round recap */
+                z-index: 2500;
+                position: fixed;
+                /* Restore fixed positioning */
             }
 
             .controls .btn {
@@ -1720,8 +1910,8 @@
             width: 100%;
             margin: 0;
             transform: scale(1);
-            border: 2px solid rgba(139, 92, 246, 0.5);
-            background: rgba(139, 92, 246, 0.1);
+            /* border: 2px solid rgba(139, 92, 246, 0.5);
+            background: rgba(139, 92, 246, 0.1); commentati per tenere la zona bottoni minimal */
             z-index: 10;
             order: -1;
             border-radius: 20px;
@@ -1734,7 +1924,7 @@
         .player-zone:not(.my-zone) {
             transform: scale(0.85);
             opacity: 0.9;
-            margin: 5px auto;
+            /* margin: 5px auto; occupa spazio! */
         }
 
         .player-zone:not(.my-zone) .card {
@@ -1806,7 +1996,7 @@
             }
 
             .player-zone:not(.my-zone) {
-                transform: scale(0.9);
+                /* transform: scale(1); commentato perchè restringe lo spazio disponibile al player*/
             }
 
             .player-zone.my-zone {
@@ -1936,7 +2126,8 @@
             border-top-left-radius: 24px;
             border-top-right-radius: 24px;
             border-top: 1px solid rgba(255, 255, 255, 0.15);
-            z-index: 1500;
+            z-index: 2501;
+            /*non modificare, deve stare sopra ai controlli*/
             transform: translateY(100%);
             transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
@@ -2183,33 +2374,47 @@
             </div>
         </div>
 
+        <!-- Dynamic Zone: Active Player (shows current turn player if not me) -->
+        <div id="activePlayerZone" class="active-player-zone glass"></div>
+
+        <!-- Dynamic Zone: Action Target (shows during Freeze/Flip3 dual display) -->
+        <div id="actionTargetZone" class="action-target-zone glass" style="display:none;"></div>
+
+        <!-- Other players (excluding me and those shown above) -->
         <div class="players-area" id="playersArea"></div>
 
-        <div class="controls glass" id="controls" role="group" aria-label="Azioni gioco"
-            style="display:flex; justify-content:space-between; gap:8px; align-items:stretch;">
-            <button class="btn btn-3d btn-carta" id="btnHit" disabled aria-label="Pesca una carta" style="flex:2;">
-                <img src="https://em-content.zobj.net/source/microsoft-teams/400/palm-up-hand_medium-light-skin-tone_1faf4-1f3fc_1f3fc.png"
-                    alt="Carta" style="height:40px; width:auto; pointer-events:none;">
-            </button>
-            <div style="flex:1; position:relative; display:flex; align-items:center; justify-content:center;">
-                <button class="btn btn-3d btn-react" id="btnReact" aria-label="Reazioni" disabled
-                    style="width:100%; height:100%; padding:0; display:flex; align-items:center; justify-content:center; background:transparent; border:none; box-shadow:none; cursor:pointer; border-radius:50%;">
-                    <img src="https://em-content.zobj.net/source/microsoft-teams/400/speech-balloon_1f4ac.png"
-                        style="height:35px; filter:drop-shadow(0 4px 6px rgba(0,0,0,0.2)); transition:transform 0.2s;">
+        <!-- Controls with MY HAND always visible -->
+        <div class="controls glass" id="controls" role="group" aria-label="Azioni gioco">
+            <!-- My Hand Zone (always visible at bottom) -->
+            <div id="myHandZone" class="my-hand-zone"></div>
+
+            <!-- Buttons Row -->
+            <div class="buttons-row">
+                <button class="btn btn-3d btn-carta" id="btnHit" disabled aria-label="Pesca una carta" style="flex:2;">
+                    <img src="https://em-content.zobj.net/source/microsoft-teams/400/palm-up-hand_medium-light-skin-tone_1faf4-1f3fc_1f3fc.png"
+                        alt="Carta" style="height:40px; width:auto; pointer-events:none;">
                 </button>
-                <div id="reactionPicker" class="glass"
-                    style="display:none; position:absolute; bottom:80px; left:50%; transform:translateX(-50%); width:280px; max-height:180px; overflow-y:auto; padding:10px; display:grid; grid-template-columns:repeat(5, 1fr); gap:8px; border-radius:16px; z-index:100; opacity:0; transition:opacity 0.2s;">
-                    <!-- Filled by JS -->
+                <div style="flex:1; position:relative; display:flex; align-items:center; justify-content:center;">
+                    <button class="btn btn-3d btn-react" id="btnReact" aria-label="Reazioni" disabled
+                        style="width:100%; height:100%; padding:0; display:flex; align-items:center; justify-content:center; background:transparent; border:none; box-shadow:none; cursor:pointer; border-radius:50%;">
+                        <img src="https://em-content.zobj.net/source/microsoft-teams/400/speech-balloon_1f4ac.png"
+                            style="height:35px; filter:drop-shadow(0 4px 6px rgba(0,0,0,0.2)); transition:transform 0.2s;">
+                    </button>
+                    <div id="reactionPicker" class="glass"
+                        style="display:none; position:absolute; bottom:80px; left:50%; transform:translateX(-50%); width:340px; max-height:260px; overflow-y:auto; padding:10px; display:grid; grid-template-columns:repeat(6, 1fr); gap:8px; border-radius:16px; z-index:5000; opacity:0; transition:opacity 0.2s;">
+                        <!-- Filled by JS -->
+                    </div>
                 </div>
+                <button class="btn btn-3d btn-stop" id="btnStay" disabled aria-label="Fermati" style="flex:2;">
+                    <!-- FIX 6: Using Raising Hands APNG for Stay button -->
+                    <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Hand%20gestures/Raising%20Hands%20Medium-Light%20Skin%20Tone.png"
+                        alt="Stop" style="height:40px; width:auto; pointer-events:none;">
+                </button>
+                <button class="btn btn-3d btn-stats" id="btnStats" disabled aria-label="Statistiche"
+                    style="flex:1; min-width:50px;">
+                    <span style="font-size:24px;">📊</span>
+                </button>
             </div>
-            <button class="btn btn-3d btn-stop" id="btnStay" disabled aria-label="Fermati" style="flex:2;">
-                <img src="https://em-content.zobj.net/source/microsoft-teams/400/head-shaking-horizontally_1f642-200d-2194-fe0f.png"
-                    alt="Stop" style="height:40px; width:auto; pointer-events:none;">
-            </button>
-            <button class="btn btn-3d btn-stats" id="btnStats" disabled aria-label="Statistiche"
-                style="flex:1; min-width:50px;">
-                <span style="font-size:24px;">📊</span>
-            </button>
         </div>
     </div>
 
@@ -2603,7 +2808,9 @@
             heart: 'https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Red%20Heart.png',
             snowflake: 'https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/Snowflake.png',
             lightning: 'https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/High%20Voltage.png',
-            stop: 'https://em-content.zobj.net/source/microsoft-teams/400/head-shaking-horizontally_1f642-200d-2194-fe0f.png',
+            // FIX 6: Using Face Exhaling for stay reactions
+            // DO NOT CHANGE PATH: Keep full GitHub URL and %20 encoding
+            stop: 'https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Face%20Exhaling.png',
             carta: 'https://em-content.zobj.net/source/microsoft-teams/400/palm-up-hand_medium-light-skin-tone_1faf4-1f3fc_1f3fc.png',
             frozen: 'https://em-content.zobj.net/source/microsoft-teams/400/cold-face_1f976.png',
             sc: 'https://em-content.zobj.net/source/microsoft-teams/400/heart-on-fire_2764-fe0f-200d-1f525.png',
@@ -2640,6 +2847,7 @@
             ]
         };
 
+        // DO NOT CHANGE PATH LOGIC: Use full GitHub URL + %20 for spaces
         const REACTIONS = [
             { id: 'like', src: `${FLUENT_BASE}/Hand%20gestures/Thumbs%20Up.png` },
             { id: 'dislike', src: `${FLUENT_BASE}/Hand%20gestures/Thumbs%20Down.png` },
@@ -2653,7 +2861,7 @@
             { id: 'ghost', src: `${FLUENT_BASE}/Smilies/Ghost.png` },
             { id: 'stop', src: `${FLUENT_BASE}/Hand%20gestures/Raised%20Hand.png` },
             { id: 'bust', src: `${FLUENT_BASE}/Smilies/Skull.png` },
-            // Additional reactions
+            // Additional reactions (Fix 2)
             { id: 'heart', src: `${FLUENT_BASE}/Smilies/Smiling%20Face%20with%20Heart-Eyes.png` },
             { id: 'cool', src: `${FLUENT_BASE}/Smilies/Smiling%20Face%20with%20Sunglasses.png` },
             { id: 'thinking', src: `${FLUENT_BASE}/Smilies/Thinking%20Face.png` },
@@ -2667,7 +2875,17 @@
             { id: 'clap', src: `${FLUENT_BASE}/Hand%20gestures/Clapping%20Hands.png` },
             { id: 'wave', src: `${FLUENT_BASE}/Hand%20gestures/Waving%20Hand.png` },
             { id: 'pray', src: `${FLUENT_BASE}/Hand%20gestures/Folded%20Hands.png` },
-            { id: 'muscle', src: `${FLUENT_BASE}/Travel%20and%20places/Rocket.png` }
+            { id: 'muscle', src: `${FLUENT_BASE}/People%20with%20activities/Person%20Lifting%20Weights%20Light%20Skin%20Tone.png` },
+            // New Extended Set (Fix 3)
+            { id: 'robot', src: `${FLUENT_BASE}/Smilies/Robot.png` },
+            { id: 'alien', src: `${FLUENT_BASE}/Smilies/Alien.png` },
+            { id: 'zany', src: `${FLUENT_BASE}/Smilies/Zany%20Face.png` },
+            { id: 'partying', src: `${FLUENT_BASE}/Smilies/Partying%20Face.png` },
+            { id: 'sleeping', src: `${FLUENT_BASE}/Smilies/Sleeping%20Face.png` },
+            { id: 'sun', src: `${FLUENT_BASE}/Travel%20and%20places/Sun.png` },
+            { id: 'moon', src: `${FLUENT_BASE}/Travel%20and%20places/Crescent%20Moon.png` },
+            { id: 'gem', src: `${FLUENT_BASE}/Objects/Gem%20Stone.png` },
+            { id: 'gift', src: `${FLUENT_BASE}/Activities/Wrapped%20Gift.png` }
         ];
 
         function getRandAsset(key) {
@@ -3122,6 +3340,18 @@
                 qs('#recapOverlay').classList.remove('active');
                 showToast('🎮 Nuova partita iniziata!');
             }
+            else if (d.t === 'broadcast_toast') {
+                // All clients show the broadcast toast
+                showBroadcastToast(d.type, d.from, d.target);
+            }
+            // FIX 1: Handle SC burn when alone broadcast
+            else if (d.t === 'sc_burn_alone') {
+                showSCBurnAloneSplash(d.who);
+            }
+            // FIX 8: Handle smoke broadcast for bust
+            else if (d.t === 'smoke') {
+                spawnSmokeOnPlayer(d.who);
+            }
         }
 
         function bc(d) { conns.forEach(c => c.send(d)); }
@@ -3144,29 +3374,6 @@
             if (!overlay) {
                 // Fallback to floating if overlay not found
                 overlay = zone;
-            }
-
-            // Special Prominent Handling for BUST
-            if (rId === 'bust') {
-                const bustEmojis = [
-                    `${FLUENT_BASE}/Smilies/Skull.png`,
-                    `${FLUENT_BASE}/Smilies/Loudly%20Crying%20Face.png`,
-                    `${FLUENT_BASE}/Smilies/Face%20with%20Symbols%20on%20Mouth.png`,
-                    `${FLUENT_BASE}/Smilies/Exploding%20Head.png`,
-                    `${FLUENT_BASE}/Smilies/Woozy%20Face.png` // Using correct path
-                ];
-                const randomBustEmoji = bustEmojis[Math.floor(Math.random() * bustEmojis.length)];
-
-                const rect = zone.getBoundingClientRect();
-                const bustEl = document.createElement('div');
-                bustEl.className = 'bust-reaction';
-                bustEl.innerHTML = `<img src="${randomBustEmoji}" style="width:80px; height:80px; filter:drop-shadow(0 0 15px rgba(255,0,0,0.8));">`;
-                bustEl.style.cssText = `position:fixed; left:${rect.left + rect.width / 2}px; top:${rect.top + rect.height / 2}px; transform:translate(-50%, -50%); z-index:3000; pointer-events:none; animation: popIn 0.3s ease-out;`;
-                document.body.appendChild(bustEl);
-                setTimeout(() => bustEl.remove(), 3000);
-
-                SFX.play('card');
-                return; // Skip standard bubble
             }
 
             // Special Handling for STOP (Stay)
@@ -3195,16 +3402,30 @@
                 return;
             }
 
-            const el = document.createElement('div');
-            el.innerHTML = `<img src="${rData.src}" style="width:50px; height:50px; filter:drop-shadow(0 4px 8px rgba(0,0,0,0.3));">`;
-            el.className = 'reaction-bubble';
-            // Use fadePop here
-            el.style.cssText = `position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:100; pointer-events:none; animation: fadePop 3s ease-out;`;
-
-            overlay.appendChild(el);
-            setTimeout(() => el.remove(), 2900); // Remove slightly before animation ends
-
+            // Standard reactions: use floating side messages
+            const player = state.players.find(p => p.id === pId);
+            const playerName = player ? player.name : 'Giocatore';
+            showFloatingReaction(playerName, rData);
             SFX.play('card'); // Pop sound
+        }
+
+        // Floating reaction message from the side
+        function showFloatingReaction(playerName, rData) {
+            const el = document.createElement('div');
+            el.className = 'floating-reaction';
+            el.innerHTML = `<strong>${playerName}:</strong> <img src="${rData.src}" style="height:32px;">`;
+
+            // Stack multiple reactions
+            const existingCount = document.querySelectorAll('.floating-reaction').length;
+            el.style.top = `${120 + existingCount * 60}px`;
+
+            document.body.appendChild(el);
+            setTimeout(() => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateX(100px)';
+                el.style.transition = 'all 0.3s ease-out';
+                setTimeout(() => el.remove(), 300);
+            }, 2500);
         }
 
         function initReactions() {
@@ -3696,6 +3917,8 @@
 
                         // Auto Reaction Bust & Smoke (Real Smoke Effect)
                         spawnSmokeOnPlayer(p.id);
+                        // FIX 8: Broadcast smoke to all clients
+                        if (isHost) bc({ t: 'smoke', who: p.id });
 
                         const bustReact = 'bust';
                         showReaction(p.id, bustReact);
@@ -3716,6 +3939,8 @@
                     p.nums.add(c.value); p.cards.push(c); p.pts = calcPts(p);
                     trackCardDealt(p.id); // Stats tracking
                     if (p.nums.size >= 7) {
+                        // FIX 4: Debug log for Flip7 verification
+                        console.log(`🎉 FLIP7 triggered for ${p.name}! Unique nums: ${p.nums.size}, Cards in hand: ${p.cards.filter(c => c.type === 'number').length}, Nums Set:`, [...p.nums]);
                         p.st = 'flip7'; p.pts = calcPts(p);
                         trackFlip7(p.id); // Stats tracking
                         SFX.play('flip7');
@@ -3771,7 +3996,8 @@
                 // UNLESS it's Second Chance, which is immediate (handled above).
                 if (isFlip3) {
                     // Check if it's an action we need to queue
-                    if (['flip3', 'freeze'].includes(c.value)) {
+                    // UPDATED: Freeze is NO LONGER queued. It interrupts immediately.
+                    if (['flip3'].includes(c.value)) {
                         state.flip3Queue.push({ t: c.value, from: idx, card: c });
                         showToast(`Azione ${c.value} in coda!`);
                         return;
@@ -3813,7 +4039,14 @@
                                     p.st = 'stayed';
 
                                     if (state.dealingPhase) dealLoop(); // Resume deal
-                                    else { nextTurn(); sync(); updateGame(); }
+                                    else {
+                                        // Resume Flip3 if active
+                                        if (state.resumeFlip3) {
+                                            state.resumeFlip3();
+                                        } else {
+                                            nextTurn(); sync(); updateGame();
+                                        }
+                                    }
                                 }, 2000);
                             }, 1500);
                         }, 500);
@@ -3845,9 +4078,34 @@
                     if (p.sc) {
                         // Already have SC - MUST GIVE AWAY
                         if (activeCount <= 1) {
-                            // Alone - discard the new one
-                            state.discards.push(c);
-                            p.cards.pop(); // Remove from hand
+                            // FIX 1: Alone - discard with BURN ANIMATION (broadcast to all)
+                            // Show splash to all explaining why SC burns
+                            if (isHost) {
+                                bc({ t: 'sc_burn_alone', who: p.name });
+                            }
+                            showSCBurnAloneSplash(p.name);
+
+                            // Set burn state for animation
+                            p.scBurn = true;
+                            p.cards.push(c); // Temporarily add for visual
+
+                            // Fire reaction
+                            showReaction(p.id, 'fire');
+                            if (isHost) bc({ t: 'reaction', who: p.id, id: 'fire' });
+
+                            addToHistory(`${p.name} scarta Second Chance (ultimo rimasto)! 🔥`, 'special');
+                            sync(); updateGame();
+
+                            // After 2s, remove the card
+                            setTimeout(() => {
+                                p.scBurn = false;
+                                const scIdx = p.cards.findIndex(x => x.type === 'action' && x.value === 'second_chance' && x !== c);
+                                // Remove the NEW SC (the one just drawn = c)
+                                const newScIdx = p.cards.indexOf(c);
+                                if (newScIdx > -1) p.cards.splice(newScIdx, 1);
+                                state.discards.push(c);
+                                sync(); updateGame();
+                            }, 2000);
                         } else {
                             // Donate to someone - Delay for splash
                             setTimeout(() => {
@@ -3972,6 +4230,10 @@
 
             let count = 0;
             function flip3Loop() {
+                // PAUSE check: If pending action (Freeze), stop loop.
+                // It will be resumed by resAct via state.resumeFlip3
+                if (state.pending) return;
+
                 if (count < 3 && tgt.st === 'active') {
                     drawCard(tgtIdx, true);
                     count++;
@@ -3988,6 +4250,9 @@
                     processFlip3Queue();
                 }
             }
+
+            // Expose loop for resumption
+            state.resumeFlip3 = flip3Loop;
 
             setTimeout(flip3Loop, 1500);
         }
@@ -4027,7 +4292,13 @@
         }
 
         function finishFlip3Sequence() {
-            if (state.dealingPhase) dealLoop();
+            delete state.resumeFlip3; // Cleanup
+            if (state.dealingPhase) {
+                // FIX 3: Toast when resuming dealing
+                if (isHost) bc({ t: 'broadcast_toast', type: 'deal_resume', from: '', target: '' });
+                showToast('🎴 Azione risolta, riprendiamo il dealing!');
+                dealLoop();
+            }
             else {
                 const fromIdx = state.flip3Context?.from;
                 if (fromIdx !== undefined && fromIdx === state.turn && state.players[fromIdx].st === 'active') {
@@ -4043,6 +4314,8 @@
         // New Async handling for Flip 3 animation in Host
         function resAct(tgtIdx) {
             if (!state.pending) return; // Safety check
+            const fromIdx = state.pending.from;
+            const fromPlayer = state.players[fromIdx];
             const tgt = state.players[tgtIdx], a = state.pending.t;
             const isQueue = state.pending.isQueue;
             state.pending = null; // Clear pending
@@ -4051,13 +4324,32 @@
                 tgt.frozen = true;
                 tgt.st = 'stayed';
                 trackAction('freeze'); // Stats tracking
+
+                // Broadcast toast to all
+                if (isHost) {
+                    const toastType = (fromIdx === tgtIdx) ? 'freeze_self' : 'freeze';
+                    bc({ t: 'broadcast_toast', type: toastType, from: fromPlayer.name, target: tgt.name });
+                    showBroadcastToast(toastType, fromPlayer.name, tgt.name);
+                }
+
                 sync(); updateGame(); // Show frozen state immediately
 
                 setTimeout(() => {
-                    if (state.dealingPhase) dealLoop();
+                    if (state.dealingPhase) {
+                        // FIX 3: Toast when resuming dealing after freeze
+                        if (isHost) bc({ t: 'broadcast_toast', type: 'deal_resume', from: '', target: '' });
+                        showToast('🎴 Azione risolta, riprendiamo il dealing!');
+                        dealLoop();
+                    }
                     else if (isQueue) {
                         processFlip3Queue();
-                    } else {
+                    }
+                    // RESUME FLIP3 Check
+                    else if (state.resumeFlip3) {
+                        showToast('Riprendo Flip 3...');
+                        state.resumeFlip3();
+                    }
+                    else {
                         nextTurn();
                     }
                     sync(); updateGame();
@@ -4067,10 +4359,22 @@
                 tgt.sc = true;
                 trackSecondChance(tgt.id); // Stats tracking
                 tgt.cards.push({ type: 'action', value: 'second_chance' });
+
+                // Broadcast toast to all
+                if (isHost) {
+                    bc({ t: 'broadcast_toast', type: 'give_sc', from: fromPlayer.name, target: tgt.name });
+                    showBroadcastToast('give_sc', fromPlayer.name, tgt.name);
+                }
+
                 sync(); updateGame(); // Show transfer immediately
 
                 setTimeout(() => {
-                    if (state.dealingPhase) dealLoop();
+                    if (state.dealingPhase) {
+                        // FIX 3: Toast when resuming dealing after give_sc
+                        if (isHost) bc({ t: 'broadcast_toast', type: 'deal_resume', from: '', target: '' });
+                        showToast('🎴 Azione risolta, riprendiamo il dealing!');
+                        dealLoop();
+                    }
                     else {
                         // If not dealing, turn continues for current player?
                         // Or passes? Using 'give_sc' usually implies you lost the card.
@@ -4081,6 +4385,11 @@
                 }, 2200);
             }
             else if (a === 'flip3') {
+                // Broadcast toast for Flip3
+                if (isHost) {
+                    bc({ t: 'broadcast_toast', type: 'flip3', from: fromPlayer.name, target: tgt.name });
+                    showBroadcastToast('flip3', fromPlayer.name, tgt.name);
+                }
                 startFlip3Sequence(tgtIdx, state.turn);
                 // startFlip3Sequence handles its own loops and syncs
             }
@@ -4154,6 +4463,108 @@
         function sync() { if (isHost) bc({ t: 'state', s: serState() }); }
 
         // === SMART RENDER HELPERS ===
+
+        // Render a SINGLE player into a container (clears container first)
+        function renderSinglePlayerZone(container, player, state) {
+            if (!player) {
+                container.innerHTML = '';
+                return;
+            }
+            const pIdx = state.players.findIndex(x => x.id === player.id);
+            const zoneId = `pzone-${pIdx}`;
+            let zone = document.getElementById(zoneId);
+
+            // If zone exists elsewhere, move it here
+            if (zone) {
+                container.innerHTML = '';
+                container.appendChild(zone);
+            } else {
+                // Create new zone
+                zone = document.createElement('div');
+                zone.id = zoneId;
+                zone.className = 'player-zone';
+                zone.innerHTML = `
+                    <div class="player-info" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <span class="p-name" style="font-weight:700; font-size:14px; display:flex; align-items:center; gap:6px;"></span>
+                        <div class="p-badges" style="display:flex; align-items: center;">
+                            <div class="round-score-glass">0</div>
+                        </div>
+                    </div>
+                    <div class="player-cards"></div>
+                    <div class="modifiers-row" style="margin-top:8px; min-height:40px; display:flex; align-items:center; position:relative;">
+                        <div class="mods-container" style="flex:1; display:flex; justify-content:center; gap:5px;"></div>
+                        <div class="reaction-overlay" style="position:absolute; right:0; display:flex; gap:5px; align-items:center; min-width:60px; height:50px; justify-content:flex-end;"></div>
+                    </div>
+                    <div class="bust-overlay-container"></div>
+                `;
+                container.innerHTML = '';
+                container.appendChild(zone);
+            }
+
+            const isMe = player.id === myId;
+            const isTurn = pIdx === state.turn;
+            updatePlayerZone(zone, player, isMe, isTurn, state);
+        }
+
+        // Master layout routing function
+        function smartRenderLayout() {
+            const myIdx = state.players.findIndex(p => p.id === myId);
+            const activeIdx = state.turn;
+            const me = state.players[myIdx];
+            const activePlayer = state.players[activeIdx];
+
+            // Determine if action is in progress (requires showing target)
+            const actionInProgress = state.pending &&
+                (state.pending.t === 'freeze' || state.pending.t === 'flip3' || state.pending.t === 'give_sc');
+            const actionFromIdx = actionInProgress ? state.pending.from : null;
+
+            // For Flip3, track the target from flip3Context
+            let actionTargetIdx = null;
+            if (state.flip3Context && state.flip3Context.tgt !== undefined) {
+                actionTargetIdx = state.flip3Context.tgt;
+            }
+            // Also check if any player has flip3Active
+            const flip3ActivePlayer = state.players.findIndex(p => p.flip3Active);
+            if (flip3ActivePlayer >= 0 && flip3ActivePlayer !== myIdx) {
+                actionTargetIdx = flip3ActivePlayer;
+            }
+
+            // Track which indices are shown in special zones
+            const shownInSpecialZones = new Set();
+
+            // 1. MY HAND → always in #myHandZone
+            if (myIdx >= 0 && me) {
+                renderSinglePlayerZone(qs('#myHandZone'), me, state);
+                shownInSpecialZones.add(myIdx);
+            } else {
+                qs('#myHandZone').innerHTML = '';
+            }
+
+            // 2. ACTIVE PLAYER ZONE (under deck) → shows current turn player IF not me
+            const activeZone = qs('#activePlayerZone');
+            if (activeIdx !== myIdx && activePlayer) {
+                renderSinglePlayerZone(activeZone, activePlayer, state);
+                shownInSpecialZones.add(activeIdx);
+            } else {
+                activeZone.innerHTML = '';
+            }
+
+            // 3. ACTION TARGET ZONE → shows during Freeze/Flip3 when target is not me and not already shown
+            const targetZone = qs('#actionTargetZone');
+            if (actionTargetIdx !== null && actionTargetIdx !== myIdx && !shownInSpecialZones.has(actionTargetIdx)) {
+                targetZone.style.display = 'block';
+                renderSinglePlayerZone(targetZone, state.players[actionTargetIdx], state);
+                shownInSpecialZones.add(actionTargetIdx);
+            } else {
+                targetZone.style.display = 'none';
+                targetZone.innerHTML = '';
+            }
+
+            // 4. OTHER PLAYERS → everyone not in special zones
+            const otherPlayers = state.players.filter((_, i) => !shownInSpecialZones.has(i));
+            smartRenderPlayers(qs('#playersArea'), otherPlayers, false, myId, state.turn, state);
+        }
+
         function smartRenderPlayers(container, players, isMeGlobal, myIdGlobal, turnGlobal, stateGlobal) {
             players.forEach((p, idxList) => {
                 const originalIdx = stateGlobal.players.findIndex(x => x.id === p.id);
@@ -4262,13 +4673,34 @@
             const bCont = zone.querySelector('.bust-overlay-container');
             const showBust = p.st === 'bust' && Date.now() - (p.bustTime || 0) < 2000;
             if (showBust) {
-                if (!bCont.firstChild) bCont.innerHTML = '<div class="bust-overlay">BUST!</div>';
+                if (!bCont.firstChild) {
+                    // FIX 7: APNGs on sides of BUST text for symmetric dramatic layout
+                    const bustEmojis = [
+                        `${FLUENT_BASE}/Smilies/Skull.png`,
+                        `${FLUENT_BASE}/Smilies/Loudly%20Crying%20Face.png`,
+                        `${FLUENT_BASE}/Smilies/Exploding%20Head.png`
+                    ];
+                    const emoji = bustEmojis[Math.floor(Math.random() * bustEmojis.length)];
+                    bCont.innerHTML = `
+                        <div class="bust-overlay" style="gap: 15px;">
+                            <img src="${emoji}" style="height:50px; filter:drop-shadow(0 0 10px rgba(244,63,94,0.8));">
+                            <span style="color:#FF6B35; font-size:42px; font-weight:900; text-shadow: 0 0 30px rgba(255,107,53,0.8); animation: shake 0.3s infinite;">BUST!</span>
+                            <img src="${emoji}" style="height:50px; filter:drop-shadow(0 0 10px rgba(244,63,94,0.8));">
+                        </div>
+                    `;
+                }
             } else {
                 if (bCont.firstChild) bCont.innerHTML = '';
             }
         }
 
         function smartUpdateCards(container, cards, p, isMe, typeStr) {
+            // FIX: Animate modifier row expansion
+            if (typeStr === 'mods') {
+                if (cards && cards.length > 0) container.classList.add('has-cards');
+                else container.classList.remove('has-cards');
+            }
+
             if (!localPlayerCardCounts[p.id]) localPlayerCardCounts[p.id] = { nums: 0, mods: 0 };
             if (!localAnimatingCards[p.id]) localAnimatingCards[p.id] = { nums: {}, mods: {} };
 
@@ -4561,23 +4993,27 @@
             // Remove old scoreboard updates
             // qs('#scoreRows').innerHTML = ...
 
-            // Reorder players: current player first, then others
-            const myIdx = state.players.findIndex(p => p.id === myId);
-            const reorderedPlayers = myIdx >= 0
-                ? [state.players[myIdx], ...state.players.filter((_, i) => i !== myIdx)]
-                : state.players;
+            // Use new dynamic layout routing
+            smartRenderLayout();
 
-            smartRenderPlayers(qs('#playersArea'), reorderedPlayers, true, myId, state.turn, state);
-
-
-            const me = reorderedPlayers.find(p => p.id === myId);
             const meIdx = state.players.findIndex(p => p.id === myId);
+            const me = state.players[meIdx];
             const canAct = meIdx === state.turn && me?.st === 'active';
-            qs('#btnHit').disabled = !canAct || state.pending; qs('#btnStay').disabled = !canAct || state.pending;
+
+            // Logic for Hit/Stay buttons visibility during Recap
+            if (state.phase === 'recap') {
+                qs('#btnHit').style.display = 'none';
+                qs('#btnStay').style.display = 'none';
+            } else {
+                qs('#btnHit').style.display = '';
+                qs('#btnStay').style.display = '';
+                qs('#btnHit').disabled = !canAct || state.pending;
+                qs('#btnStay').disabled = !canAct || state.pending;
+            }
             if (state.pending?.from === meIdx) showTgt();
 
-            // Enable Reaction Button if game is active
-            if (state.phase === 'game') {
+            // Enable Reaction Button if game is active (or between rounds)
+            if (state.phase !== 'lobby') {
                 qs('#btnReact').disabled = false;
                 qs('#btnStats').disabled = false;
             } else {
@@ -4728,14 +5164,69 @@
             setTimeout(() => t.classList.remove('active'), 3000);
         }
 
-        function showCardSplash(cardValue) {
+        // Broadcast Toast for action announcements (visible to ALL players)
+        function showBroadcastToast(type, fromName, targetName = null) {
+            // FIX: Customize message for self-targeting actions
+            if (fromName === targetName) {
+                if (type === 'freeze') type = 'freeze_self';
+                if (type === 'flip3') type = 'flip3_self';
+            }
+
+            const configs = {
+                freeze: { icon: '❄️', msg: `${fromName} congela ${targetName}!`, cls: 'freeze' },
+                flip3_self: { icon: '⚡', msg: `${fromName} usa Flip Three su se stesso!`, cls: 'flip3' }, // FIX: Added self-flip3 msg
+                freeze_self: { icon: '❄️', msg: `${fromName} è l'ultimo rimasto, viene congelato!`, cls: 'freeze' },
+                flip3: { icon: '⚡', msg: `${fromName} fa pescare 3 carte a ${targetName}!`, cls: 'flip3' },
+                give_sc: { icon: '❤️', msg: `${fromName} dona Second Chance a ${targetName}!`, cls: 'second-chance' },
+                deal_resume: { icon: '🎴', msg: 'Azione risolta, riprendiamo il dealing!', cls: 'freeze' }
+            };
+            const cfg = configs[type];
+            if (!cfg) return;
+
+            const toast = document.createElement('div');
+            toast.className = `broadcast-toast ${cfg.cls}`;
+            toast.innerHTML = `<span style="font-size:32px;">${cfg.icon}</span><span>${cfg.msg}</span>`;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'toastSlideOut 0.3s ease-in forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 2800);
+        }
+
+        // FIX 1: Splashscreen for SC burn when alone (broadcast to all)
+        function showSCBurnAloneSplash(playerName) {
+            const splash = qs('#cardSplash');
+            const isMe = state.players.find(p => p.name === playerName)?.id === myId;
+            const title = isMe ? 'Hai già una Second Chance!' : `${playerName} ha già Second Chance!`;
+            splash.innerHTML = `
+                <div class="splash-title second_chance" style="font-size: 24px;">${title}</div>
+                <div class="splash-card">
+                    <img src="assets/cards/action_second_chance.webp" style="width:100%; height:100%; object-fit:contain; border-radius:10px; animation: burnCard 2s forwards;">
+                </div>
+                <div style="color: #ff6b35; font-size: 16px; margin-top: 10px;">Ultimo rimasto - La carta brucia! 🔥</div>
+            `;
+            splash.classList.add('active');
+            setTimeout(() => splash.classList.remove('active'), 2000);
+        }
+
+        // FIX 2: Personalized splashscreen - shows WHO drew the action card
+        function showCardSplash(cardValue, whoName = null) {
             const names = { freeze: 'FREEZE!', flip3: 'FLIP THREE!', second_chance: 'SECOND CHANCE!' };
             const splash = qs('#cardSplash');
+
+            // Determine if this is me or another player
+            const isMe = whoName && state.players.find(p => p.name === whoName)?.id === myId;
+            const whoText = isMe ? 'Hai pescato' : (whoName ? `${whoName} ha pescato` : 'Pescata');
+
             splash.innerHTML = `
-                <div class="splash-title ${cardValue}">${names[cardValue]}</div>
-                        <div class="splash-card">
-                            <img src="assets/cards/action_${cardValue}.webp" style="width:100%; height:100%; object-fit:contain; border-radius:10px;">
-                        </div>
+                <div class="splash-title ${cardValue}">${names[cardValue] || cardValue.toUpperCase()}</div>
+                <div class="splash-card">
+                    <img src="assets/cards/action_${cardValue}.webp" style="width:100%; height:100%; object-fit:contain; border-radius:10px;">
+                </div>
+                <div style="color: white; font-size: 18px; margin-top: 12px; font-weight: 600; text-shadow: 0 2px 8px rgba(0,0,0,0.5);">
+                    ${whoText} ${names[cardValue] || cardValue}!
+                </div>
             `;
             splash.classList.add('active');
             setTimeout(() => splash.classList.remove('active'), 2000);
@@ -4746,11 +5237,13 @@
     <div id="cardSplash"></div>
     <div id="flip7Overlay"
         style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.85); z-index:2500; align-items:center; justify-content:center; flex-direction:column; backdrop-filter:blur(20px);">
-        <div style="font-size:80px; animation: bounce 0.5s ease infinite alternate;">🎴</div>
+        <!-- FIX 5: Using official Flip7 Logo instead of emoji -->
+        <img src="assets/Flip7 Logo.webp" alt="Flip7"
+            style="height:120px; animation: bounce 0.5s ease infinite alternate, pulseGlow 1s ease infinite; filter: drop-shadow(0 0 30px rgba(251, 191, 36, 0.8));">
         <h1
-            style="font-size:56px; margin:20px 0; background:linear-gradient(135deg, #fbbf24, #f59e0b, #eab308); -webkit-background-clip:text; -webkit-text-fill-color:transparent; text-shadow: 0 0 40px rgba(251, 191, 36, 0.5); animation: pulseGlow 0.5s ease infinite alternate;">
+            style="font-size:56px; margin:20px 0; background:linear-gradient(135deg, #fbbf24, #f59e0b, #eab308); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; animation: pulseGlow 0.5s ease infinite alternate;">
             FLIP 7!</h1>
-        <p class="flip7-winner-name" style="font-size:28px; color:white; margin-bottom:10px;"></p>
+        <p class="flip7-winner-name" style="font-size:28px; color:white; margin-bottom:10px; font-weight:700;"></p>
         <p style="font-size:18px; color:rgba(255,255,255,0.7);">+15 Punti Bonus! 🎉</p>
     </div>
 </body>
