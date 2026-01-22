@@ -158,7 +158,7 @@
             position: fixed;
             top: 45%;
             height: 70vh;
-            width: 280px;
+            width: 70vw;
             max-width: 80%;
             background: rgba(26, 22, 37, 0.95);
             backdrop-filter: blur(20px);
@@ -629,7 +629,6 @@
             margin-bottom: 8px;
             border-radius: 12px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
             border: 1px solid rgba(255, 255, 255, 0.05);
             transition: transform 0.2s, background 0.2s;
@@ -1000,17 +999,17 @@
         .broadcast-toast {
             position: fixed;
             top: 80px;
-            /* left: 50%; */
+            left: 50%;
             transform: translateX(-50%);
             z-index: 5000;
-            max-width: 90vw;
-            /* Wider toasts */
             padding: 16px 24px;
             border-radius: 16px;
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             display: flex;
             align-items: center;
+            justify-content: center;
+            /* Center content */
             gap: 12px;
             font-weight: 600;
             font-size: 15px;
@@ -1018,36 +1017,24 @@
             text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             animation: toastSlideIn 0.4s ease-out;
-        }
-
-        /* Modifier Container Animation */
-        .mods-container {
-            max-height: 0;
-            opacity: 0;
-            overflow: hidden;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            margin-top: 0;
-        }
-
-        .mods-container.has-cards {
-            max-height: 120px;
-            opacity: 1;
-            margin-top: 10px;
+            width: 70vw;
+            /* Fixed width as requested */
+            max-width: 90vw;
         }
 
         .broadcast-toast.freeze {
-            background: linear-gradient(135deg, rgba(56, 189, 248, 0.95), rgba(14, 165, 233, 0.95));
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.4), rgba(14, 165, 233, 0.4));
+            border: 1px solid rgba(56, 189, 248, 0.3);
         }
 
         .broadcast-toast.flip3 {
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.95), rgba(234, 88, 12, 0.95));
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.4), rgba(234, 88, 12, 0.4));
+            border: 1px solid rgba(245, 158, 11, 0.3);
         }
 
         .broadcast-toast.second-chance {
-            background: linear-gradient(135deg, rgba(248, 113, 113, 0.95), rgba(239, 68, 68, 0.95));
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: linear-gradient(135deg, rgba(248, 113, 113, 0.4), rgba(239, 68, 68, 0.4));
+            border: 1px solid rgba(248, 113, 113, 0.3);
         }
 
         @keyframes toastSlideIn {
@@ -1407,11 +1394,6 @@
         }
 
 
-        .controls {
-            z-index: 3100;
-            /* Ensure above valid recapOverlay (3000) */
-        }
-
         .controls .btn {
             /* min-width: 140px; Causa problemi e allunga più del necessario i bottoni */
             font-size: 18px;
@@ -1432,7 +1414,7 @@
                 bottom: 0;
                 left: 0;
                 right: 0;
-                z-index: 3100;
+                z-index: 100;
                 background: rgba(26, 22, 37, 0.95);
                 backdrop-filter: blur(20px);
                 border-top: 1px solid var(--glass-border);
@@ -1442,10 +1424,6 @@
                 display: flex;
                 gap: 12px;
                 box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
-                /* FIX: Enable interactions during round recap */
-                z-index: 2500;
-                position: fixed;
-                /* Restore fixed positioning */
             }
 
             .controls .btn {
@@ -1922,7 +1900,6 @@
 
         /* Compact zones for other players */
         .player-zone:not(.my-zone) {
-            transform: scale(0.85);
             opacity: 0.9;
             /* margin: 5px auto; occupa spazio! */
         }
@@ -2126,8 +2103,7 @@
             border-top-left-radius: 24px;
             border-top-right-radius: 24px;
             border-top: 1px solid rgba(255, 255, 255, 0.15);
-            z-index: 2501;
-            /*non modificare, deve stare sopra ai controlli*/
+            z-index: 1500;
             transform: translateY(100%);
             transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
@@ -2209,8 +2185,57 @@
 
         /* Stats Button */
         .btn-stats {
-            background: linear-gradient(135deg, #FF6B35, #f59e0b) !important;
+            background: rgba(255, 255, 255, 0.1) !important;
+            backdrop-filter: blur(10px) !important;
+            -webkit-backdrop-filter: blur(10px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
             color: white !important;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        #sidebarLeaderboardContent {
+            margin-top: 25px;
+            /* Spacing from header */
+        }
+
+        /* Leaderboard Ranks */
+        .leaderboard-row.rank-1 {
+            border-color: #fbbf24 !important;
+            /* Gold */
+            background: linear-gradient(90deg, rgba(251, 191, 36, 0.15), transparent);
+            box-shadow: 0 4px 12px rgba(251, 191, 36, 0.2);
+        }
+
+        .leaderboard-row.rank-2 {
+            border-color: #cbd5e1 !important;
+            /* Silver */
+            background: linear-gradient(90deg, rgba(203, 213, 225, 0.15), transparent);
+            box-shadow: 0 4px 12px rgba(203, 213, 225, 0.2);
+        }
+
+        .leaderboard-row.rank-3 {
+            border-color: #d1a684 !important;
+            /* Bronze */
+            background: linear-gradient(90deg, rgba(209, 166, 132, 0.15), transparent);
+            box-shadow: 0 4px 12px rgba(209, 166, 132, 0.2);
+        }
+
+        .rank-text-1 {
+            color: #fbbf24;
+            font-weight: 800;
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+        }
+
+        .rank-text-2 {
+            color: #cbd5e1;
+            font-weight: 700;
+            text-shadow: 0 0 8px rgba(203, 213, 225, 0.4);
+        }
+
+        .rank-text-3 {
+            color: #d1a684;
+            font-weight: 700;
+            text-shadow: 0 0 8px rgba(209, 166, 132, 0.4);
         }
 
         /* End-game stats section */
@@ -2219,8 +2244,18 @@
             padding: 20px;
             background: rgba(255, 255, 255, 0.05);
             border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
         }
+
+        @keyframes pulseRed {
+            0% {
+                box-shadow: 0 0 5px rgba(239, 68, 68, 0.4);
+            }
+
+            100% {
+                box-shadow: 0 0 15px rgba(239, 68, 68, 0.8), 0 0 30px rgba(239, 68, 68, 0.4);
+            }
+        }
+
 
         .endgame-stats h3 {
             text-align: center;
@@ -2311,6 +2346,11 @@
                 <h3>🏆 Classifica</h3>
                 <span style="font-size:12px; color:var(--text-secondary); margin-bottom:15px">Obiettivo: 200 pts</span>
                 <div id="sidebarLeaderboardContent"></div>
+                <button class="btn btn-3d btn-stats" id="btnStats" disabled aria-label="Statistiche"
+                    style="width:60%; margin-top:20px; display:flex; align-items:center; justify-content:center; gap:10px; padding:12px; justify-self: center;">
+                    <span style="font-size:20px;">📊</span>
+                    <span style="font-size:14px; font-weight:600;">Statistiche</span>
+                </button>
             </div>
         </div>
 
@@ -2400,8 +2440,18 @@
                         <img src="https://em-content.zobj.net/source/microsoft-teams/400/speech-balloon_1f4ac.png"
                             style="height:35px; filter:drop-shadow(0 4px 6px rgba(0,0,0,0.2)); transition:transform 0.2s;">
                     </button>
-                    <div id="reactionPicker" class="glass"
-                        style="display:none; position:absolute; bottom:80px; left:50%; transform:translateX(-50%); width:340px; max-height:260px; overflow-y:auto; padding:10px; display:grid; grid-template-columns:repeat(6, 1fr); gap:8px; border-radius:16px; z-index:5000; opacity:0; transition:opacity 0.2s;">
+                    <div id="reactionPicker" class="glass" style=" display: none;
+                                position: absolute;
+                                bottom: 85px;
+                                width: 95vw;
+                                max-height: 180px;
+                                overflow-y: auto;
+                                padding: 10px;
+                                display: grid;
+                                grid-template-columns: repeat(6, 1fr);
+                                z-index: 100;
+                                opacity: 0;
+                                transition: opacity 0.2s;">
                         <!-- Filled by JS -->
                     </div>
                 </div>
@@ -2410,10 +2460,7 @@
                     <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Hand%20gestures/Raising%20Hands%20Medium-Light%20Skin%20Tone.png"
                         alt="Stop" style="height:40px; width:auto; pointer-events:none;">
                 </button>
-                <button class="btn btn-3d btn-stats" id="btnStats" disabled aria-label="Statistiche"
-                    style="flex:1; min-width:50px;">
-                    <span style="font-size:24px;">📊</span>
-                </button>
+
             </div>
         </div>
     </div>
@@ -2809,7 +2856,6 @@
             snowflake: 'https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/Snowflake.png',
             lightning: 'https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/High%20Voltage.png',
             // FIX 6: Using Face Exhaling for stay reactions
-            // DO NOT CHANGE PATH: Keep full GitHub URL and %20 encoding
             stop: 'https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Face%20Exhaling.png',
             carta: 'https://em-content.zobj.net/source/microsoft-teams/400/palm-up-hand_medium-light-skin-tone_1faf4-1f3fc_1f3fc.png',
             frozen: 'https://em-content.zobj.net/source/microsoft-teams/400/cold-face_1f976.png',
@@ -2847,21 +2893,32 @@
             ]
         };
 
-        // DO NOT CHANGE PATH LOGIC: Use full GitHub URL + %20 for spaces
+        // APNG PATH STRATEGY - PLEASE READ DO NOT MODIFY
+        // ------------------------------------------------
+        // Emoji paths MUST be fully qualified or strictly encoded to avoid 404 errors.
+        // 1. Files from 'Tarikul-Islam-Anik/Animated-Fluent-Emojis' often have spaces in filenames.
+        // 2. We MUST encode these spaces as '%20' manually in the strings below.
+        // 3. Do NOT use local paths (e.g. 'Emojis/...') as they may fail if assets aren't downloaded.
+        // 4. Always use `${FLUENT_BASE}` or the full raw.githubusercontent.com URL.
         const REACTIONS = [
+            // Hand Gestures
             { id: 'like', src: `${FLUENT_BASE}/Hand%20gestures/Thumbs%20Up.png` },
             { id: 'dislike', src: `${FLUENT_BASE}/Hand%20gestures/Thumbs%20Down.png` },
+            { id: 'ok', src: `${FLUENT_BASE}/Hand%20gestures/OK%20Hand.png` },
+            { id: 'peace', src: `${FLUENT_BASE}/Hand%20gestures/Victory%20Hand.png` },
+            { id: 'fingers_crossed', src: `${FLUENT_BASE}/Hand%20gestures/Crossed%20Fingers.png` },
+            { id: 'love_you', src: `${FLUENT_BASE}/Hand%20gestures/Love-You%20Gesture.png` },
+            { id: 'clap', src: `${FLUENT_BASE}/Hand%20gestures/Clapping%20Hands.png` },
+            { id: 'wave', src: `${FLUENT_BASE}/Hand%20gestures/Waving%20Hand.png` },
+            { id: 'pray', src: `${FLUENT_BASE}/Hand%20gestures/Folded%20Hands.png` },
+            { id: 'stop', src: `${FLUENT_BASE}/Hand%20gestures/Raised%20Hand.png` },
+            { id: 'muscle', src: `${FLUENT_BASE}/People%20with%20activities/Person%20Lifting%20Weights%20Light%20Skin%20Tone.png` },
+
+            // Smilies & Emotions
             { id: 'laugh', src: `${FLUENT_BASE}/Smilies/Face%20with%20Tears%20of%20Joy.png` },
             { id: 'cry', src: `${FLUENT_BASE}/Smilies/Loudly%20Crying%20Face.png` },
             { id: 'angry', src: `${FLUENT_BASE}/Smilies/Enraged%20Face.png` },
             { id: 'shock', src: `${FLUENT_BASE}/Smilies/Face%20Screaming%20in%20Fear.png` },
-            { id: 'fire', src: `${FLUENT_BASE}/Travel%20and%20places/Fire.png` },
-            { id: 'party', src: `${FLUENT_BASE}/Activities/Party%20Popper.png` },
-            { id: 'clown', src: `${FLUENT_BASE}/Smilies/Clown%20Face.png` },
-            { id: 'ghost', src: `${FLUENT_BASE}/Smilies/Ghost.png` },
-            { id: 'stop', src: `${FLUENT_BASE}/Hand%20gestures/Raised%20Hand.png` },
-            { id: 'bust', src: `${FLUENT_BASE}/Smilies/Skull.png` },
-            // Additional reactions (Fix 2)
             { id: 'heart', src: `${FLUENT_BASE}/Smilies/Smiling%20Face%20with%20Heart-Eyes.png` },
             { id: 'cool', src: `${FLUENT_BASE}/Smilies/Smiling%20Face%20with%20Sunglasses.png` },
             { id: 'thinking', src: `${FLUENT_BASE}/Smilies/Thinking%20Face.png` },
@@ -2870,22 +2927,33 @@
             { id: 'money', src: `${FLUENT_BASE}/Smilies/Money-Mouth%20Face.png` },
             { id: 'nerd', src: `${FLUENT_BASE}/Smilies/Nerd%20Face.png` },
             { id: 'sick', src: `${FLUENT_BASE}/Smilies/Nauseated%20Face.png` },
+            { id: 'clown', src: `${FLUENT_BASE}/Smilies/Clown%20Face.png` },
+            { id: 'ghost', src: `${FLUENT_BASE}/Smilies/Ghost.png` },
+            { id: 'poop', src: `${FLUENT_BASE}/Smilies/Pile%20of%20Poo.png` },
+            { id: 'skull', src: `${FLUENT_BASE}/Smilies/Skull.png` },
+            { id: 'shush', src: `${FLUENT_BASE}/Smilies/Shushing%20Face.png` },
+            { id: 'zany', src: `${FLUENT_BASE}/Smilies/Zany%20Face.png` },
+            { id: 'pleading', src: `${FLUENT_BASE}/Smilies/Pleading%20Face.png` },
+            { id: 'pout', src: `${FLUENT_BASE}/People%20with%20activities/Man%20in%20Motorized%20Wheelchair%20Light%20Skin%20Tone.png` },
+            { id: 'hot', src: `${FLUENT_BASE}/Smilies/Hot%20Face.png` },
+            { id: 'cold', src: `${FLUENT_BASE}/Smilies/Cold%20Face.png` },
+            { id: 'explode', src: `${FLUENT_BASE}/Smilies/Exploding%20Head.png` },
+            { id: 'cowboy', src: `${FLUENT_BASE}/Smilies/Cowboy%20Hat%20Face.png` },
+
+            // Activities & Objects
+            { id: 'fire', src: `${FLUENT_BASE}/Travel%20and%20places/Fire.png` },
+            { id: 'party', src: `${FLUENT_BASE}/Activities/Party%20Popper.png` },
             { id: 'star', src: `${FLUENT_BASE}/Travel%20and%20places/Star.png` },
             { id: 'trophy', src: `${FLUENT_BASE}/Activities/Trophy.png` },
-            { id: 'clap', src: `${FLUENT_BASE}/Hand%20gestures/Clapping%20Hands.png` },
-            { id: 'wave', src: `${FLUENT_BASE}/Hand%20gestures/Waving%20Hand.png` },
-            { id: 'pray', src: `${FLUENT_BASE}/Hand%20gestures/Folded%20Hands.png` },
-            { id: 'muscle', src: `${FLUENT_BASE}/People%20with%20activities/Person%20Lifting%20Weights%20Light%20Skin%20Tone.png` },
-            // New Extended Set (Fix 3)
-            { id: 'robot', src: `${FLUENT_BASE}/Smilies/Robot.png` },
-            { id: 'alien', src: `${FLUENT_BASE}/Smilies/Alien.png` },
-            { id: 'zany', src: `${FLUENT_BASE}/Smilies/Zany%20Face.png` },
-            { id: 'partying', src: `${FLUENT_BASE}/Smilies/Partying%20Face.png` },
-            { id: 'sleeping', src: `${FLUENT_BASE}/Smilies/Sleeping%20Face.png` },
-            { id: 'sun', src: `${FLUENT_BASE}/Travel%20and%20places/Sun.png` },
-            { id: 'moon', src: `${FLUENT_BASE}/Travel%20and%20places/Crescent%20Moon.png` },
-            { id: 'gem', src: `${FLUENT_BASE}/Objects/Gem%20Stone.png` },
-            { id: 'gift', src: `${FLUENT_BASE}/Activities/Wrapped%20Gift.png` }
+            { id: 'medal', src: `${FLUENT_BASE}/Activities/1st%20Place%20Medal.png` },
+            { id: 'bomb', src: `${FLUENT_BASE}/Smilies/Bomb.png` },
+            { id: 'gift', src: `${FLUENT_BASE}/Activities/Wrapped%20Gift.png` },
+            { id: 'gem', src: `${FLUENT_BASE}/Objects/Gem%20Stone.png` }, // Using generic path
+            // Animals (some might need check but usually exist)
+            { id: 'cat', src: `${FLUENT_BASE}/Animals/Cat%20Face.png` },
+            { id: 'dog', src: `${FLUENT_BASE}/Animals/Dog%20Face.png` },
+            { id: 'monkey', src: `${FLUENT_BASE}/Animals/Monkey%20Face.png` },
+            { id: 'bust', src: `${FLUENT_BASE}/Smilies/Skull.png` } // Kept for bust usage
         ];
 
         function getRandAsset(key) {
@@ -3016,6 +3084,10 @@
                 closeStatsSheet();
             } else {
                 openStatsSheet();
+                // Close sidebar if open (UX improvement)
+                if (document.getElementById('leaderboardSidebar').classList.contains('active')) {
+                    toggleSidebar('leaderboardSidebar');
+                }
             }
         }
 
@@ -3665,6 +3737,8 @@
             });
             state.last = null; state.pending = null;
             state.dealingPhase = false; state.flip3Queue = [];
+            state.dealingPaused = false; // FIX: Prevent race condition in deal loop
+            state.flip3State = null; // FIX: Queue/Pause state for Flip3
             localPlayerCardCounts = {}; // Reset local animation tracking
             qs('body').classList.remove('animation-blocked'); // Ensure UI is unlocked
         }
@@ -3677,12 +3751,87 @@
             }
             state.dealingPhase = true;
             state.dealIndex = 0;
+            state.dealingPaused = false;
 
             dealLoop();
         }
 
+        // ... dealLoop ...
+
+        // ...
+
+        function startFlip3Sequence(tgtIdx, fromIdx) {
+            const tgt = state.players[tgtIdx];
+            tgt.flip3Active = true;
+            trackAction('flip3'); // Stats tracking
+
+            // Auto Reaction Flip 3 (Anxiety!)
+            showReaction(tgt.id, 'shock');
+            bc({ t: 'reaction', who: tgt.id, id: 'shock' });
+
+            // Set Context for queue processing
+            state.flip3Context = { from: fromIdx, to: tgtIdx };
+
+            // FIX: Initialize Global Flip3 State
+            state.flip3State = { active: true, count: 0, targetIdx: tgtIdx, paused: false };
+
+            sync(); updateGame();
+
+            setTimeout(dealFlip3, 1500);
+        }
+
+        // CORE LOGIC: Recursive Flip 3 Deal with Pause support
+        function dealFlip3() {
+            if (!state.flip3State || !state.flip3State.active) return;
+            if (state.flip3State.paused) return; // PAUSED
+
+            // Check Pending (Double check to prevent race)
+            if (state.pending) {
+                state.flip3State.paused = true;
+                return;
+            }
+
+            const tgtIdx = state.flip3State.targetIdx;
+            const tgt = state.players[tgtIdx];
+
+            if (state.flip3State.count < 3 && tgt.st === 'active') {
+                drawCard(tgtIdx, true); // true = isFlip3 context
+
+                // CHECK PAUSE IMMEDIATELY AFTER DRAW
+                // If drawCard triggered Freeze, state.pending is NOW true.
+                if (state.pending) {
+                    state.flip3State.paused = true;
+                    // Do NOT increment count? 
+                    // Wait, drawCard() already gave the card. The Freeze card counts as 1 of the 3 cards.
+                    // Yes, Freeze IS a card.
+                    state.flip3State.count++;
+                    sync(); updateGame();
+                    return; // Stop recursion. Resume will call dealFlip3 again.
+                }
+
+                state.flip3State.count++;
+                sync(); updateGame();
+
+                // Check Delay
+                const isAction = state.last && state.last.type === 'action';
+                const delay = isAction ? 3600 : 2200;
+
+                setTimeout(dealFlip3, delay);
+            } else {
+                // Finished or busted
+                state.flip3State.active = false;
+                tgt.flip3Active = false;
+                state.flip3State = null;
+                // Check logic queue via Global function
+                processFlip3Queue();
+            }
+        }
+
         function dealLoop() {
             if (!state.dealingPhase) return;
+            // FIX: Explicitly pause dealing if an action resolution is pending
+            if (state.dealingPaused) return;
+
             // Block if animation is active
             if (qs('body').classList.contains('animation-blocked')) {
                 setTimeout(dealLoop, 200);
@@ -3977,32 +4126,22 @@
                 const actionIcons = { freeze: '❄️ Freeze', flip3: '⚡ Flip 3', second_chance: '❤️ Second Chance' };
                 addToHistory(`${p.name} ha pescato ${actionIcons[c.value] || c.value}!`, 'special');
 
-                // If in Flip 3 loop, just add to hand, don't trigger effects
-                if (isFlip3) {
+                // FIX: Pause dealing if dealing phase and async action
+                if (state.dealingPhase && ['freeze', 'flip3'].includes(c.value)) {
+                    state.dealingPaused = true;
+                }
+
+                // FLIP3 QUEUE LOGIC:
+                // If we are inside a Flip 3 loop, we QUEUE other Flip 3 cards.
+                // Freeze and Second Chance fall through to standard logic (Freeze pauses, SC burns/keeps).
+                if (isFlip3 && c.value === 'flip3') {
                     p.cards.push(c);
-                    if (c.value === 'second_chance') p.sc = true;
-                    // Queue logic
-                    if (['flip3', 'freeze'].includes(c.value)) {
-                        state.flip3Queue.push({ t: c.value, from: idx, card: c });
-                        showToast(`Azione ${c.value} in coda!`);
-                    }
+                    state.flip3Queue.push({ t: c.value, from: idx, card: c });
+                    showToast(`Azione Flip 3 in coda!`);
                     return;
                 }
 
                 const activeCount = state.players.filter(pl => pl.st === 'active').length;
-
-                // FLIP3 QUEUE LOGIC: If we are inside a Flip 3 loop (isFlip3 is true),
-                // we must QUEUE actions (Flip3, Freeze) to resolve AFTER the cards are drawn.
-                // UNLESS it's Second Chance, which is immediate (handled above).
-                if (isFlip3) {
-                    // Check if it's an action we need to queue
-                    // UPDATED: Freeze is NO LONGER queued. It interrupts immediately.
-                    if (['flip3'].includes(c.value)) {
-                        state.flip3Queue.push({ t: c.value, from: idx, card: c });
-                        showToast(`Azione ${c.value} in coda!`);
-                        return;
-                    }
-                }
 
                 // FLIP3: Drawer draws 3 cards themselves (no targeting)
                 // RULE CHANGE: Action is played on TARGET.
@@ -4039,14 +4178,7 @@
                                     p.st = 'stayed';
 
                                     if (state.dealingPhase) dealLoop(); // Resume deal
-                                    else {
-                                        // Resume Flip3 if active
-                                        if (state.resumeFlip3) {
-                                            state.resumeFlip3();
-                                        } else {
-                                            nextTurn(); sync(); updateGame();
-                                        }
-                                    }
+                                    else { nextTurn(); sync(); updateGame(); }
                                 }, 2000);
                             }, 1500);
                         }, 500);
@@ -4230,10 +4362,6 @@
 
             let count = 0;
             function flip3Loop() {
-                // PAUSE check: If pending action (Freeze), stop loop.
-                // It will be resumed by resAct via state.resumeFlip3
-                if (state.pending) return;
-
                 if (count < 3 && tgt.st === 'active') {
                     drawCard(tgtIdx, true);
                     count++;
@@ -4250,9 +4378,6 @@
                     processFlip3Queue();
                 }
             }
-
-            // Expose loop for resumption
-            state.resumeFlip3 = flip3Loop;
 
             setTimeout(flip3Loop, 1500);
         }
@@ -4292,11 +4417,11 @@
         }
 
         function finishFlip3Sequence() {
-            delete state.resumeFlip3; // Cleanup
             if (state.dealingPhase) {
                 // FIX 3: Toast when resuming dealing
                 if (isHost) bc({ t: 'broadcast_toast', type: 'deal_resume', from: '', target: '' });
                 showToast('🎴 Azione risolta, riprendiamo il dealing!');
+                state.dealingPaused = false; // FIX: Resume dealing
                 dealLoop();
             }
             else {
@@ -4339,17 +4464,17 @@
                         // FIX 3: Toast when resuming dealing after freeze
                         if (isHost) bc({ t: 'broadcast_toast', type: 'deal_resume', from: '', target: '' });
                         showToast('🎴 Azione risolta, riprendiamo il dealing!');
+                        state.dealingPaused = false; // FIX: Resume dealing
                         dealLoop();
+                    }
+                    // FIX: Resume Flip3 Loop if paused (Interruption Logic)
+                    else if (state.flip3State && state.flip3State.paused) {
+                        state.flip3State.paused = false;
+                        dealFlip3();
                     }
                     else if (isQueue) {
                         processFlip3Queue();
-                    }
-                    // RESUME FLIP3 Check
-                    else if (state.resumeFlip3) {
-                        showToast('Riprendo Flip 3...');
-                        state.resumeFlip3();
-                    }
-                    else {
+                    } else {
                         nextTurn();
                     }
                     sync(); updateGame();
@@ -4373,13 +4498,16 @@
                         // FIX 3: Toast when resuming dealing after give_sc
                         if (isHost) bc({ t: 'broadcast_toast', type: 'deal_resume', from: '', target: '' });
                         showToast('🎴 Azione risolta, riprendiamo il dealing!');
+                        state.dealingPaused = false; // Resume dealing
                         dealLoop();
                     }
+                    // FIX: Resume Flip3 Loop if paused
+                    else if (state.flip3State && state.flip3State.paused) {
+                        state.flip3State.paused = false;
+                        dealFlip3();
+                    }
                     else {
-                        // If not dealing, turn continues for current player?
-                        // Or passes? Using 'give_sc' usually implies you lost the card.
-                        // But you are still active.
-                        // Let's assume turn continues (no nextTurn call).
+                        // Continue current logic
                         sync(); updateGame();
                     }
                 }, 2200);
@@ -4695,12 +4823,6 @@
         }
 
         function smartUpdateCards(container, cards, p, isMe, typeStr) {
-            // FIX: Animate modifier row expansion
-            if (typeStr === 'mods') {
-                if (cards && cards.length > 0) container.classList.add('has-cards');
-                else container.classList.remove('has-cards');
-            }
-
             if (!localPlayerCardCounts[p.id]) localPlayerCardCounts[p.id] = { nums: 0, mods: 0 };
             if (!localAnimatingCards[p.id]) localAnimatingCards[p.id] = { nums: {}, mods: {} };
 
@@ -4946,12 +5068,33 @@
             const sortedLeaderboard = [...state.players].sort((a, b) => b.tot - a.tot);
             const lbHtml = sortedLeaderboard.map((p, i) => {
                 const isWinner = p.tot >= 200;
-                return `<div class="leaderboard-row ${p.id === myId ? 'me' : ''}" style="${isWinner ? 'color:#fbbf24; font-weight:bold' : ''}">
+
+                // Rank Styling
+                let rankClass = '';
+                let rankTextStyle = '';
+                let medalImg = '';
+
+                if (i === 0) {
+                    rankClass = 'rank-1';
+                    rankTextStyle = 'rank-text-1';
+                    medalImg = `<img src="${FLUENT_BASE}/Activities/1st%20Place%20Medal.png" style="height:24px; margin-right:8px;">`;
+                } else if (i === 1) {
+                    rankClass = 'rank-2';
+                    rankTextStyle = 'rank-text-2';
+                    medalImg = `<img src="${FLUENT_BASE}/Activities/2nd%20Place%20Medal.png" style="height:24px; margin-right:8px;">`;
+                } else if (i === 2) {
+                    rankClass = 'rank-3';
+                    rankTextStyle = 'rank-text-3';
+                    medalImg = `<img src="${FLUENT_BASE}/Activities/3rd%20Place%20Medal.png" style="height:24px; margin-right:8px;">`;
+                }
+
+                return `<div class="leaderboard-row ${p.id === myId ? 'me' : ''} ${rankClass}" style="${isWinner ? 'color:#fbbf24; font-weight:bold' : ''}">
                     <div style="display:flex; align-items:center;">
-                        <span>${i + 1}. ${p.name} ${p.id === myId ? '(Tu)' : ''}</span>
+                        ${medalImg}
+                        <span class="${rankTextStyle}">${i + 1}. ${p.name} ${p.id === myId ? '(Tu)' : ''}</span>
                         ${isWinner ? `<img src="${ASSETS.crown}" style="height:20px; margin-left:6px;">` : ''}
                     </div>
-                    <span>${p.tot}</span>
+                    <span class="${rankTextStyle}" style="font-weight:bold; font-size:16px;">${p.tot}</span>
                 </div>`;
             }).join('');
             qs('#sidebarLeaderboardContent').innerHTML = lbHtml;
@@ -4959,16 +5102,49 @@
             // 2. History
             const historyHtml = state.history ? state.history.map(h => {
                 const isSpecial = h.type === 'special';
-                const timeStr = new Date(h.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                const isBust = h.type === 'bust';
 
                 let text = h.t;
-                // Replace keywords with animated icons
-                text = text.replace(/Freeze|❄️/g, `<img src="${ASSETS.snowflake}" style="height:16px; vertical-align:middle;"> Freeze`)
-                    .replace(/Flip 3|⚡/g, `<img src="${ASSETS.lightning}" style="height:16px; vertical-align:middle;"> Flip 3`)
-                    .replace(/Second Chance|❤️/g, `<img src="${ASSETS.heart}" style="height:16px; vertical-align:middle;"> Second Chance`);
+                let iconSrc = '';
 
-                return `<div class="history-item" style="${isSpecial ? 'border-color:rgba(251,191,36,0.5); background:rgba(251,191,36,0.1)' : ''}">
-                    <div style="font-size:10px; opacity:0.6; margin-bottom:2px;">${timeStr}</div>
+                // Base Style with Flexbox
+                let style = 'padding:10px 12px; margin-bottom:8px; border-radius:12px; font-size:13px; backdrop-filter:blur(5px); display:flex; align-items:center; gap:10px; line-height:1.4;';
+
+                // Theme & Icon Logic
+                if (text.includes('Freeze') || text.includes('❄️')) {
+                    iconSrc = ASSETS.snowflake;
+                    style += 'background:rgba(56,189,248,0.15); border:1px solid rgba(56,189,248,0.3); color:#fff;'; // Blue
+                    text = text.replace(/❄️/g, '').trim();
+                }
+                else if (text.includes('Flip 3') || text.includes('⚡')) {
+                    iconSrc = ASSETS.lightning;
+                    style += 'background:rgba(251,191,36,0.15); border:1px solid rgba(251,191,36,0.3); color:#fff;'; // Amber
+                    text = text.replace(/⚡/g, '').trim();
+                }
+                else if (text.includes('Second Chance') || text.includes('❤️')) {
+                    const heartIcon = ASSETS.sc || ASSETS.heart || 'https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Red%20Heart.png';
+                    iconSrc = heartIcon;
+                    style += 'background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); color:#fff;'; // Red
+                    text = text.replace(/❤️/g, '').trim();
+                }
+                else if (isBust || text.includes('sballato') || text.includes('💥')) {
+                    iconSrc = `${FLUENT_BASE}/Smilies/Bomb.png`; // Bomb Icon
+                    style += 'background:rgba(239,68,68,0.2); border:1px solid rgba(239,68,68,0.4); color:#fff; box-shadow:0 0 15px rgba(239,68,68,0.4); animation: pulseRed 2s infinite;';
+                    text = text.replace(/💥/g, '').trim();
+                }
+                else if (text.includes('🔥')) {
+                    iconSrc = ASSETS.fire || `${FLUENT_BASE}/Travel%20and%20places/Fire.png`;
+                    style += 'background:rgba(249,115,22,0.15); border:1px solid rgba(249,115,22,0.3); color:#fff;';
+                    text = text.replace(/🔥/g, '').trim();
+                }
+                else {
+                    style += 'background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.8);';
+                }
+
+                const imgHtml = iconSrc ? `<img src="${iconSrc}" style="width:28px; height:28px; object-fit:contain; flex-shrink:0; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3));">` : '';
+
+                return `<div class="history-item" style="${style}">
+                    ${imgHtml}
                     <span>${text}</span>
                 </div>`;
             }).join('') : '';
@@ -4999,21 +5175,11 @@
             const meIdx = state.players.findIndex(p => p.id === myId);
             const me = state.players[meIdx];
             const canAct = meIdx === state.turn && me?.st === 'active';
-
-            // Logic for Hit/Stay buttons visibility during Recap
-            if (state.phase === 'recap') {
-                qs('#btnHit').style.display = 'none';
-                qs('#btnStay').style.display = 'none';
-            } else {
-                qs('#btnHit').style.display = '';
-                qs('#btnStay').style.display = '';
-                qs('#btnHit').disabled = !canAct || state.pending;
-                qs('#btnStay').disabled = !canAct || state.pending;
-            }
+            qs('#btnHit').disabled = !canAct || state.pending; qs('#btnStay').disabled = !canAct || state.pending;
             if (state.pending?.from === meIdx) showTgt();
 
-            // Enable Reaction Button if game is active (or between rounds)
-            if (state.phase !== 'lobby') {
+            // Enable Reaction Button if game is active
+            if (state.phase === 'game') {
                 qs('#btnReact').disabled = false;
                 qs('#btnStats').disabled = false;
             } else {
@@ -5166,15 +5332,8 @@
 
         // Broadcast Toast for action announcements (visible to ALL players)
         function showBroadcastToast(type, fromName, targetName = null) {
-            // FIX: Customize message for self-targeting actions
-            if (fromName === targetName) {
-                if (type === 'freeze') type = 'freeze_self';
-                if (type === 'flip3') type = 'flip3_self';
-            }
-
             const configs = {
                 freeze: { icon: '❄️', msg: `${fromName} congela ${targetName}!`, cls: 'freeze' },
-                flip3_self: { icon: '⚡', msg: `${fromName} usa Flip Three su se stesso!`, cls: 'flip3' }, // FIX: Added self-flip3 msg
                 freeze_self: { icon: '❄️', msg: `${fromName} è l'ultimo rimasto, viene congelato!`, cls: 'freeze' },
                 flip3: { icon: '⚡', msg: `${fromName} fa pescare 3 carte a ${targetName}!`, cls: 'flip3' },
                 give_sc: { icon: '❤️', msg: `${fromName} dona Second Chance a ${targetName}!`, cls: 'second-chance' },
