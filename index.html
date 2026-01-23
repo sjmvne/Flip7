@@ -2622,19 +2622,26 @@
                                                         style="width:100%; height:100%; z-index:9999; padding:0; display:flex; align-items:center; justify-content:center; background:transparent; border:none; box-shadow:none; cursor:pointer; border-radius:50%;"><img
                                                             src="https://em-content.zobj.net/source/microsoft-teams/400/speech-balloon_1f4ac.png"
                                                             style="height:35px; filter:drop-shadow(0 4px 6px rgba(0,0,0,0.2)); transition:transform 0.2s;"></button>
-                                                    <div id="reactionPicker" class="glass" style=" display: none;
-                                                        position: absolute;
-                                                                bottom: 85px;
-                                                                width: 95vw;
-                                                                max-height: 180px;
-                                                                overflow-y: auto;
-                                                                padding: 10px;
-                                                                display: grid;
-                                                                grid-template-columns: repeat(6, 1fr);
-                                                                z-index: 9999;
-                                                                opacity: 0;
-                                                                transition: opacity 0.2s;
-                                                                ">
+                                                    <div id="reactionPicker" class="glass" style="display: none;
+                                                        position: fixed;
+                                                        bottom: 100px;
+                                                        left: 50%;
+                                                        transform: translateX(-50%);
+                                                        width: 90%;
+                                                        max-width: 400px;
+                                                        max-height: 250px;
+                                                        overflow-y: auto;
+                                                        padding: 15px;
+                                                        display: grid;
+                                                        grid-template-columns: repeat(6, 1fr);
+                                                        gap: 10px;
+                                                        z-index: 10000 !important;
+                                                        opacity: 0;
+                                                        transition: opacity 0.2s;
+                                                        box-shadow: 0 15px 50px rgba(0,0,0,0.8);
+                                                        border: 1px solid rgba(255,255,255,0.2);
+                                                        ">
+                                                        <style>.floating-reaction { z-index: 10000 !important; }</style>
                                                         <!-- Filled by JS -->
                                                     </div>
                                                 </div><button class="btn btn-3d btn-stop" id="btnStay" disabled
@@ -3717,6 +3724,26 @@
                 }, 2500);
             }
 
+            // Global Toggle Function for Reaction Picker (Used by main button and Recap button)
+            window.toggleReactionPicker = (e) => {
+                if(e) e.stopPropagation();
+                const p = qs('#reactionPicker');
+                if(!p) return;
+                
+                const isVis = p.style.display === 'grid';
+                p.style.display = isVis ? 'none' : 'grid';
+                setTimeout(() => p.style.opacity = isVis ? 0 : 1, 10);
+            };
+
+            // NEW: Toggle for Recap Picker
+            window.toggleRecapPicker = (e) => {
+                if(e) e.stopPropagation();
+                const p = qs('#recapReactionPicker');
+                if(!p) return;
+                const isVis = p.style.display === 'grid';
+                p.style.display = isVis ? 'none' : 'grid';
+            };
+
             function initReactions() {
                 const p = qs('#reactionPicker');
                 if (!p) return;
@@ -3732,23 +3759,18 @@
                 });
 
                 const btn = qs('#btnReact');
-                if (btn) btn.onclick = (e) => {
-                    e.stopPropagation();
-                    // Only open if enabled
-                    if (btn.disabled) return;
-
-                    const isVis = p.style.display === 'grid';
-                    p.style.display = isVis ? 'none' : 'grid';
-                    setTimeout(() => p.style.opacity = isVis ? 0 : 1, 10);
-                };
-
+                if (btn) btn.onclick = window.toggleReactionPicker;
+                
+                // Close picker when clicking outside
                 document.addEventListener('click', (e) => {
-                    if (!e.target.closest('#btnReact') && !e.target.closest('#reactionPicker')) {
-                        p.style.display = 'none';
+                    if (!p.contains(e.target) && e.target !== btn && !e.target.closest('#btnReact') && !e.target.closest('.btn-recap-react')) {
                         p.style.opacity = 0;
+                        setTimeout(() => p.style.display = 'none', 200);
                     }
                 });
             }
+
+
 
             // SESSION PERSISTENCE HELPERS
             function saveSession(nick, room) {
@@ -5318,6 +5340,22 @@
                         <button class="btn" style="width:100%; margin-top:20px;" onclick="isHost ? nextRoundCmd() : null" ${!isHost ? 'disabled style="opacity:0.5; cursor:default"' : ''}>
                             ${isHost ? 'Prossimo Round ➡️' : 'Attendi Host...'}
                         </button>
+                        
+                        <!-- RECAP REACTION BUTTON -->
+                        <div style="position:relative; display:flex; justify-content:center; margin-top:15px;">
+                            <button class="btn-recap-react" onclick="toggleRecapPicker(event)" style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:transform 0.2s;" onmouseenter="this.style.transform='scale(1.1)'" onmouseleave="this.style.transform='scale(1)'">
+                                <img src="https://em-content.zobj.net/source/microsoft-teams/400/speech-balloon_1f4ac.png" style="height:30px; filter:drop-shadow(0 0 5px rgba(255,255,255,0.5));">
+                            </button>
+                            
+                            <div id="recapReactionPicker" class="glass" style="display:none; position:absolute; bottom:60px; left:50%; transform:translateX(-50%); width:320px; grid-template-columns:repeat(6, 1fr); gap:6px; padding:10px; z-index:4000; border:1px solid rgba(255,255,255,0.2); box-shadow:0 10px 40px rgba(0,0,0,0.5); background:rgba(20,20,30,0.8); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);">
+                                ${REACTIONS.map(r => `
+                                    <div onclick="sendReaction('${r.id}')" style="cursor:pointer; padding:5px; border-radius:8px; display:flex; justify-content:center; align-items:center; transition:transform 0.2s;" onmouseenter="this.style.transform='scale(1.2)'" onmouseleave="this.style.transform='scale(1)'">
+                                        <img src="${r.src}" style="width:32px; height:32px; pointer-events:none;">
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+
                         </div >
                         `;
                         ro.innerHTML = tableHtml;
@@ -5571,11 +5609,13 @@
                 const meIdx = state.players.findIndex(p => p.id === myId);
                 const me = state.players[meIdx];
                 const canAct = meIdx === state.turn && me?.st === 'active';
-                qs('#btnHit').disabled = !canAct || state.pending; qs('#btnStay').disabled = !canAct || state.pending;
+                const isGame = state.phase === 'game';
+                qs('#btnHit').disabled = !canAct || state.pending || !isGame; 
+                qs('#btnStay').disabled = !canAct || state.pending || !isGame;
                 if (state.pending?.from === meIdx) showTgt();
 
-                // Enable Reaction Button if game is active
-                if (state.phase === 'game') {
+                // Enable Reaction Button if game is active OR in recap
+                if (state.phase === 'game' || state.phase === 'recap') {
                     qs('#btnReact').disabled = false;
                     qs('#btnStats').disabled = false;
                 } else {
