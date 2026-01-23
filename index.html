@@ -1388,7 +1388,7 @@
 
         @media (max-width: 640px) {
             .controls {
-                position: fixed;
+                position: fixed !important; /*non cambiare!*/
                 bottom: 0;
                 left: 0;
                 right: 0;
@@ -1656,7 +1656,7 @@
             position: relative;
             transform-style: preserve-3d;
             perspective: 1000px;
-            animation: riffleMerge 1.2s ease-in-out infinite;
+            animation: riffleMerge 0.5s ease-in-out infinite;
         }
 
         .deck.shuffling::before,
@@ -1672,11 +1672,11 @@
         }
 
         .deck.shuffling::before {
-            animation: riffleLeft 1.2s ease-in-out infinite;
+            animation: riffleLeft 0.5s ease-in-out infinite;
         }
 
         .deck.shuffling::after {
-            animation: riffleRight 1.2s ease-in-out infinite;
+            animation: riffleRight 0.5s ease-in-out infinite;
         }
 
         .deck.shuffling #deckLayers {
@@ -3539,20 +3539,77 @@
                     peer = new Peer(id, { debug: 0 });
                     peer.on('open', res); peer.on('error', rej);
                     peer.on('connection', c => {
-                        c.on('open', () => { conns.push(c); c.on('data', d => handleMsg(c, d)); c.on('close', () => conns = conns.filter(x => x != c)); });
+                        c.on('open', () => { 
+                            conns.push(c); 
+                            c.on('data', d => handleMsg(c, d)); 
+                            c.on('close', () => {
+                                conns = conns.filter(x => x != c);
+                                // Handle Disconnect
+                                if (isHost) {
+                                    const p = state.players.find(x => x.id === c.peer);
+                                    if (p) {
+                                        p.isOffline = true;
+                                        bc({ t: 'broadcast_toast', type: 'disconnect', from: p.name });
+                                        showToast(`⚠️ ${p.name} si è disconnesso!`);
+                                        
+                                        // TRIGGER AUTO-STAY if it's their turn
+                                        const pIdx = state.players.findIndex(pl => pl.id === p.id || pl.name === p.name);
+                                        if (pIdx > -1 && state.turn === pIdx && p.st === 'active') {
+                                           showToast(`Auto-Stay per disconnessione...`);
+                                           setTimeout(() => {
+                                               // SAFETY CHECK: Player might have reconnected ID might have changed
+                                               const currentP = state.players.find(x => x.name === p.name);
+                                               if (currentP && currentP.isOffline && state.turn === pIdx && currentP.st === 'active') {
+                                                   handleAct(currentP.id, 'stay');
+                                               }
+                                           }, 1000);
+                                       }
+                                        
+                                        sync(); updateGame();
+                                    }
+                                }
+                            }); 
+                        });
                     });
                 });
             }
 
             function handleMsg(c, d) {
                 if (d.t === 'join' && isHost) {
-                    state.players.push({ id: c.peer, name: d.name, cards: [], mods: [], nums: [], pts: 0, tot: 0, st: 'active', sc: false });
-                    bc({ t: 'state', s: serState() }); updateLobby();
+                    // REJOIN LOGIC
+                    const existingP = state.players.find(p => p.name === d.name);
+                    if (existingP) {
+                        // Restore Session
+                        existingP.id = c.peer; // Update Peer ID
+                        existingP.isOffline = false; // Mark Online
+                        
+                        // Notify everyone
+                        bc({ t: 'broadcast_toast', type: 'rejoin', from: d.name });
+                        showToast(`👋 ${d.name} si è riconnesso!`);
+                        
+                        bc({ t: 'state', s: serState() }); 
+                        updateLobby();
+                    } else {
+                        // New Player
+                        state.players.push({ id: c.peer, name: d.name, cards: [], mods: [], nums: [], pts: 0, tot: 0, st: 'active', sc: false, isOffline: false });
+                        bc({ t: 'state', s: serState() }); 
+                        updateLobby();
+                    }
                 } else if (d.t === 'state') {
                     desState(d.s);
                     // Always update lobby if in lobby phase (fixes joiner visibility)
-                    if (state.phase === 'lobby') updateLobby();
-                    else updateGame();
+                    if (state.phase === 'lobby') {
+                        updateLobby();
+                    } else {
+                        // REJOIN FIX: If state says game but we are in lobby, force switch
+                        if (qs('#lobby').style.display !== 'none') {
+                            qs('#lobby').style.display = 'none';
+                            qs('#headerGameStatus').style.display = 'flex';
+                            // Ensure headers are correct
+                            qs('#turnName').innerText = state.players[state.turn]?.name || '-';
+                        }
+                        updateGame();
+                    }
                 }
                 else if (d.t === 'act' && isHost) handleAct(c.peer, d.a, d.tgt);
                 else if (d.t === 'reaction' && isHost) {
@@ -3693,6 +3750,21 @@
                 });
             }
 
+            // SESSION PERSISTENCE HELPERS
+            function saveSession(nick, room) {
+                if(nick) localStorage.setItem('flip7_nick', nick);
+                if(room) localStorage.setItem('flip7_room', room);
+            }
+
+            function loadSession() {
+                const n = localStorage.getItem('flip7_nick');
+                const r = localStorage.getItem('flip7_room');
+                if(n) qs('#nickname').value = n;
+                return { n, r };
+            }
+
+            window.addEventListener('load', loadSession);
+
             function sendReaction(id) {
                 if (Date.now() - lastReactTime < 3000) return;
                 lastReactTime = Date.now();
@@ -3799,7 +3871,35 @@
                 try {
                     await initPeer(); myId = peer.id;
                     const c = peer.connect(roomId, { reliable: true });
-                    c.on('open', () => { conns.push(c); c.send({ t: 'join', name: myName }); c.on('data', d => handleMsg(c, d)); });
+                    c.on('open', () => { 
+                        conns.push(c); 
+                        c.send({ t: 'join', name: myName }); 
+                        c.on('data', d => handleMsg(c, d)); 
+                        
+                        // HOST DISCONNECT HANDLER
+                        c.on('close', () => {
+                             // Block UI with Glassmorphism
+                             qs('body').innerHTML = `
+                             <div style="position:fixed; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:radial-gradient(circle at center, #1e1b2e 0%, #000 100%); z-index:9999;">
+                                <div class="glass" style="padding:40px; text-align:center; border-radius:24px; max-width:400px; animation: scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);">
+                                    <div style="font-size:64px; margin-bottom:20px; animation: pulseRed 2s infinite;">⚠️</div>
+                                    <h1 style="font-size:28px; background:linear-gradient(to right, #f87171, #fca5a5); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:15px;">Host Disconnesso</h1>
+                                    <p style="color:rgba(255,255,255,0.7); font-size:16px; line-height:1.5; margin-bottom:30px;">
+                                        La connessione con l'host è stata interrotta.<br>La partita è terminata.
+                                    </p>
+                                    <div style="height:4px; background:rgba(255,255,255,0.1); border-radius:10px; overflow:hidden;">
+                                        <div style="height:100%; background:#f87171; width:0%; animation: progressFill 5s linear forwards;"></div>
+                                    </div>
+                                    <p style="margin-top:10px; font-size:12px; color:rgba(255,255,255,0.4);">Ritorno alla home...</p>
+                                </div>
+                                <style>@keyframes progressFill { to { width: 100%; } }</style>
+                             </div>`;
+                             setTimeout(() => { window.location.hash = ''; window.location.reload(); }, 5000);
+                        });
+                        c.on('error', () => {
+                             showToast('❌ Errore connessione Host');
+                        });
+                    });
                     qs('#hostControls').style.display = 'none';
                     // Show waiting screen part of room info immediately
                     qs('#roomInfo').style.display = 'block';
@@ -3853,7 +3953,7 @@
                     setTimeout(() => {
                         deckEl.classList.remove('shuffling');
                         dealInit();
-                    }, 1200);
+                    }, 5000); // 5 Seconds Shuffle
                 } else {
                     dealInit();
                 }
@@ -3897,8 +3997,10 @@
                 });
                 state.last = null; state.pending = null;
                 state.dealingPhase = false; state.flip3Queue = [];
+                state.dealingPhase = false; state.flip3Queue = [];
                 state.dealingPaused = false; // FIX: Prevent race condition in deal loop
                 state.flip3State = null; // FIX: Queue/Pause state for Flip3
+                state.isShuffling = false; // Reset shuffle state
                 localPlayerCardCounts = {}; // Reset local animation tracking
                 qs('body').classList.remove('animation-blocked'); // Ensure UI is unlocked
             }
@@ -3955,7 +4057,8 @@
                 const tgt = state.players[tgtIdx];
 
                 if (state.flip3State.count < 3 && tgt.st === 'active') {
-                    drawCard(tgtIdx, true); // true = isFlip3 context
+                    const res = drawCard(tgtIdx, true); // true = isFlip3 context
+                    if (res === 'WAIT' || res === 'END') return;
 
                     // CHECK PAUSE IMMEDIATELY AFTER DRAW
                     // If drawCard triggered Freeze, state.pending is NOW true.
@@ -4021,7 +4124,9 @@
 
                 // Deal card
                 if (p.st === 'active') {
-                    drawCard(pIdx);
+                    const res = drawCard(pIdx);
+                    if (res === 'WAIT' || res === 'END') return;
+
                     // Synchronous Pending or Flip 3 Sequence
                     if (state.pending || (state.players.some(x => x.flip3Active))) {
                         state.dealIndex++;
@@ -4150,13 +4255,36 @@
                 return `<img src="${src}" class="card ${c.type} ${bustClass} ${newClass}${extra}" alt="${c.value}">`;
             }
             function drawCard(idx) {
+                if (state.isShuffling) return 'WAIT';
+
                 if (!state.deck.length) {
                     if (state.discards.length) {
-                        state.globalToast = { id: Date.now(), msg: "Mescolo gli scarti... 🔀" };
-                        state.deck = shuffle([...state.discards]);
-                        state.discards = [];
+                        state.isShuffling = true;
+                        state.globalToast = { id: Date.now(), msg: "Mescolo gli scarti... 🔀 (5s)" };
+                        
+                        // Visuals on Host immediately
+                        const deckEl = qs('.deck');
+                        if (deckEl) deckEl.classList.add('shuffling');
+
+                        sync(); updateGame();
+
+                        setTimeout(() => {
+                             state.deck = shuffle([...state.discards]);
+                             state.discards = [];
+                             state.isShuffling = false;
+                             if (deckEl) deckEl.classList.remove('shuffling');
+                             
+                             // Resume Logic
+                             if (state.dealingPhase) dealLoop();
+                             else if (state.flip3State && state.flip3State.active) dealFlip3();
+                             else handleAct(idx, 'hit');
+                             
+                             sync(); updateGame();
+                        }, 5000);
+
+                        return 'WAIT';
                     } else {
-                        endRound(); return;
+                        endRound(); return 'END';
                     }
                 }
                 const p = state.players[idx], c = state.deck.pop(); state.last = c;
@@ -4460,7 +4588,9 @@
                 const p = state.players[idx];
                 if (act === 'hit' && idx === state.turn && p.st === 'active') {
                     SFX.play('hit');
-                    drawCard(idx);
+                    const res = drawCard(idx);
+                    if (res === 'WAIT' || res === 'END') return;
+
                     if (state.pending) {
                         const delay = (state.last && state.last.type === 'action') ? 2600 : 0;
                         if (isHost) setTimeout(showTgt, delay);
@@ -4735,6 +4865,17 @@
                 const currentPlayer = state.players[state.turn];
                 if (currentPlayer) {
                     state.globalToast = { id: Date.now(), msg: `Tocca a: ${currentPlayer.name}!` };
+                    
+                    // AUTO-STAY if Offline
+                    if (currentPlayer.isOffline && isHost) {
+                       showToast(`${currentPlayer.name} è offline. Auto-Stay.`);
+                       setTimeout(() => {
+                           // SAFETY CHECK: Player might have reconnected during the delay
+                           if (currentPlayer.isOffline && state.players[state.turn] === currentPlayer) {
+                               handleAct(currentPlayer.id, 'stay');
+                           }
+                       }, 1500);
+                    }
                 }
 
                 sync(); updateGame();
@@ -4950,24 +5091,24 @@
             }
 
             function updatePlayerZone(zone, p, isMe, isTurn, state) {
-                // === Animation Tracking ===
-                if (!localPlayerCardCounts[p.id]) localPlayerCardCounts[p.id] = { nums: 0, mods: 0 };
-                if (!localAnimatingCards[p.id]) localAnimatingCards[p.id] = { nums: {}, mods: {} };
+                // === Animation Tracking (FIX: Use Name instead of ID to persist across rejoins) ===
+                if (!localPlayerCardCounts[p.name]) localPlayerCardCounts[p.name] = { nums: 0, mods: 0 };
+                if (!localAnimatingCards[p.name]) localAnimatingCards[p.name] = { nums: {}, mods: {} };
 
                 const numCards = p.cards.filter(c => c.type === 'number');
                 const modCards = p.cards.filter(c => c.type === 'modifier' || (c.type === 'action' && c.value === 'second_chance'));
 
-                if (numCards.length > localPlayerCardCounts[p.id].nums) {
-                    for (let k = localPlayerCardCounts[p.id].nums; k < numCards.length; k++) {
-                        localAnimatingCards[p.id].nums[k] = Date.now();
+                if (numCards.length > localPlayerCardCounts[p.name].nums) {
+                    for (let k = localPlayerCardCounts[p.name].nums; k < numCards.length; k++) {
+                        localAnimatingCards[p.name].nums[k] = Date.now();
                     }
                 }
-                if (modCards.length > localPlayerCardCounts[p.id].mods) {
-                    for (let k = localPlayerCardCounts[p.id].mods; k < modCards.length; k++) {
-                        localAnimatingCards[p.id].mods[k] = Date.now();
+                if (modCards.length > localPlayerCardCounts[p.name].mods) {
+                    for (let k = localPlayerCardCounts[p.name].mods; k < modCards.length; k++) {
+                        localAnimatingCards[p.name].mods[k] = Date.now();
                     }
                 }
-                localPlayerCardCounts[p.id] = { nums: numCards.length, mods: modCards.length };
+                localPlayerCardCounts[p.name] = { nums: numCards.length, mods: modCards.length };
                 // ==========================
 
                 const numCount = numCards.length;
@@ -5047,8 +5188,9 @@
             }
 
             function smartUpdateCards(container, cards, p, isMe, typeStr) {
-                if (!localPlayerCardCounts[p.id]) localPlayerCardCounts[p.id] = { nums: 0, mods: 0 };
-                if (!localAnimatingCards[p.id]) localAnimatingCards[p.id] = { nums: {}, mods: {} };
+                // FIX: Use Name key for animation consistency across rejoins
+                if (!localPlayerCardCounts[p.name]) localPlayerCardCounts[p.name] = { nums: 0, mods: 0 };
+                if (!localAnimatingCards[p.name]) localAnimatingCards[p.name] = { nums: {}, mods: {} };
 
                 let totalSlots = cards.length;
                 if (isMe && typeStr === 'nums') totalSlots = Math.max(7, cards.length);
@@ -5062,7 +5204,7 @@
                     if (!child) {
                         const temp = document.createElement('div');
                         if (card) {
-                            const animTime = localAnimatingCards[p.id][typeStr][i];
+                            const animTime = localAnimatingCards[p.name][typeStr][i];
                             const isAnimating = animTime && (Date.now() - animTime < 800);
                             temp.innerHTML = renderCard(card, isAnimating, p);
                         } else {
@@ -5079,7 +5221,7 @@
                             container.replaceChild(temp.firstChild, child);
                         }
                     } else {
-                        const animTime = localAnimatingCards[p.id][typeStr][i];
+                        const animTime = localAnimatingCards[p.name][typeStr][i];
                         const isAnimating = animTime && (Date.now() - animTime < 800);
 
                         if (child.classList.contains('card-placeholder')) {
@@ -5117,7 +5259,37 @@
                 }
             }
 
+            let localLastRound = 0;
+
             function updateGame() {
+                // FIX: Detect New Round and Force Reset Local State
+                if (state.round > localLastRound) {
+                    localLastRound = state.round;
+                    localPlayerCardCounts = {};
+                    localAnimatingCards = {};
+                    // Force hide overlays
+                    const ro = qs('#recapOverlay');
+                    ro.classList.remove('active');
+                    ro.removeAttribute('data-round');
+                    qs('#endGameOverlay').style.display = 'none';
+                    qs('body').classList.remove('animation-blocked');
+                    
+                    // FORCE GAME CONTAINER VISIBILITY
+                    qs('#gameContainer').classList.add('active');
+                }
+                
+                // General Visibility Safeguard
+                if (state.phase === 'game' && !qs('#gameContainer').classList.contains('active')) {
+                     qs('#gameContainer').classList.add('active');
+                }
+
+                // SYNC SHUFFLE ANIMATION
+                const shufflingDeck = qs('.deck');
+                if (shufflingDeck) {
+                    if (state.isShuffling) shufflingDeck.classList.add('shuffling');
+                    else shufflingDeck.classList.remove('shuffling');
+                }
+
                 // Recap Overlay Logic
                 const ro = qs('#recapOverlay');
                 if (state.phase === 'recap') {
@@ -5544,6 +5716,18 @@
             window.onload = () => {
                 preloadImages();
                 handleHashChange();
+
+                // PERSISTENCE HOOKS
+                const btnCreate = qs('#btnCreateRoom');
+                const btnJoin = qs('#btnJoinRoom');
+                
+                if(btnCreate) btnCreate.addEventListener('click', () => {
+                    saveSession(qs('#nickname').value, null);
+                });
+
+                if(btnJoin) btnJoin.addEventListener('click', () => {
+                     saveSession(qs('#nickname').value, qs('#roomCodeInput').value);
+                });
             };
             window.onhashchange = handleHashChange;
 
@@ -5561,7 +5745,9 @@
                     freeze_self: { icon: '❄️', msg: `${fromName} è l'ultimo rimasto, viene congelato!`, cls: 'freeze' },
                     flip3: { icon: '⚡', msg: `${fromName} fa pescare 3 carte a ${targetName}!`, cls: 'flip3' },
                     give_sc: { icon: '❤️', msg: `${fromName} dona Second Chance a ${targetName}!`, cls: 'second-chance' },
-                    // deal_resume: { icon: '🎴', msg: 'Azione risolta, riprendiamo il dealing!', cls: 'freeze' }
+                    // deal_resume: { icon: '🎴', msg: 'Azione risolta, riprendiamo il dealing!', cls: 'freeze' },
+                    rejoin: { icon: '👋', msg: `${fromName} è tornato in partita!`, cls: 'second-chance' },
+                    disconnect: { icon: '⚠️', msg: `${fromName} disconnesso (Auto-Stay)`, cls: 'freeze' }
                 };
                 const cfg = configs[type];
                 if (!cfg) return;
