@@ -14,7 +14,7 @@
     <meta name="theme-color" content="#1a1625">
     <meta name="description" content="Play Flip 7 card game online with friends">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- Premium Effects Libraries -->
@@ -55,8 +55,12 @@
             -webkit-tap-highlight-color: transparent;
         }
 
+        h1, h2, h3, h4, h5, h6, .splash-title, .flip7-winner-name {
+            font-family: 'Lexend', sans-serif;
+        }
+
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
             background: var(--bg-gradient);
             min-height: 100vh;
             min-height: 100dvh;
@@ -874,15 +878,13 @@
         }
 
         /* Visual Effects */
-        .player-zone.frozen {
+        /* .player-zone.frozen {
             border-color: var(--freeze);
             box-shadow: 0 0 25px rgba(56, 189, 248, 0.4);
             background: linear-gradient(135deg, rgba(56, 189, 248, 0.1), transparent);
-        }
+        } */
 
-        .player-zone.frozen::after {
-            display: none;
-        }
+       
 
 
         .player-zone.flip3 {
@@ -1110,6 +1112,9 @@
             border: 2px solid rgba(56, 189, 248, 0.6) !important;
             border-radius: 20px;
             animation: freezePulse 2s infinite;
+            border-color: var(--freeze);
+            box-shadow: 0 0 25px rgba(56, 189, 248, 0.4);
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.1), transparent);
         }
 
         .player-zone.frozen::before {
@@ -1124,6 +1129,10 @@
             text-shadow: 0 0 20px #0ea5e9, 0 0 40px #38bdf8;
             z-index: 100;
             animation: iceFloat 1.5s ease-in-out infinite;
+        }
+
+        .player-zone.frozen::after {
+            display: none;
         }
 
         .player-zone.frozen .card {
@@ -1253,7 +1262,7 @@
 
         /* Stayed (player stopped) indicator */
         .player-zone.stayed {
-            border-color: rgba(59, 246, 87, 0.5) !important;
+            border-color: rgba(59, 246, 87, 0.5) ;
             box-shadow: 0 0 15px rgba(59, 246, 87, 0.3), inset 0 0 20px rgba(59, 246, 87, 0.1);
         }
 
@@ -2549,7 +2558,7 @@
                     class="btn btn-secondary" id="btnJoinRoom" style="width:100%">Unisciti</button></div>
         </div>
         <div id="roomInfo" style="display:none;">
-            <div class="room-link">🔗 Link Stanza:<br><a href="#" id="roomLink" target="_blank"></a><br>
+            <div class="room-link">
                 <div id="qrcode-container">
                     <div id="qrcode"></div><span style="font-size:12px; color:var(--text-secondary)">Scansiona per
                         unirti</span>
@@ -4007,8 +4016,6 @@
                 qs('#hostControls').style.display = 'none';
                 qs('#roomInfo').style.display = 'block';
                 const url = location.href;
-                qs('#roomLink').innerText = url;
-                qs('#roomLink').href = url;
                 qs('#qrcode').innerHTML = '';
                 new QRCode(qs('#qrcode'), { text: url, width: 128, height: 128 });
                 updateLobby();
@@ -4033,24 +4040,33 @@
 
             function startGame() {
                 state.phase = 'game';
-                state.deck = createDeck(); // First game always new deck
-                state.discards = [];
                 state.round = 1;
-                state.dealer = 0;
-                initGameStats(); // Initialize stats tracking
-                resetRound(); qs('#lobby').style.display = 'none'; qs('#gameContainer').classList.add('active');
 
-                // Shuffle Animation (Visual only)
+                // HOST ONLY: Init Deck and Game Stats
+                if (isHost) {
+                    state.deck = createDeck(); // First game always new deck
+                    state.discards = [];
+                    state.dealer = 0;
+                    initGameStats(); // Initialize stats tracking
+                }
+
+                resetRound(); 
+                qs('#lobby').style.display = 'none'; 
+                qs('#gameContainer').classList.add('active');
+
+                // SHUFFLE ANIMATION (Visual for Everyone)
                 const deckEl = qs('.deck');
                 if (deckEl) {
                     deckEl.classList.add('shuffling');
                     showToast("Mescolo le carte... 🔀");
                     setTimeout(() => {
                         deckEl.classList.remove('shuffling');
-                        dealInit();
+                        // LOGIC: Only Host triggers the deal
+                        if (isHost) dealInit();
                     }, 5000); // 5 Seconds Shuffle
                 } else {
-                    dealInit();
+                    // Fallback if no deck element (rare)
+                    if (isHost) dealInit();
                 }
             }
 
@@ -4503,12 +4519,8 @@
                     addToHistory(`${p.name} ha pescato modificatore ${c.value}`, 'normal');
                 }
                 else if (c.type === 'action') {
-                    showCardSplash(c.value, p.name); // Trigger splash visually
-                    if (isHost) bc({ t: 'splash', a: c.value, who: p.name }); // Broadcast to all
-                    SFX.play('action');
-                    const actionIcons = { freeze: '❄️ Freeze', flip3: '⚡ Flip 3', second_chance: '❤️ Second Chance' };
-                    addToHistory(`${p.name} ha pescato ${actionIcons[c.value] || c.value}!`, 'special');
-
+                    // Logic moved inside specific blocks to prevent false splashes
+                    
                     // FIX: Pause dealing if dealing phase and async action
                     if (state.dealingPhase && ['freeze', 'flip3'].includes(c.value)) {
                         state.dealingPaused = true;
@@ -4526,13 +4538,29 @@
 
                     const activeCount = state.players.filter(pl => pl.st === 'active').length;
 
+                    // GENERIC HELPERS
+                    const triggerSplash = () => {
+                        showCardSplash(c.value, p.name); 
+                        if (isHost) bc({ t: 'splash', a: c.value, who: p.name }); 
+                        SFX.play('action');
+                        const actionIcons = { freeze: '❄️ Freeze', flip3: '⚡ Flip 3', second_chance: '❤️ Second Chance' };
+                        addToHistory(`${p.name} ha pescato ${actionIcons[c.value] || c.value}!`, 'special');
+                    };
+
                     // FLIP3: Drawer draws 3 cards themselves (no targeting)
                     // RULE CHANGE: Action is played on TARGET.
                     if (c.value === 'flip3') {
                         p.cards.push(c);
+                        triggerSplash(); // Safe to splash now
+
                         // Determine Target:
                         // If during Initial Deal or alone -> Self
                         if (state.dealingPhase || activeCount <= 1) {
+                            if (isHost) {
+                                // Forced/Self Flip3 (Broadcast)
+                                bc({ t: 'broadcast_toast', type: 'flip3_self', from: p.name, target: p.name });
+                                showBroadcastToast('flip3_self', p.name, p.name);
+                            }
                             startFlip3Sequence(idx, idx);
                         } else {
                             // Choose target with delay for splash
@@ -4548,6 +4576,7 @@
                     // FREEZE: Choose someone to freeze (if alone, freeze self)
                     if (c.value === 'freeze') {
                         p.cards.push(c);
+                        triggerSplash(); // Safe to splash now
                         if (activeCount <= 1) {
                             // Freeze self with dramatic sequence
                             setTimeout(() => {
@@ -4555,6 +4584,12 @@
 
                                 setTimeout(() => {
                                     if (p.id === myId) showToast("Sei l'ultimo! Ti congeli... 🥶");
+
+                                    // Forced Self-Freeze Broadcast
+                                    if (isHost) {
+                                        bc({ t: 'broadcast_toast', type: 'freeze_self_forced', from: p.name, target: p.name });
+                                        showBroadcastToast('freeze_self_forced', p.name, p.name);
+                                    }
 
                                     setTimeout(() => {
                                         p.frozen = true;
@@ -4590,6 +4625,7 @@
 
                     // SECOND CHANCE: Keep as life, donate if have one
                     if (c.value === 'second_chance') {
+                        triggerSplash(); // Safe to splash now
                         if (p.sc) {
                             // Already have SC - MUST GIVE AWAY
                             if (activeCount <= 1) {
@@ -4944,8 +4980,9 @@
                 else if (a === 'flip3') {
                     // Broadcast toast for Flip3
                     if (isHost) {
-                        bc({ t: 'broadcast_toast', type: 'flip3', from: fromPlayer.name, target: tgt.name });
-                        showBroadcastToast('flip3', fromPlayer.name, tgt.name);
+                        const toastType = (fromIdx === tgtIdx) ? 'flip3_self' : 'flip3';
+                        bc({ t: 'broadcast_toast', type: toastType, from: fromPlayer.name, target: tgt.name });
+                        showBroadcastToast(toastType, fromPlayer.name, tgt.name);
                     }
                     startFlip3Sequence(tgtIdx, state.turn);
                     // startFlip3Sequence handles its own loops and syncs
@@ -5743,8 +5780,6 @@
 
             function updateRoomLinkInfo() {
                 const url = location.href;
-                qs('#roomLink').innerText = url;
-                qs('#roomLink').href = url;
                 qs('#qrcode').innerHTML = '';
                 new QRCode(qs('#qrcode'), { text: url, width: 128, height: 128 });
             }
@@ -5923,8 +5958,10 @@
             function showBroadcastToast(type, fromName, targetName = null) {
                 const configs = {
                     freeze: { icon: '❄️', msg: `${fromName} congela ${targetName}!`, cls: 'freeze' },
-                    freeze_self: { icon: '❄️', msg: `${fromName} è l'ultimo rimasto, viene congelato!`, cls: 'freeze' },
+                    freeze_self: { icon: '❄️', msg: `${fromName} si congela!`, cls: 'freeze' },
+                    freeze_self_forced: { icon: '❄️', msg: `${fromName} è l'ultimo rimasto, viene congelato!`, cls: 'freeze' },
                     flip3: { icon: '⚡', msg: `${fromName} fa pescare 3 carte a ${targetName}!`, cls: 'flip3' },
+                    flip3_self: { icon: '⚡', msg: `${fromName} pesca 3 carte!`, cls: 'flip3' },
                     give_sc: { icon: '❤️', msg: `${fromName} dona Second Chance a ${targetName}!`, cls: 'second-chance' },
                     // deal_resume: { icon: '🎴', msg: 'Azione risolta, riprendiamo il dealing!', cls: 'freeze' },
                     rejoin: { icon: '👋', msg: `${fromName} è tornato in partita!`, cls: 'second-chance' },
