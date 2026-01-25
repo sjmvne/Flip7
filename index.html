@@ -5752,7 +5752,15 @@
             window.copyRoomLink = () => { navigator.clipboard.writeText(location.href); showToast('Link copiato!'); };
 
             function updateLobby() {
-                qs('#roomInfo').style.display = 'block';
+                // FIX: Only show roomInfo if I am the host OR if I am in the player list (joined)
+                const amIInList = state.players.some(p => p.id === myId);
+                
+                if (isHost || amIInList) {
+                    qs('#roomInfo').style.display = 'block';
+                } else {
+                    qs('#roomInfo').style.display = 'none';
+                }
+
                 qs('.room-link').style.display = 'block';
                 if (qs('#qrcode').innerHTML === '') updateRoomLinkInfo();
                 qs('#playersList').innerHTML = state.players.map((p, i) => `<div class="player-item ${i === 0 ? 'host' : ''}">${p.name}${p.id === myId ? ' (Tu)' : ''} ${i === 0 ? '👑' : ''}</div>`).join('');
@@ -5899,14 +5907,7 @@
                      
                      showToast('⏳ Connessione in corso...');
                      
-                     // Timeout check for connection/room existence
-                     setTimeout(() => {
-                         const me = state.players.find(p => p.id === myId);
-                         // If we are still in lobby and haven't joined...
-                         if (!me) {
-                             showToast('⚠️ Errore: Stanza inesistente o host non raggiungibile!');
-                         }
-                     }, 5000);
+                     showToast('⏳ Connessione in corso...');
                 });
             };
             window.onhashchange = handleHashChange;
