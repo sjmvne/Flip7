@@ -2596,6 +2596,10 @@
             <button class="btn-menu-link" onclick="qs('#creditsModal').classList.add('active')">
                 ℹ️ Crediti
             </button>
+            
+            <button id="menuExitBtn" class="btn-menu-link" onclick="toggleLeftSidebar(); qs('#exitModal').classList.add('active');" style="display:none; color:#EF4444; margin-top:10px;">
+                🚪 Esci
+            </button>
 
             <div style="margin-top:auto; font-size:11px; color:rgba(255,255,255,0.3); text-align:center;">
                 v1.2.0 • Simone Pepe
@@ -2625,6 +2629,13 @@
         .switch-generic input:checked + .slider-generic { background-color:#8B5CF6; }
         .switch-generic input:checked + .slider-generic:before { transform:translateX(16px); }
         .slider-generic.round { border-radius:34px; }
+
+        /* Meme Mode Switch */
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(22px); }
 
         .btn-icon { background:none; border:none; color:white; cursor:pointer; padding:8px; display:flex; border-radius:8px; transition:background 0.2s; }
         .btn-icon:hover { background:rgba(255,255,255,0.1); }
@@ -2661,20 +2672,17 @@
                 </div><button class="btn btn-secondary" style="margin-top:10px; padding:8px 16px; font-size:12px;"
                     onclick="copyRoomLink()">📋 Copia Link</button>
             </div>
-            <div id="memeSwitchContainer" style="margin-top:20px; display:flex; justify-content:center; align-items:center; gap:10px; background:rgba(255,255,255,0.05); padding:10px 20px; border-radius:12px; transition: opacity 0.3s;">
-                <span style="font-size:20px;">🎭</span>
-                <label class="switch" style="position:relative; display:inline-block; width:50px; height:28px;">
+            <!-- MEME MODE SWITCH (Centered) -->
+            <div id="memeSwitchContainer" style="margin: 15px 0 20px 0; display: flex; justify-content: center; align-items: center; gap: 12px; background: rgba(255,255,255,0.05); padding: 12px 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s ease;">
+                <span style="font-size: 22px;">🎭</span>
+                <label class="switch" style="position: relative; display: inline-block; width: 50px; height: 28px;">
                     <input type="checkbox" id="memeCheckbox" onchange="window.toggleMemeMode()">
-                    <span class="slider round" style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; transition:.4s; border-radius:34px;"></span>
-                    <style>
-                    .switch input {opacity: 0; width: 0; height: 0;}
-                    .slider { background-color: #ccc; }
-                    .slider:before {position: absolute; content: ''; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%;}
-                    input:checked + .slider {background-color: #8B5CF6;}
-                    input:checked + .slider:before {transform: translateX(22px);}
-                    </style>
+                    <span class="slider round" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; transition: .4s; border-radius: 34px;"></span>
                 </label>
-                <span style="font-weight:600; font-size:14px; color:rgba(255,255,255,0.8);">Meme Mode</span>
+                <div style="text-align: left;">
+                    <div style="font-weight: 700; font-size: 14px; color: #fff;">Meme Mode</div>
+                    <div style="font-size: 10px; color: rgba(255,255,255,0.5);">Suoni e splash divertenti</div>
+                </div>
             </div>
             <div class="players-list" id="playersList"></div>
             <p id="lobbyStatusMsg" style="font-size:12px; color:var(--text-secondary); margin-top:10px">In attesa che
@@ -2729,17 +2737,17 @@
                                     <div id="deckLayers" style="position:absolute; inset:0;">
                                         <div class="deck-layer"
                                             style="position:absolute; top:0; left:0; width:100%; height:100%; transform:translateX(-4px) translateY(4px) rotate(-1deg);">
-                                            <img src="assets/cards/back.webp"
+                                            <img src="assets/cards/back.webp" class="deck-back-img"
                                                 style="width:100%; height:100%; border-radius:12px; object-fit:cover; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">
                                         </div>
                                         <div class="deck-layer"
                                             style="position:absolute; top:0; left:0; width:100%; height:100%; transform:translateX(-2px) translateY(2px) rotate(-0.5deg);">
-                                            <img src="assets/cards/back.webp"
+                                            <img src="assets/cards/back.webp" class="deck-back-img"
                                                 style="width:100%; height:100%; border-radius:12px; object-fit:cover; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">
                                         </div>
                                         <div class="deck-layer"
                                             style="position:absolute; top:0; left:0; width:100%; height:100%; transform:translateX(0) translateY(0) rotate(0deg);">
-                                            <img src="assets/cards/back.webp"
+                                            <img src="assets/cards/back.webp" class="deck-back-img"
                                                 style="width:100%; height:100%; border-radius:12px; object-fit:cover; box-shadow: 0 4px 15px rgba(0,0,0,0.4);">
                                         </div>
                                     </div>
@@ -3206,7 +3214,7 @@
                     if (!this.enabled) return;
                     
                     // Check Meme Mode
-                    if (window.GAME_STATE && window.GAME_STATE.memeMode && this.memeSounds[type]) {
+                    if (state && state.memeMode && this.memeSounds[type]) {
                         const s = this.getRandomMemeSound(this.memeSounds[type]);
                         if (s) {
                              // Stop previous action sound if needed
@@ -3405,6 +3413,7 @@
                     last: null,
                     pending: null,
                     history: [],
+                    memeMode: false,
                     // New Logic States
                     dealingPhase: false,
                     dealIndex: 0,
@@ -3969,7 +3978,7 @@
                 }
                 // NEW: MEME MODE SYNC
                 else if (d.t === 'meme_mode') {
-                    window.GAME_STATE.memeMode = d.val;
+                    state.memeMode = d.val;
                     updateLobby();
                     
                     // Sound & Enhanced Toast
@@ -4281,11 +4290,11 @@
             // MEME MODE TOGGLE FUNCTION
             window.toggleMemeMode = () => {
                 if (!isHost) return;
-                window.GAME_STATE.memeMode = !window.GAME_STATE.memeMode;
-                bc({ t: 'meme_mode', val: window.GAME_STATE.memeMode });
+                state.memeMode = !state.memeMode;
+                bc({ t: 'meme_mode', val: state.memeMode });
                 updateLobby();
                 
-                if (window.GAME_STATE.memeMode) {
+                if (state.memeMode) {
                     new Howl({ src: ['assets/sounds/meme_mode/he he yeah boy.mp3'] }).play();
                     showBroadcastToast('meme_mode', qs('#nickname').value || 'Host', null);
                     showToast("🎭 MEME MODE ATTIVATA!");
@@ -4298,6 +4307,9 @@
             window.copyRoomLink = () => { navigator.clipboard.writeText(location.href); alert('Link copiato!'); };
 
             function updateLobby() {
+                // CRITICAL: Ensure isHost is correct (if I am the owner of the roomId)
+                if (roomId && myId && roomId === myId) isHost = true;
+
                 // Ensure container is visible for joiners receiving updates
                 qs('#roomInfo').style.display = 'block';
                 if (!isHost) qs('.room-link').style.display = 'block'; // Now joiner can also invite others if they want
@@ -4306,17 +4318,27 @@
                 if (isHost && state.players.length >= 2) qs('#btnStartGame').style.display = 'block';
                 
                 // UPDATE MEME SWITCH STATE
-                const switchContainer = qs('#memeSwitchContainer');
-                const checkbox = qs('#memeCheckbox');
+                const lobbySwitch = qs('#memeSwitchContainer');
+                const lobbyCheck = qs('#memeCheckbox');
                 
-                if (switchContainer && checkbox) {
-                    // STYLE for Host vs Client
-                    switchContainer.style.opacity = isHost ? '1' : '0.5';
-                    switchContainer.style.pointerEvents = isHost ? 'auto' : 'none';
-                    checkbox.disabled = !isHost; // Force Read-only logic
-                    checkbox.checked = window.GAME_STATE.memeMode;
-                    // Ensure visibility
-                    switchContainer.style.display = 'flex';
+                if (lobbyCheck) lobbyCheck.checked = !!state.memeMode;
+
+                if (lobbySwitch && lobbyCheck) {
+                    lobbySwitch.style.display = 'flex';
+                    
+                    if (isHost) {
+                        lobbySwitch.style.opacity = '1';
+                        lobbySwitch.style.pointerEvents = 'auto';
+                        lobbySwitch.style.filter = 'none';
+                        lobbySwitch.style.cursor = 'pointer';
+                        lobbyCheck.disabled = false;
+                    } else {
+                        lobbySwitch.style.opacity = '0.7';
+                        lobbySwitch.style.pointerEvents = 'none'; // CRITICAL: Stop all clicks
+                        lobbySwitch.style.filter = 'grayscale(0.3)';
+                        lobbySwitch.style.cursor = 'default';
+                        lobbyCheck.disabled = true; // Extra logical safety
+                    }
                 }
             }
 
@@ -6266,12 +6288,16 @@
             // LEFT SIDEBAR LOGIC
             window.toggleLeftSidebar = () => {
                 const sidebar = qs('#leftSidebarDisplay');
+                if (!sidebar) return;
                 const content = sidebar.querySelector('.sidebar-content');
                 const backdrop = sidebar.querySelector('.sidebar-backdrop');
                 
+                // CRITICAL: Ensure isHost is correct (if I am the owner of the roomId)
+                if (roomId && myId && roomId === myId) isHost = true;
+
                 // Clear any pending classes if switching rapidly
-                content.classList.remove('closing');
-                if(backdrop) backdrop.classList.remove('closing');
+                if (content) content.classList.remove('closing');
+                if (backdrop) backdrop.classList.remove('closing');
 
                 if (sidebar.style.display === 'block') {
                     SFX.play('slide_out');
@@ -6289,13 +6315,18 @@
                     // Update Room Code Area
                     const codeArea = qs('#menuRoomCodeArea');
                     const codeText = qs('#menuTypeRoomCode');
-                    
+                    const exitBtn = qs('#menuExitBtn');
+                    const shareArea = qs('#menuShareArea');
                     if (roomId && roomId.startsWith('flip7-')) {
                          const code = roomId.replace('flip7-', '');
-                         codeText.innerText = code;
-                         codeArea.style.display = 'block';
+                         if (codeText) codeText.innerText = code;
+                         if (codeArea) codeArea.style.display = 'block';
+                         if (shareArea) shareArea.style.display = 'flex';
+                         if (exitBtn) exitBtn.style.display = 'flex';
                     } else {
-                         codeArea.style.display = 'none';
+                         if (codeArea) codeArea.style.display = 'none';
+                         if (shareArea) shareArea.style.display = 'none';
+                         if (exitBtn) exitBtn.style.display = 'none';
                     }
                 }
             };
@@ -6397,11 +6428,11 @@
                 } else {
                     // Assuming assets/cards/custom_backs/ exists or logic handles it
                     // The user prompt implied these paths exist.
-                    window.userCardBack = `assets/cards/${val}.webp`;
+                window.userCardBack = `assets/cards/${val}.webp`;
                 }
                 
                 // Update all existing back cards in DOM
-                document.querySelectorAll('.card.back').forEach(img => {
+                document.querySelectorAll('.card.back, .deck-back-img').forEach(img => {
                     img.src = window.userCardBack;
                 });
                 
@@ -6780,6 +6811,20 @@
                     Linguaggi: HTML, CSS, JS (Vanilla)
                 </p>
                 <button class="btn" style="width:100%; margin-top:25px;" onclick="qs('#creditsModal').classList.remove('active')">Chiudi</button>
+            </div>
+        </div>
+        <!-- EXIT MODAL -->
+        <div class="modal" id="exitModal">
+            <div class="modal-content glass" style="max-width:350px; text-align:center;">
+                <h2 style="margin-bottom:15px; color:#EF4444;">🚪 Esci dalla partita?</h2>
+                <p style="opacity:0.8; margin-bottom:25px; line-height:1.5;">
+                    Sei sicuro di voler abbandonare?<br>
+                    Perderai il posto nella stanza.
+                </p>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn btn-secondary" onclick="qs('#exitModal').classList.remove('active')" style="flex:1;">Annulla</button>
+                    <button class="btn" onclick="window.location.hash=''; window.location.reload();" style="flex:1; background:#EF4444; box-shadow:0 4px 15px rgba(239, 68, 68, 0.4);">Sì, Esci</button>
+                </div>
             </div>
         </div>
 </body>
