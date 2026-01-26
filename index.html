@@ -2561,6 +2561,20 @@
                 </div><button class="btn btn-secondary" style="margin-top:10px; padding:8px 16px; font-size:12px;"
                     onclick="copyRoomLink()">📋 Copia Link</button>
             </div>
+            <div id="memeSwitchContainer" style="margin-top:20px; display:flex; justify-content:center; align-items:center; gap:10px; background:rgba(255,255,255,0.05); padding:10px 20px; border-radius:12px; transition: opacity 0.3s;">
+                <span style="font-size:20px;">🎭</span>
+                <label class="switch" style="position:relative; display:inline-block; width:50px; height:28px;">
+                    <input type="checkbox" id="memeCheckbox" onchange="window.toggleMemeMode()">
+                    <span class="slider round" style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:#ccc; transition:.4s; border-radius:34px;"></span>
+                    <style>
+                    .switch input {opacity: 0; width: 0; height: 0;}
+                    .slider:before {position: absolute; content: ''; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%;}
+                    input:checked + .slider {background-color: #8B5CF6;}
+                    input:checked + .slider:before {transform: translateX(22px);}
+                    </style>
+                </label>
+                <span style="font-weight:600; font-size:14px; color:rgba(255,255,255,0.8);">Meme Mode</span>
+            </div>
             <div class="players-list" id="playersList"></div>
             <p id="lobbyStatusMsg" style="font-size:12px; color:var(--text-secondary); margin-top:10px">In attesa che
                 l'host avvii la partita...</p>
@@ -2991,54 +3005,141 @@
 
             // ===== PREMIUM EFFECTS =====
             // Sound Effects using Howler.js (using Web Audio API synth for lightweight sounds)
-            // Sound Effects using Howler.js
+            // GLOBAL GAME STATE
+            window.GAME_STATE = { memeMode: false };
+
+             // Sound Effects using Howler.js
             const SFX = {
                 enabled: true,
+                currentActionSound: null, // Track looping/long sounds to stop them
                 sounds: {
+                    // ... (existing normal sounds will be here, we keep them for now, will update next)
                     // Core Gameplay
                     hit: new Howl({ src: ['assets/sounds/hit.mp3'] }), 
                     stay: new Howl({ src: ['assets/sounds/stay.mp3'] }),
-                    bust: new Howl({ src: ['assets/sounds/bust.mp3'] }), //suono bust
-                    flip7: new Howl({ src: ['assets/sounds/flip7.mp3'] }), //suono splashscreen flip7
-                    shuffle: new Howl({ src: ['assets/sounds/shuffle.wav'] }), //non cambia
-                    deal: new Howl({ src: ['assets/sounds/deal.mp3'] }),  //non cambia
+                    bust: new Howl({ src: ['assets/sounds/bust.mp3'] }),
+                    flip7: new Howl({ src: ['assets/sounds/flip7.mp3'] }),
+                    shuffle: new Howl({ src: ['assets/sounds/shuffle.wav'] }),
+                    deal: new Howl({ src: ['assets/sounds/deal.mp3'] }),
 
                     // Actions
-                    freeze: new Howl({ src: ['assets/sounds/freeze.mp3'] }), //suono splashscreen freeze
-                    flip3: new Howl({ src: ['assets/sounds/flip3.wav'] }), // User changed to wav
-                    sc_gain: new Howl({ src: ['assets/sounds/second_chance_gain.mp3'] }), //suono splashscreen second chance
-                    sc_burn: new Howl({ src: ['assets/sounds/second_chance_burn.mp3'] }), //suono second chance che brucia
-                    modifier_card: new Howl({ src: ['assets/sounds/modifier_card.mp3'] }), //suono quando si pesca carta modificatore
+                    freeze: new Howl({ src: ['assets/sounds/freeze.mp3'] }),
+                    flip3: new Howl({ src: ['assets/sounds/flip3.wav'] }),
+                    sc_gain: new Howl({ src: ['assets/sounds/second_chance_gain.mp3'] }),
+                    sc_burn: new Howl({ src: ['assets/sounds/second_chance_burn.mp3'] }),
+                    modifier_card: new Howl({ src: ['assets/sounds/modifier_card.mp3'] }),
 
                     // UI & Atmosphere
-                    click: new Howl({ src: ['assets/sounds/button_click.mp3'] }), //suono click pulsanti
-                    user_join: new Howl({ src: ['assets/sounds/user_join.mp3'] }), // Global
-                    start: new Howl({ src: ['assets/sounds/start_game.mp3'] }), //suono quando si clicca start
-                    win_match: new Howl({ src: ['assets/sounds/win_match.mp3'] }), //suono quando si vince la partita
-                    lose_match: new Howl({ src: ['assets/sounds/lose_match.mp3'] }), //suono quando si perde la partita
-                    round_end: new Howl({ src: ['assets/sounds/round_end.mp3'] }), //suono classifica
+                    click: new Howl({ src: ['assets/sounds/button_click.mp3'] }),
+                    user_join: new Howl({ src: ['assets/sounds/user_join.mp3'] }),
+                    start: new Howl({ src: ['assets/sounds/start_game.mp3'] }),
+                    win_match: new Howl({ src: ['assets/sounds/win_match.mp3'] }),
+                    lose_match: new Howl({ src: ['assets/sounds/lose_match.mp3'] }),
+                    round_end: new Howl({ src: ['assets/sounds/round_end.mp3'] }),
                     
                     // Popups & Notifications
-                    popup_open: new Howl({ src: ['assets/sounds/popup_open.mp3'] }), //suono quando si apre un popup
-                    popup_close: new Howl({ src: ['assets/sounds/popup_close.mp3'] }), //suono quando si chiude un popup
-                    action_required: new Howl({ src: ['assets/sounds/action_required_popup.mp3'] }), //Azione popup
-                    disconnection: new Howl({ src: ['assets/sounds/disconnection.mp3'] }), //suono quando un utente si disconnette
-                    user_reaction: new Howl({ src: ['assets/sounds/user_reaction.mp3'] }), //suono quando un utente usa le emoji
+                    popup_open: new Howl({ src: ['assets/sounds/popup_open.mp3'] }),
+                    popup_close: new Howl({ src: ['assets/sounds/popup_close.mp3'] }),
+                    action_required: new Howl({ src: ['assets/sounds/action_required_popup.mp3'] }),
+                    disconnection: new Howl({ src: ['assets/sounds/disconnection.mp3'] }),
+                    user_reaction: new Howl({ src: ['assets/sounds/user_reaction.mp3'] }),
 
                     // Legacy/Fallback mapping
                     action: new Howl({ src: ['assets/sounds/hit.mp3'] }),
                     win: new Howl({ src: ['assets/sounds/win_match.mp3'] })
                 },
+                // MEME SOUNDS will be loaded here
+                memeSounds: {
+                    // Core Gameplay
+                    hit: [ new Howl({ src: ['assets/sounds/deal.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/ive-got-this.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/another-one.mp3'] }) ],
+                    stay: [ new Howl({ src: ['assets/sounds/stay.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/rahhh.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/OOOW MA GAHD.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/ti-devo-dire-cicciogamer.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/formula-1-box-box.mp3'] }) ],
+                    bust: [ new Howl({ src: ['assets/sounds/meme_mode/bone-crack-meme.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/bruh.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/disappear-scream.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/FAHHH.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/Fornite Death Sound.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/gta-v-busted.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/mario_oof.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/minecraft_hurt.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/IT_IS_WHAT_IT_IS.mp3'] }) ],
+                    flip7: [ new Howl({ src: ['assets/sounds/meme_mode/BYE BYE.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/fortunate_son.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/marza-bukkin.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/chipi-chipi-chapa-chapa.mp3'] }) ],
+                    shuffle: [ new Howl({ src: ['assets/sounds/shuffle.wav'] }) ], // Normal
+                    deal: [ new Howl({ src: ['assets/sounds/deal.mp3'] }) ], // Normal
+
+                    // New Core
+                    bust_on_two: [ new Howl({ src: ['assets/sounds/meme_mode/Emotional Damage.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/spongebob-disappointed-sound-effect.mp3'] }) ],
+                    bust_on_seven: [ new Howl({ src: ['assets/sounds/meme_mode/Scoreggia.mp3'] }) ],
+                    player_has_6_cards: [ new Howl({ src: ['assets/sounds/meme_mode/let-him-cook-now.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/cooked-dog-meme.mp3'] }) ],
+
+                    // Actions
+                    freeze: [ new Howl({ src: ['assets/sounds/freeze.mp3'] }) ], // Normal
+                    flip3: [ new Howl({ src: ['assets/sounds/meme_mode/minkia-subbito-mbare.mp3'] }) ],
+                    sc_gain: [ new Howl({ src: ['assets/sounds/meme_mode/defy-gravity-x-god-is-kanye.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/i-was-the-knight.mp3'] }) ],
+                    sc_burn: [ new Howl({ src: ['assets/sounds/second_chance_burn.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/non-mi-puoi-contraddire.mp3'] }) ],
+                    
+                    // New Actions
+                    freezed: [ new Howl({ src: ['assets/sounds/meme_mode/bastavdo.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/get-out-meme.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/meme-violin-sad-violin.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/there_are_you_little_shit.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/Undertaker-bell.mp3'] }) ],
+                    modifier_x2: [ new Howl({ src: ['assets/sounds/meme_mode/WOW!.mp3'] }) ],
+                    'modifier_+2': [ new Howl({ src: ['assets/sounds/meme_mode/gangster paradise.mp3'] }) ],
+                    'modifier_+4': [ new Howl({ src: ['assets/sounds/meme_mode/rizz-sound-effect.mp3'] }) ],
+                    'modifier_+6': [ new Howl({ src: ['assets/sounds/meme_mode/mi-bombo-duolingo.mp3'] }) ],
+                    'modifier_+8': [ new Howl({ src: ['assets/sounds/meme_mode/mi-bombo.mp3'] }) ],
+                    'modifier_+10': [ new Howl({ src: ['assets/sounds/meme_mode/metal-pipe-clang.mp3'] }) ],
+                    player_flipping3: [ new Howl({ src: ['assets/sounds/meme_mode/skeleton-with-shield.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/adele-this-is-the-end.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/man-shut-yo-gah-damn-meme.mp3'] }) ],
+                    player_flipping3_success: [ new Howl({ src: ['assets/sounds/meme_mode/marza-bukkin.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/per-favore-non-piangere-slow.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/gigachad-theme-music.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/drip-goku.mp3'] }) ],
+                    player_flipping3_fail: [ new Howl({ src: ['assets/sounds/meme_mode/what-the-hell-meme-sound-effect.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/trollface-smile.mp3'] }) ],
+
+                    // UI & Atmosphere
+                    click: [ new Howl({ src: ['assets/sounds/button_click.mp3'] }) ], // Normal
+                    user_join: [ new Howl({ src: ['assets/sounds/meme_mode/discord_join_call.mp3'] }) ],
+                    start: [ new Howl({ src: ['assets/sounds/meme_mode/start_game.mp3'] }) ],
+                    win_match: [ new Howl({ src: ['assets/sounds/meme_mode/we-are-charlie-kirk-song.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/noi-veniamo-dalla-calabria.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/tarantella-napolitana.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/o-casal-mais-lindo-do-brasil.mp3'] }) ],
+                    lose_match: [ new Howl({ src: ['assets/sounds/lose_match.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/fnaf-meme-har-har.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/sad-meow-song.mp3'] }) ],
+                    round_end: [ new Howl({ src: ['assets/sounds/meme_mode/among-us-role-reveal-sound.mp3'] }) ],
+
+                    // Popups
+                    popup_open: [ new Howl({ src: ['assets/sounds/popup_open.mp3'] }) ], // Normal
+                    popup_close: [ new Howl({ src: ['assets/sounds/popup_close.mp3'] }) ], // Normal
+                    action_required: [ new Howl({ src: ['assets/sounds/meme_mode/death_note_popup_deciding.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/dexter-meme.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/kyrie-death-note.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/scary-tiktok-music.mp3'] }), new Howl({ src: ['assets/sounds/meme_mode/dramatic-tiktok.mp3'] }) ],
+                    disconnection: [ new Howl({ src: ['assets/sounds/meme_mode/windows shutdown.mp3'] }) ],
+                    user_reaction: [ new Howl({ src: ['assets/sounds/user_reaction.mp3'] }) ] // Normal
+                }, 
+                
                 play: function (type) {
                     if (!this.enabled) return;
+                    
+                    // Check Meme Mode
+                    if (window.GAME_STATE && window.GAME_STATE.memeMode && this.memeSounds[type]) {
+                        const s = this.getRandomMemeSound(this.memeSounds[type]);
+                        if (s) {
+                             // Stop previous action sound if needed
+                             if (['action_required', 'win_match', 'lose_match'].includes(type)) {
+                                 if (this.currentActionSound) this.currentActionSound.stop();
+                                 this.currentActionSound = s;
+                             }
+                             s.play();
+                             return;
+                        }
+                    }
+
+                    // Fallback to Normal
                     try {
                         if (this.sounds[type]) {
+                             // Stop logic for normal sounds too if needed
+                             if (['action_required', 'win_match', 'lose_match'].includes(type)) {
+                                 if (this.currentActionSound) this.currentActionSound.stop();
+                                 this.currentActionSound = this.sounds[type];
+                             }
                             this.sounds[type].play();
                         } else if (this.sounds['click']) {
                              // Fallback
                             this.sounds['click'].play();
                         }
                     } catch (e) { console.error('SFX Error:', e); }
+                },
+                
+                getRandomMemeSound: function(soundArray) {
+                    if (!Array.isArray(soundArray) || soundArray.length === 0) return null;
+                    return soundArray[Math.floor(Math.random() * soundArray.length)];
+                },
+                
+                stopAction: function() {
+                    if (this.currentActionSound) {
+                        this.currentActionSound.stop();
+                        this.currentActionSound = null;
+                    }
                 }
             };
 
@@ -3600,7 +3701,7 @@
 
             function initPeer(id) {
                 return new Promise((res, rej) => {
-                    peer = new Peer(id, { debug: 0 });
+                    peer = new Peer(id, { debug: 1 });
                     peer.on('open', res); peer.on('error', rej);
                     peer.on('connection', c => {
                         c.on('open', () => { 
@@ -3646,6 +3747,8 @@
                     });
                 });
             }
+
+            
 
             function handleMsg(c, d) {
                 if (d.t === 'join' && isHost) {
@@ -3744,6 +3847,17 @@
                     if (d.winner === myId) SFX.play('win_match');
                     else SFX.play('lose_match');
                 }
+                // NEW: MEME MODE SYNC
+                else if (d.t === 'meme_mode') {
+                    window.GAME_STATE.memeMode = d.val;
+                    // Update UI if in lobby
+                    updateLobby();
+                    showToast(d.val ? "🎭 MEME MODE ATTIVATA!" : "Meme Mode disattivata.");
+                    
+                    // Preload sound arrays if newly enabled? 
+                    // Howler logic is lazy in SFX.play, so we don't strictly need to preload instantly,
+                    // but we should ensure SFX object is ready.
+                }
             }
 
             function bc(d) { conns.forEach(c => c.send(d)); }
@@ -3777,7 +3891,6 @@
                     if (overlay.classList.contains('reaction-overlay')) {
                         overlay.appendChild(stopsEl);
                         // Remove after sometime? Or keep it? 
-                        // Usually 'Stay' is a status. But this is a reaction.
                         // "Quando un player si ferma... visualizziamo l'APNG"
                         // If it's the 'Stop' SIGN, it might be transient.
                         // But if they stay, they stay. 
@@ -3976,12 +4089,17 @@
                 const n = qs('#nickname').value.trim();
                 if (!n) { showToast('⚠️ Inserisci un nickname!'); return; }
                 myName = n; roomId = 'flip7-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+                showToast('⏳ Creazione stanza...');
                 try {
                     await initPeer(roomId); isHost = true; myId = roomId;
                     state.players.push({ id: myId, name: myName, cards: [], mods: [], nums: new Set(), pts: 0, tot: 0, st: 'active', sc: false });
-                    window.isCreatingRoom = true; // Flag to customize toast
+                    window.isCreatingRoom = true; 
                     window.location.hash = roomId; showRoom();
-                } catch (e) { showToast('❌ Errore creazione stanza'); }
+                    showToast('✅ Stanza creata!');
+                } catch (e) { 
+                    console.error(e); 
+                    showToast('❌ Errore creazione stanza'); 
+                }
             };
 
             qs('#btnJoinRoom').onclick = async () => {
@@ -3990,17 +4108,6 @@
                 myName = n; roomId = h;
                 try {
                     await initPeer(); myId = peer.id;
-                    
-                    // FIX: Handle "Room Not Found" specifically
-                    peer.on('error', (err) => {
-                        if (err.type === 'peer-unavailable') {
-                            showToast('❌ Stanza non trovata! Controlla il codice.');
-                        } else {
-                            // verify connection error
-                             console.error(err); 
-                        }
-                    });
-
                     const c = peer.connect(roomId, { reliable: true });
                     c.on('open', () => { 
                         conns.push(c); 
@@ -4028,17 +4135,14 @@
                              </div>`;
                              setTimeout(() => { window.location.hash = ''; window.location.reload(); }, 5000);
                         });
-                        c.on('error', () => {
-                             showToast('❌ Errore connessione Host');
-                        });
                     });
                     qs('#hostControls').style.display = 'none';
-                    // Show waiting screen part of room info immediately
                     qs('#roomInfo').style.display = 'block';
-                    qs('.room-link').style.display = 'none'; // Hide invite link for joiner initially
+                    qs('.room-link').style.display = 'none'; 
                     qs('#playersList').innerHTML = '<div style="padding:10px">Connessione...</div>';
                 } catch (e) { showToast('❌ Errore connessione'); }
             };
+
 
             function showRoom() {
                 qs('#hostControls').style.display = 'none';
@@ -4050,6 +4154,16 @@
                 SFX.play('popup_open');
             }
 
+            // MEME MODE TOGGLE FUNCTION
+            window.toggleMemeMode = () => {
+                if (!isHost) return;
+                window.GAME_STATE.memeMode = !window.GAME_STATE.memeMode;
+                bc({ t: 'meme_mode', val: window.GAME_STATE.memeMode });
+                updateLobby();
+                showToast(window.GAME_STATE.memeMode ? "🎭 Meme Mode ON" : "Meme Mode OFF");
+                SFX.play('click');
+            };
+
             window.copyRoomLink = () => { navigator.clipboard.writeText(location.href); alert('Link copiato!'); };
 
             function updateLobby() {
@@ -4059,6 +4173,19 @@
 
                 qs('#playersList').innerHTML = state.players.map((p, i) => `<div class="player-item ${i === 0 ? 'host' : ''}">${p.name}${p.id === myId ? ' (Tu)' : ''} ${i === 0 ? '👑' : ''}</div>`).join('');
                 if (isHost && state.players.length >= 2) qs('#btnStartGame').style.display = 'block';
+                
+                // UPDATE MEME SWITCH STATE
+                const switchContainer = qs('#memeSwitchContainer');
+                const checkbox = qs('#memeCheckbox');
+                
+                if (switchContainer && checkbox) {
+                    // STYLE for Host vs Client
+                    switchContainer.style.opacity = isHost ? '1' : '0.5';
+                    switchContainer.style.pointerEvents = isHost ? 'auto' : 'none';
+                    checkbox.checked = window.GAME_STATE.memeMode;
+                    // Ensure visibility
+                    switchContainer.style.display = 'flex';
+                }
             }
 
             qs('#btnStartGame').onclick = function () {
@@ -4205,6 +4332,12 @@
 
                 const tgtIdx = state.flip3State.targetIdx;
                 const tgt = state.players[tgtIdx];
+                
+                // Meme Trigger: Start flipping
+                if (state.flip3State.count === 0 && state.flip3State.active) {
+                    if (isHost && window.GAME_STATE && window.GAME_STATE.memeMode) bc({ t: 'sfx', id: 'player_flipping3' });
+                    SFX.play('player_flipping3');
+                }
 
                 if (state.flip3State.count < 3 && tgt.st === 'active') {
                     const res = drawCard(tgtIdx, true); // true = isFlip3 context
@@ -4231,7 +4364,14 @@
 
                     setTimeout(dealFlip3, delay);
                 } else {
-                    // Finished or busted
+                    // Finished or busted (Handled in drawCard -> bust or below?)
+                    // If we are here, loop finished.
+                    // If tgt is active, it means Success.
+                    if (tgt.st === 'active') {
+                        if (isHost && window.GAME_STATE && window.GAME_STATE.memeMode) bc({ t: 'sfx', id: 'player_flipping3_success' });
+                        SFX.play('player_flipping3_success');
+                    }
+                    
                     state.flip3State.active = false;
                     tgt.flip3Active = false;
                     state.flip3State = null;
@@ -4316,6 +4456,12 @@
                 overlay.innerHTML = `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center;">${html}</div>`;
 
                 document.body.appendChild(overlay);
+                
+                // Duration Logic
+                let duration = 2000;
+                if (window.GAME_STATE && window.GAME_STATE.memeMode && ['star', 'flip7', 'second_chance'].includes(type)) {
+                    duration = 15000;
+                }
 
                 // Animation styles for splash
                 overlay.style.position = 'fixed';
@@ -4337,7 +4483,7 @@
                         overlay.remove();
                         qs('body').classList.remove('animation-blocked');
                     }, 300);
-                }, 2000); // 2 seconds block
+                }, duration); // Dynamic duration
             }
 
             // Helper for Buttons - reset 3D state
@@ -4503,6 +4649,29 @@
                             trackBust(p.id); // Stats tracking
                             SFX.play('bust');
                             if (isHost) bc({ t: 'sfx', id: 'bust' });
+                            
+                            // MEME TRIGGERS: Bust on 2 or 7 (Total cards including this one)
+                            const totalCards = p.cards.length + 1; // c is not pushed yet in else block? No, look below...
+                            // Actually c is NOT in p.cards yet in this block? 
+                            // Line 4531: p.cards.push(c) is inside the else block (not bust).
+                            // In bust block (here), we push it later at line 4554 (p.cards.push(c)).
+                            // So current length is p.cards.length. Total will be +1.
+                            
+                            if (window.GAME_STATE && window.GAME_STATE.memeMode) {
+                                if (p.cards.length + 1 === 2) {
+                                    if (isHost) bc({ t: 'sfx', id: 'bust_on_two' });
+                                    SFX.play('bust_on_two');
+                                } else if (p.cards.length + 1 === 7) {
+                                    if (isHost) bc({ t: 'sfx', id: 'bust_on_seven' });
+                                    SFX.play('bust_on_seven');
+                                }
+                                
+                                // Meme Flip3 Fail Trigger
+                                if (p.flip3Active) {
+                                    if (isHost) bc({ t: 'sfx', id: 'player_flipping3_fail' });
+                                    SFX.play('player_flipping3_fail');
+                                }
+                            }
 
                             // Auto Reaction Bust & Smoke (Real Smoke Effect)
                             spawnSmokeOnPlayer(p.id);
@@ -4562,12 +4731,32 @@
                                 bc({ t: 'sfx', id: sound });
                             }
                             addToHistory(`${p.name} ha pescato ${c.value}`, 'normal');
+                            
+                            // MEME TRIGGER: Player has 6 cards (total)
+                            // Prompt says "raggiunge 6 carte".
+                            if (window.GAME_STATE && window.GAME_STATE.memeMode && p.cards.length === 6) {
+                                if (isHost) bc({ t: 'sfx', id: 'player_has_6_cards' });
+                                SFX.play('player_has_6_cards');
+                            }
                         }
                     }
                 } else if (c.type === 'modifier') {
                     p.mods.push(c); p.cards.push(c); p.pts = calcPts(p);
                     SFX.play('modifier_card');
                     if (isHost) bc({ t: 'sfx', id: 'modifier_card' });
+                    
+                    // MEME TRIGGERS: Specific Modifiers
+                    if (window.GAME_STATE && window.GAME_STATE.memeMode) {
+                        let mid = '';
+                        if (c.value === 'x2') mid = 'modifier_x2';
+                        else if (['+2','+4','+6','+8','+10'].includes(c.value)) mid = `modifier_${c.value}`;
+                        
+                        if (mid) {
+                            if (isHost) bc({ t: 'sfx', id: mid });
+                            SFX.play(mid);
+                        }
+                    }
+                    
                     addToHistory(`${p.name} ha pescato modificatore ${c.value}`, 'normal');
                 }
                 else if (c.type === 'action') {
@@ -4655,6 +4844,20 @@
                                     setTimeout(() => {
                                         p.frozen = true;
                                         p.st = 'stayed';
+                                        
+                                        // MEME TRIGGER: Freezed
+                                        if (window.GAME_STATE && window.GAME_STATE.memeMode) {
+                                            // Local trigger for self? Or Broadcast? Prompt says LOCAL for 'freezed'.
+                                            // "Quando un utente riceve lo stato FROZEN".
+                                            // If LOCAL, only I play it.
+                                            // Warning: This block runs on ALL clients if logic is replicated? 
+                                            // No, drawCard logic runs on Host and synced. 
+                                            // BUT this setTimeout logic for self-freeze might be running on client?
+                                            // check surrounding: c.value === 'freeze'.
+                                            // Wait, drawCard runs on whoever triggered it. 
+                                            // If I drew it, I run this.
+                                            SFX.play('freezed'); 
+                                        }
 
                                         if (state.dealingPhase) dealLoop(); // Resume deal
                                         else { nextTurn(); sync(); updateGame(); }
