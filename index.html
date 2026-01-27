@@ -25,6 +25,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <style>
         :root {
+            /* Core palette: "Viola Notte" (Default) */
             --primary: #8B5CF6;
             --primary-light: #A78BFA;
             --primary-dark: #7C3AED;
@@ -33,8 +34,20 @@
             --glass-bg: rgba(255, 255, 255, 0.08);
             --glass-border: rgba(255, 255, 255, 0.15);
             --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            
+            /* Text Parameterization */
             --text: #F8FAFC;
             --text-secondary: rgba(255, 255, 255, 0.6);
+            --text-muted: rgba(255, 255, 255, 0.45);
+            --text-bright: #FFFFFF;
+            --text-on-primary: #FFFFFF;
+            --text-on-btn: #FFFFFF;
+            --text-accent: #C084FC;
+            --text-gold: #fbbf24;
+            --text-danger: #F43F5E;
+            --text-success: #10B981;
+            
+            /* Status/Functional Colors */
             --success: #10B981;
             --danger: #F43F5E;
             --warning: #F59E0B;
@@ -53,7 +66,15 @@
             --glass-border: rgba(0, 240, 255, 0.3);
             --glass-shadow: 0 0 20px rgba(0, 240, 255, 0.15);
             --text: #e0faff;
-            --text-secondary: rgba(224, 250, 255, 0.6);
+            --text-secondary: rgba(0, 240, 255, 0.6);
+            --text-muted: rgba(0, 240, 255, 0.4);
+            --text-bright: #ffffff;
+            --text-on-primary: #000000;
+            --text-on-btn: #000000;
+            --text-accent: #ff0099;
+            --text-gold: #ffea00;
+            --text-danger: #ff0055;
+            --text-success: #00ffaa;
             --card-gradient: linear-gradient(145deg, rgba(0, 240, 255, 0.1), rgba(0, 0, 0, 0.4));
         }
 
@@ -68,6 +89,14 @@
             --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
             --text: #0f172a;
             --text-secondary: rgba(15, 23, 42, 0.6);
+            --text-muted: rgba(15, 23, 42, 0.45);
+            --text-bright: #000000;
+            --text-on-primary: #ffffff;
+            --text-on-btn: #ffffff;
+            --text-accent: #2563eb;
+            --text-gold: #b45309;
+            --text-danger: #dc2626;
+            --text-success: #16a34a;
             --card-gradient: linear-gradient(145deg, #ffffff, #f8fafc);
         }
 
@@ -82,7 +111,81 @@
             --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             --text: #fff1f2;
             --text-secondary: rgba(255, 241, 242, 0.7);
+            --text-muted: rgba(255, 241, 242, 0.5);
+            --text-bright: #ffffff;
+            --text-on-primary: #ffffff;
+            --text-on-btn: #ffffff;
+            --text-accent: #fbbf24;
+            --text-gold: #fbbf24;
+            --text-danger: #fda4af;
+            --text-success: #4ade80;
             --card-gradient: linear-gradient(145deg, rgba(136, 19, 55, 0.4), rgba(0,0,0,0.2));
+        }
+
+        [data-theme="casino"] {
+            --primary: #059669;
+            --primary-light: #34d399;
+            --primary-dark: #064e3b;
+            --accent: #fbbf24;
+            --bg-gradient: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #064e3b 100%);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --text: #f0fdf4;
+            --text-secondary: rgba(240, 253, 244, 0.6);
+            --text-muted: rgba(240, 253, 244, 0.45);
+            --text-bright: #ffffff;
+            --text-on-primary: #ffffff;
+            --text-on-btn: #ffffff;
+            --text-accent: #fbbf24;
+            --text-gold: #fbbf24;
+            --text-danger: #f87171;
+            --text-success: #34d399;
+            --card-gradient: linear-gradient(145deg, rgba(6, 78, 59, 0.6), rgba(0, 0, 0, 0.3));
+        }
+
+        [data-theme="deepblue"] {
+            --primary: #2563eb;
+            --primary-light: #60a5fa;
+            --primary-dark: #1e3a8a;
+            --accent: #38bdf8;
+            --bg-gradient: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #1e3a8a 100%);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            --text: #eff6ff;
+            --text-secondary: rgba(239, 246, 255, 0.6);
+            --text-muted: rgba(239, 246, 255, 0.45);
+            --text-bright: #ffffff;
+            --text-on-primary: #ffffff;
+            --text-on-btn: #ffffff;
+            --text-accent: #38bdf8;
+            --text-gold: #fbbf24;
+            --text-danger: #f87171;
+            --text-success: #4ade80;
+            --card-gradient: linear-gradient(145deg, rgba(30, 58, 138, 0.6), rgba(0, 0, 0, 0.3));
+        }
+
+        [data-theme="glass"] {
+            --primary: #94a3b8;
+            --primary-light: #cbd5e1;
+            --primary-dark: #475569;
+            --accent: #f1f5f9;
+            --bg-gradient: linear-gradient(135deg, #334155 0%, #475569 50%, #334155 100%);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            --text: #f8fafc;
+            --text-secondary: rgba(248, 250, 252, 0.7);
+            --text-muted: rgba(248, 250, 252, 0.5);
+            --text-bright: #ffffff;
+            --text-on-primary: #1e293b;
+            --text-on-btn: #1e293b;
+            --text-accent: #f1f5f9;
+            --text-gold: #fbbf24;
+            --text-danger: #fda4af;
+            --text-success: #4ade80;
+            --card-gradient: linear-gradient(145deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
         }
 
         html {
@@ -162,7 +265,7 @@
         .header h1 {
             font-size: 20px;
             font-weight: 700;
-            background: linear-gradient(135deg, var(--primary-light), var(--accent));
+            background: linear-gradient(135deg, var(--primary-light), var(--text-accent));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -189,7 +292,7 @@
         }
 
         .badge strong {
-            color: #fbbf24;
+            color: var(--text-gold);
             text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
         }
 
@@ -197,7 +300,7 @@
         .badge-score {
             background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(245, 158, 11, 0.1));
             border: 1px solid rgba(251, 191, 36, 0.4);
-            color: #fbbf24;
+            color: var(--text-accent);
             font-weight: 800;
             box-shadow: 0 0 15px rgba(251, 191, 36, 0.15);
             padding: 4px 10px;
@@ -317,7 +420,7 @@
             background: rgba(255, 255, 255, 0.05);
             border-radius: 8px;
             border-left: 3px solid var(--primary);
-            color: var(--text-secondary);
+            color: var(--text-muted);
             animation: slideIn 0.3s ease-out;
         }
 
@@ -325,7 +428,7 @@
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(5px);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #fbbf24;
+            color: var(--text-accent);
             padding: 2px 8px;
             border-radius: 12px;
             font-size: 14px;
@@ -410,7 +513,7 @@
             font-size: 32px;
             font-weight: 700;
             margin-bottom: 8px;
-            background: linear-gradient(135deg, #fff, var(--accent));
+            background: linear-gradient(135deg, var(--text-bright), var(--text-accent));
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -435,7 +538,7 @@
 
         .btn {
             background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
+            color: var(--text-on-btn);
             border: none;
             padding: 16px 24px;
             border-radius: 14px;
@@ -712,7 +815,7 @@
         }
 
         .room-link a {
-            color: var(--accent);
+            color: var(--text-accent);
             text-decoration: none;
         }
 
@@ -751,7 +854,7 @@
         .scoreboard h3 {
             font-size: 16px;
             margin-bottom: 12px;
-            color: var(--accent);
+            color: var(--text-accent);
         }
 
         .score-row {
@@ -1325,7 +1428,7 @@
             justify-content: center;
             font-size: 36px;
             font-weight: 900;
-            color: var(--danger);
+            color: var(--text-danger);
             text-shadow: 0 0 30px rgba(244, 63, 94, 0.8);
             border-radius: 20px;
             animation: bustEntrance 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both, pulseText 1s ease-in-out 3, bustFadeOut 0.5s ease 2.5s forwards;
@@ -1359,7 +1462,7 @@
 
             50% {
                 transform: scale(1.1) rotate(-5deg);
-                text-shadow: 0 0 50px var(--danger), 0 0 80px red;
+                text-shadow: 0 0 50px var(--text-danger), 0 0 80px red;
             }
         }
 
@@ -1397,12 +1500,14 @@
             border: 1px solid rgba(255, 255, 255, 0.3);
             box-shadow: 0 0 10px rgba(248, 113, 113, 0.5);
             animation: pulseSubtle 3s infinite;
+            color: var(--text-on-btn);
         }
 
         .badge-frozen {
             background: linear-gradient(135deg, #38BDF8, #0EA5E9);
             border: 1px solid rgba(255, 255, 255, 0.3);
             box-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
+            color: var(--text-on-btn);
         }
 
         @keyframes pulseSubtle {
@@ -1687,7 +1792,7 @@
 
         @keyframes flyInAnim {
             0% {
-                transform: translate(var(--tx), var(--ty)) scale(0.5);
+                transform: translate(var(--tx), var(--ty)) scale(1.1);
                 opacity: 0.5;
             }
 
@@ -1861,7 +1966,7 @@
         .recap-score {
             font-size: 56px;
             font-weight: 800;
-            color: #fbbf24;
+            color: var(--text-gold);
             margin: 10px 0;
             text-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
         }
@@ -1883,21 +1988,21 @@
 
         .badge-bust {
             background: rgba(239, 68, 68, 0.3);
-            color: #fca5a5;
-            border: 1px solid #ef4444;
+            color: var(--text-danger);
+            border: 1px solid var(--danger);
         }
 
         .badge-success {
             background: rgba(34, 197, 94, 0.3);
-            color: #86efac;
-            border: 1px solid #22c55e;
+            color: var(--text-success);
+            border: 1px solid var(--success);
         }
 
         .badge-flip7 {
             background: rgba(168, 85, 247, 0.3);
-            color: #d8b4fe;
-            border: 1px solid #a855f7;
-            box-shadow: 0 0 15px #a855f7;
+            color: var(--text-accent);
+            border: 1px solid var(--primary);
+            box-shadow: 0 0 15px var(--primary);
         }
 
         @keyframes fadeIn {
@@ -1941,15 +2046,15 @@
         }
 
         .splash-title.freeze {
-            color: #3b82f6;
+            color: var(--freeze);
         }
 
         .splash-title.flip3 {
-            color: #f59e0b;
+            color: var(--warning);
         }
 
         .splash-title.second_chance {
-            color: #ef4444;
+            color: var(--danger);
         }
 
         @keyframes pulseGlow {
@@ -2305,7 +2410,7 @@
         .stats-header h3 {
             margin: 0;
             font-size: 18px;
-            background: linear-gradient(135deg, #FF6B35, #fbbf24);
+            background: linear-gradient(135deg, #FF6B35, var(--text-gold));
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -2371,7 +2476,7 @@
 
         /* Leaderboard Ranks */
         .leaderboard-row.rank-1 {
-            border-color: #fbbf24 !important;
+            border-color: var(--text-gold) !important;
             /* Gold */
             background: linear-gradient(90deg, rgba(251, 191, 36, 0.15), transparent);
             box-shadow: 0 4px 12px rgba(251, 191, 36, 0.2);
@@ -2392,7 +2497,7 @@
         }
 
         .rank-text-1 {
-            color: #fbbf24;
+            color: var(--text-gold);
             font-weight: 800;
             text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
         }
@@ -2596,8 +2701,8 @@
         <div class="sidebar-backdrop" onclick="toggleLeftSidebar()" style="position:absolute; inset:0; background:rgba(0,0,0,0.5); backdrop-filter:blur(5px);"></div>
         <div class="sidebar-content glass" style="position:absolute; top:0; left:0; height:100%; width:85vw; max-width:320px; padding:20px; display:flex; flex-direction:column; gap:15px; animation: slideRight 0.3s cubic-bezier(0.16, 1, 0.3, 1); border-radius:0 24px 24px 0; border-left:none; overflow-y:auto;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                 <div style="font-size:28px; font-weight:800; background:linear-gradient(135deg, #A78BFA, #fbbf24); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;">Flip 7</div>
-                 <div class="close-sidebar" onclick="toggleLeftSidebar()" style="font-size:24px; color:rgba(255,255,255,0.5); cursor:pointer;">&times;</div>
+                 <div style="font-size:28px; font-weight:800; background:linear-gradient(135deg, var(--primary-light), var(--text-gold)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;">Flip 7</div>
+                 <div class="close-sidebar" onclick="toggleLeftSidebar()" style="font-size:24px; color:var(--text-muted); cursor:pointer;">&times;</div>
             </div>
             
             <!-- 1. AUDIO TOGGLE -->
@@ -2631,10 +2736,10 @@
 
             <!-- 4. ROOM CODE -->
             <div id="menuRoomCodeArea" style="display:none; padding:12px; background:rgba(251, 191, 36, 0.1); border-radius:12px; border:1px solid rgba(251, 191, 36, 0.3);">
-                <div style="font-size:10px; text-transform:uppercase; color:#fbbf24; letter-spacing:1px; margin-bottom:5px; font-weight:bold;">Codice Stanza</div>
+                <div style="font-size:10px; text-transform:uppercase; color:var(--text-gold); letter-spacing:1px; margin-bottom:5px; font-weight:bold;">Codice Stanza</div>
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span id="menuTypeRoomCode" style="font-family:monospace; font-size:20px; font-weight:bold; letter-spacing:2px; color:white;">-</span>
-                    <button class="btn-icon-small" onclick="copyRoomLink()" style="color:#fbbf24;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
+                    <span id="menuTypeRoomCode" style="font-family:monospace; font-size:20px; font-weight:bold; letter-spacing:2px; color:var(--text-bright);">-</span>
+                    <button class="btn-icon-small" onclick="copyRoomLink()" style="color:var(--text-gold);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
                 </div>
             </div>
 
@@ -2665,7 +2770,7 @@
             </a>
 
             <!-- 6. SUPPORT -->
-            <a href="https://www.paypal.me/peps2k" target="_blank" class="btn-menu-link" style="color:#fbbf24;">
+            <a href="https://www.paypal.me/peps2k" target="_blank" class="btn-menu-link" style="color:var(--text-gold);">
                 ☕ Offrimi un caffè
             </a>
             
@@ -2724,26 +2829,27 @@
         .sidebar-content.closing { animation: slideLeft 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important; }
         .sidebar-backdrop.closing { animation: fadeOut 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards !important; }
         .modal-content-premium {
-            background: rgba(30, 27, 46, 0.85); /* Dark glass */
+            background: var(--glass-bg);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 40px 80px -12px rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
             border-radius: 28px;
             padding: 0;
             overflow: hidden;
             animation: fadeScaleIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
             max-width: 450px;
             width: 90%;
-            display: flex;           /* FIX: Flex layout */
-            flex-direction: column;  /* FIX: Vertical stack */
-            max-height: 90vh;        /* FIX: Limit height */
+            display: flex;
+            flex-direction: column;
+            max-height: 90vh;
+            color: var(--text);
         }
         .modal-header-premium {
-            background: linear-gradient(135deg, rgba(167, 139, 250, 0.1), rgba(251, 191, 36, 0.05));
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(255, 255, 255, 0.05));
             padding: 30px 20px 20px;
             text-align: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid var(--glass-border);
         }
         .modal-header-icon {
             width: 72px;
@@ -2775,7 +2881,7 @@
         .premium-title {
             font-size: 24px;
             font-weight: 800;
-            background: linear-gradient(to right, #e2e8f0, #ffffff);
+            background: linear-gradient(to right, var(--text-bright), var(--text-accent));
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -2789,7 +2895,7 @@
             padding: 20px;
             display: flex;
             justify-content: center;
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            border-top: 1px solid var(--glass-border);
             background: rgba(0, 0, 0, 0.15);
             flex-shrink: 0;
         }
@@ -2926,7 +3032,7 @@
                                     <div
                                         style="font-size:9px; opacity:0.7; text-transform:uppercase; letter-spacing:1px; margin-bottom:2px;">
                                         Carte</div>
-                                    <div style="font-size:22px; font-weight:800; color:#fbbf24; text-shadow:0 0 15px rgba(251, 191, 36, 0.4);"
+                                    <div style="font-size:22px; font-weight:800; color:var(--text-gold); text-shadow:0 0 15px rgba(251, 191, 36, 0.4);"
                                         id="deckCount">0</div>
                                 </div>
                 </div>
@@ -3023,9 +3129,7 @@
                 <div class="modal-body-premium" id="targetButtons" style="padding:20px; max-height:50vh;">
                     <!-- Targets injected by JS -->
                 </div>
-                <div style="padding:15px; text-align:center;">
-                     <button class="btn btn-secondary" onclick="document.getElementById('targetModal').classList.remove('active')" style="width:100%;">Annulla</button>
-                </div>
+
             </div>
         </div>
         
@@ -3231,7 +3335,7 @@
                                 <li>✖️ Moltiplicatore: <strong>x2</strong> (17 * 2 = 34)</li>
                                 <li>➕ Modificatore: <strong>+4</strong> (34 + 4 = 38)</li>
                                 <li style="margin-top:10px; border-top:1px solid rgba(255,255,255,0.1); padding-top:5px;">
-                                    Totale Round: <strong style="color:#fbbf24; font-size:15px;">38 Punti</strong>
+                                    Totale Round: <strong style="color:var(--text-gold); font-size:15px;">38 Punti</strong>
                                 </li>
                             </ul>
                         </div>
@@ -3255,12 +3359,7 @@
             </script>
         </div>
 
-        <div class="modal" id="targetModal">
-            <div class="modal-content glass">
-                <h3 id="modalTitle">Scegli il bersaglio</h3>
-                <div id="targetButtons"></div>
-            </div>
-        </div>
+
 
         <div id="endGameOverlay"
             style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.95); z-index:2000; align-items:center; justify-content:center; flex-direction:column; backdrop-filter:blur(20px); overflow-y:auto; padding:20px;">
@@ -3452,6 +3551,13 @@
                     user_reaction: [ new Howl({ src: ['assets/sounds/user_reaction.mp3'] }) ] // Normal
                 }, 
                 
+                stopAction: function() {
+                    if (this.currentActionSound) {
+                        this.currentActionSound.stop();
+                        this.currentActionSound = null;
+                    }
+                },
+
                 getMemeVariant: function(type) {
                     if (!this.memeSounds[type] || !Array.isArray(this.memeSounds[type])) return null;
                     return Math.floor(Math.random() * this.memeSounds[type].length);
@@ -4254,7 +4360,7 @@
                     
                     if (d.val) {
                          showBroadcastToast('meme_mode', d.from || 'Host', null); // Reuse broadcast toast if possible or just custom
-                         showToast("🎭 MEME MODE ATTIVATA!"); 
+                        //  showToast("🎭 MEME MODE ATTIVATA!"); 
                     } else {
                         showToast("Meme Mode disattivata.");
                     }
@@ -4565,7 +4671,7 @@
                 if (state.memeMode) {
                     new Howl({ src: ['assets/sounds/meme_mode/he he yeah boy.mp3'] }).play();
                     showBroadcastToast('meme_mode', qs('#nickname').value || 'Host', null);
-                    showToast("🎭 MEME MODE ATTIVATA!");
+                    // showToast("🎭 MEME MODE ATTIVATA!");
                 } else {
                     showToast("Meme Mode disattivata.");
                 }
@@ -5083,8 +5189,11 @@
                             // No, we are inside the 'bust' branch. We won't draw again immediately.
                             // Logic:
                             // Move sc_burn here for immediate feedback
-                            SFX.play('sc_burn'); 
-                            if (isHost) bc({ t: 'sfx', id: 'sc_burn' });
+                            if (isHost) {
+                                const v = SFX.getMemeVariant('sc_burn');
+                                bc({ t: 'sfx', id: 'sc_burn', v: v });
+                                SFX.play('sc_burn', v);
+                            }
                             qs('body').classList.add('shake', 'animation-blocked');
                             setTimeout(() => qs('body').classList.remove('shake'), 400);
 
@@ -5128,7 +5237,6 @@
                         else {
                             p.st = 'bust'; p.pts = 0; p.bustTime = Date.now();
                             trackBust(p.id); // Stats tracking
-                            SFX.play('bust'); // Fallback / Local
                             if (isHost) {
                                 const v = SFX.getMemeVariant('bust');
                                 bc({ t: 'sfx', id: 'bust', v: v });
@@ -5197,7 +5305,6 @@
                             console.log(`🎉 FLIP7 triggered for ${p.name}! Unique nums: ${p.nums.size}, Cards in hand: ${p.cards.filter(c => c.type === 'number').length}, Nums Set:`, [...p.nums]);
                             p.st = 'flip7'; p.pts = calcPts(p);
                             trackFlip7(p.id); // Stats tracking
-                            SFX.play('flip7'); // Local fallback
                             if (isHost) {
                                 const v = SFX.getMemeVariant('flip7');
                                 bc({ t: 'sfx', id: 'flip7', v: v });
@@ -5246,29 +5353,19 @@
                     }
                 } else if (c.type === 'modifier') {
                     p.mods.push(c); p.cards.push(c); p.pts = calcPts(p);
-                    SFX.play('modifier_card');
-                    if (isHost) {
-                         const v = SFX.getMemeVariant('modifier_card');
-                         bc({ t: 'sfx', id: 'modifier_card', v: v });
-                         SFX.play('modifier_card', v);
-                    }
                     
-                    // MEME TRIGGERS: Specific Modifiers
-                    if (window.GAME_STATE && window.GAME_STATE.memeMode) {
-                        let mid = '';
-                        if (c.value === 'x2') mid = 'modifier_x2';
-                        else if (['+2','+4','+6','+8','+10'].includes(c.value)) mid = `modifier_${c.value}`;
-                        
-                        if (mid) {
-                            if (isHost) {
-                                const v = SFX.getMemeVariant(mid);
-                                bc({ t: 'sfx', id: mid, v: v });
-                                SFX.play(mid, v);
-                            } else {
-                                SFX.play(mid);
-                            }
-                        }
+                    if (isHost) {
+                         let soundId = 'modifier_card';
+                         if (window.GAME_STATE && window.GAME_STATE.memeMode) {
+                             if (c.value === 'x2') soundId = 'modifier_x2';
+                             else if (['+2','+4','+6','+8','+10'].includes(c.value)) soundId = `modifier_${c.value}`;
+                         }
+
+                         const v = SFX.getMemeVariant(soundId);
+                         bc({ t: 'sfx', id: soundId, v: v });
+                         SFX.play(soundId, v);
                     }
+                    // No local play for clients (wait for broadcast)
                     
                     addToHistory(`${p.name} ha pescato modificatore ${c.value}`, 'normal');
                 }
@@ -5303,7 +5400,6 @@
                         else if (c.value === 'flip3') sfxId = 'flip3';
                         else if (c.value === 'second_chance') sfxId = 'sc_gain';
 
-                        SFX.play(sfxId);
                         if (isHost) {
                              const v = SFX.getMemeVariant(sfxId);
                              bc({ t: 'sfx', id: sfxId, v: v });
@@ -5505,6 +5601,13 @@
                 const idx = state.players.findIndex(p => p.id === pid); if (idx === -1) return;
                 const p = state.players[idx];
                 if (act === 'hit' && idx === state.turn && p.st === 'active') {
+                    // Diversify Hit sound for Meme Mode
+                    if (isHost && state.memeMode) {
+                        const v = SFX.getMemeVariant('hit');
+                        SFX.play('hit', v);
+                        bc({ t: 'sfx', id: 'hit', v: v });
+                    }
+
                     // Sound moved to drawCard for consistency with dealLoop
                     const res = drawCard(idx);
                     if (res === 'WAIT' || res === 'END') return;
@@ -5514,12 +5617,14 @@
                         if (isHost) setTimeout(showTgt, delay);
                     } else if (p.st !== 'active') { if (p.st === 'bust') setTimeout(() => nextTurn(), 3000); else nextTurn(); }
                 } else if (act === 'stay' && idx === state.turn) {
-                    if (isHost) {
+                    if (isHost && state.memeMode) {
                         const v = SFX.getMemeVariant('stay');
                         bc({ t: 'sfx', id: 'stay', v: v });
                         SFX.play('stay', v);
+                    } else if (isHost) {
+                        bc({ t: 'sfx', id: 'stay' });
+                        SFX.play('stay');
                     } else {
-                        // Client local fallback (mute if needed to avoid double?)
                         // Client plays local sound immediately for responsiveness
                         SFX.play('stay'); 
                     }
@@ -5605,6 +5710,7 @@
                 `;
 
                     div.onclick = () => {
+                        if (SFX.stopAction) SFX.stopAction();
                         tm.classList.remove('active');
                         isHost ? handleAct(myId, 'tgt', i) : sendHost({ t: 'act', a: 'tgt', tgt: i });
                     };
@@ -5879,9 +5985,9 @@
                     return;
                 }
                 
-                // End of Round (Round End sound)
-                if (isHost) bc({ t: 'sfx', id: 'round_end' });
-                SFX.play('round_end');
+                // End of Round (Round End sound) - Commented out by user request
+                // if (isHost) bc({ t: 'sfx', id: 'round_end' });
+                // SFX.play('round_end');
 
                 state.round++; state.dealer = (state.dealer + 1) % state.players.length;
 
@@ -7055,7 +7161,7 @@
                 <div style="color: #ff6b35; font-size: 16px; margin-top: 10px;">Ultimo rimasto - La carta brucia! 🔥</div>
             `;
                 splash.classList.add('active');
-                setTimeout(() => splash.classList.remove('active'), 2000);
+                setTimeout(() => splash.classList.remove('active'), (state && state.memeMode) ? 10000 : 2000);
             }
 
             // FIX 2: Personalized splashscreen - shows WHO drew the action card
@@ -7077,7 +7183,7 @@
                 </div>
             `;
                 splash.classList.add('active');
-                setTimeout(() => splash.classList.remove('active'), 2000);
+                setTimeout(() => splash.classList.remove('active'), (state && state.memeMode) ? 10000 : 2000);
             }
 
             // PWA INSTALL LOGIC
@@ -7210,7 +7316,7 @@
                      actionC.innerHTML = `
                         <div class="premium-card" style="margin-bottom:10px;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-                                <strong style="color:#38bdf8;">❄️ FREEZE (3)</strong>
+                                <strong style="color:var(--freeze);">❄️ FREEZE (3)</strong>
                                 <span style="font-size:10px; opacity:0.6;">OBBLIGATORIO</span>
                             </div>
                             <div style="font-size:12px; opacity:0.8; line-height:1.4;">
@@ -7219,7 +7325,7 @@
                         </div>
                         <div class="premium-card" style="margin-bottom:10px;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-                                <strong style="color:#fbbf24;">⚡ FLIP 3 (3)</strong>
+                                <strong style="color:var(--text-gold);">⚡ FLIP 3 (3)</strong>
                                 <span style="font-size:10px; opacity:0.6;">RISCHIO</span>
                             </div>
                             <div style="font-size:12px; opacity:0.8; line-height:1.4;">
@@ -7228,7 +7334,7 @@
                         </div>
                         <div class="premium-card">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-                                <strong style="color:#F43F5E;">❤️ SECOND CHANCE (3)</strong>
+                                <strong style="color:var(--text-danger);">❤️ SECOND CHANCE (3)</strong>
                             </div>
                             <div style="font-size:12px; opacity:0.8; line-height:1.4;">
                                 Ti protegge UNA VOLTA da un numero duplicato. Se peschi un doppione, scarta questa carta e il doppione. Continui a giocare. (Non protegge da Freeze!)
@@ -7240,20 +7346,20 @@
                 if (tab === 'scoring' && scoreC && scoreC.innerHTML === '') {
                      scoreC.innerHTML = `
                         <div class="premium-card" style="margin-bottom:10px;">
-                             <div style="color:#22c55e; font-weight:bold; margin-bottom:5px;">🎉 BONUS FLIP 7 (+15 Punti)</div>
+                             <div style="color:var(--text-success); font-weight:bold; margin-bottom:5px;">🎉 BONUS FLIP 7 (+15 Punti)</div>
                              <div style="font-size:12px; opacity:0.8;">
                                  Ottieni esattamente <strong>7 carte NUMERO diverse</strong> (0-12).<br>
                                  Il round termina SUBITO. Prendi 15 punti extra + la somma delle carte.
                              </div>
                         </div>
                         <div class="premium-card" style="margin-bottom:10px;">
-                             <div style="color:#A78BFA; font-weight:bold; margin-bottom:5px;">✖️ MOLTIPLICATORE x2</div>
+                             <div style="color:var(--primary-light); font-weight:bold; margin-bottom:5px;">✖️ MOLTIPLICATORE x2</div>
                              <div style="font-size:12px; opacity:0.8;">
                                  Raddoppia la somma delle sole Carte Numero. Le carte +2, +10 ecc. vengono aggiunte DOPO e non moltiplicate.
                              </div>
                         </div>
                         <div class="premium-card">
-                             <div style="color:#818cf8; font-weight:bold; margin-bottom:5px;">➕ ADDIZIONI (+2, +10...)</div>
+                             <div style="color:var(--text-accent); font-weight:bold; margin-bottom:5px;">➕ ADDIZIONI (+2, +10...)</div>
                              <div style="font-size:12px; opacity:0.8;">
                                  Si sommano al totale finale. Contano solo se NON sballi (Bust).
                              </div>
