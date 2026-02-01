@@ -2069,6 +2069,15 @@
             }
         }
 
+        @keyframes popIn {
+            0% { transform: scale(0.8) translateY(10px); opacity: 0; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        .pop-in {
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
         /* Action Card Splash */
         #cardSplash {
             position: fixed;
@@ -3286,7 +3295,11 @@
             <div class="players-list" id="playersList"></div>
             <p id="lobbyStatusMsg" style="font-size:12px; color:var(--text-secondary); margin-top:10px">In attesa che
                 l'host avvii la partita...</p>
-            <button class="btn" id="btnStartGame" style="display:none;">🎮 Inizia Partita</button>
+            <button class="btn btn-secondary" id="btnAddBot" style="display:none; margin-bottom:10px;" onclick="addBot()">🤖 Aggiungi Bot</button>
+            <button class="btn" id="btnStartGame" style="display:none; align-items:center; gap:8px;">
+                <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Alien%20Monster.png" style="width:28px; height:28px; vertical-align:middle;">
+                Inizia Partita
+            </button>
         </div>
     </div>
     <div class="game-container" id="gameContainer">
@@ -3406,7 +3419,7 @@
                     </div>
                 </div><button class="btn btn-3d btn-stop" id="btnStay" disabled aria-label="Fermati" style="flex:2;">
                     <!-- FIX 6: Using Raising Hands APNG for Stay button --><img
-                        src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Hand%20gestures/Raising%20Hands%20Medium-Light%20Skin%20Tone.png"
+                        src="https://raw.githubusercontent.com/sjmvne/Animated-Fluent-Emojis/master/Emojis/Hand%20gestures/Raising%20Hands%20Medium-Light%20Skin%20Tone.png"
                         alt="Stop" style="height:40px; width:auto; pointer-events:none;">
                 </button>
             </div>
@@ -3763,12 +3776,12 @@
                 }
 
                 // Init Sounds if needed here or elsewhere
-                try {
-                    this.sounds.click = new Howl({ src: ['assets/sfx/click.mp3'] });
-                    this.sounds.flip = new Howl({ src: ['assets/sfx/flip.mp3'] });
-                    this.sounds.bust = new Howl({ src: ['assets/sfx/bust.mp3'] });
-                    this.sounds.win = new Howl({ src: ['assets/sfx/win.mp3'] });
-                } catch (e) { }
+                // try {
+                //     this.sounds.click = new Howl({ src: ['assets/sfx/click.mp3'] });
+                //     this.sounds.flip = new Howl({ src: ['assets/sfx/flip.mp3'] });
+                //     this.sounds.bust = new Howl({ src: ['assets/sfx/bust.mp3'] });
+                //     this.sounds.win = new Howl({ src: ['assets/sfx/win.mp3'] });
+                // } catch (e) { }
             },
 
             play: function (name) {
@@ -4015,16 +4028,16 @@
         }
 
         const ASSETS = {
-            crown: 'https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Crown.png',
-            heart: 'https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Red%20Heart.png',
-            snowflake: 'https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/Snowflake.png',
-            lightning: 'https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/High%20Voltage.png',
+            crown: 'https://raw.githubusercontent.com/sjmvne/Animated-Fluent-Emojis/master/Emojis/Objects/Crown.png',
+            heart: 'https://raw.githubusercontent.com/sjmvne/Animated-Fluent-Emojis/master/Emojis/Smilies/Red%20Heart.png',
+            snowflake: 'https://raw.githubusercontent.com/sjmvne/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/Snowflake.png',
+            lightning: 'https://raw.githubusercontent.com/sjmvne/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/High%20Voltage.png',
             // FIX 6: Using Face Exhaling for stay reactions
-            stop: 'https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Face%20Exhaling.png',
+            stop: 'https://raw.githubusercontent.com/sjmvne/Animated-Fluent-Emojis/master/Emojis/Smilies/Face%20Exhaling.png',
             carta: 'https://em-content.zobj.net/source/microsoft-teams/400/palm-up-hand_medium-light-skin-tone_1faf4-1f3fc_1f3fc.png',
             frozen: 'https://em-content.zobj.net/source/microsoft-teams/400/cold-face_1f976.png',
-            sc: 'https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Heart%20on%20Fire.png',
-            fire: 'https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/Fire.png',
+            sc: 'https://raw.githubusercontent.com/sjmvne/Animated-Fluent-Emojis/master/Emojis/Smilies/Heart%20on%20Fire.png',
+            fire: 'https://raw.githubusercontent.com/sjmvne/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/Fire.png',
             star: 'https://em-content.zobj.net/source/microsoft-teams/400/star-struck_1f929.png',
             bust: 'https://em-content.zobj.net/source/microsoft-teams/400/loudly-crying-face_1f62d.png',
             bust_alt: 'https://em-content.zobj.net/source/microsoft-teams/400/face-with-symbols-on-mouth_1f92c.png',
@@ -4032,7 +4045,7 @@
             hot: 'https://em-content.zobj.net/source/microsoft-teams/400/hot-face_1f975.png'
         };
 
-        const FLUENT_BASE = 'https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis';
+        const FLUENT_BASE = 'https://raw.githubusercontent.com/sjmvne/Animated-Fluent-Emojis/master/Emojis';
 
         // Varied collections for events
         const ASSETS_COLLECTIONS = {
@@ -4060,7 +4073,7 @@
         // APNG PATH STRATEGY - PLEASE READ DO NOT MODIFY
         // ------------------------------------------------
         // Emoji paths MUST be fully qualified or strictly encoded to avoid 404 errors.
-        // 1. Files from 'Tarikul-Islam-Anik/Animated-Fluent-Emojis' often have spaces in filenames.
+        // 1. Files from 'sjmvne/Animated-Fluent-Emojis' often have spaces in filenames.
         // 2. We MUST encode these spaces as '%20' manually in the strings below.
         // 3. Do NOT use local paths (e.g. 'Emojis/...') as they may fail if assets aren't downloaded.
         // 4. Always use `${FLUENT_BASE}` or the full raw.githubusercontent.com URL.
@@ -4148,7 +4161,8 @@
             },
             // Local state to track rendered cards and avoid re-animations
             localPlayerCardCounts = {},
-            localAnimatingCards = {};
+            localAnimatingCards = {},
+            renderedPlayerIds = new Set(); // Track displayed players for animation
 
         let localLastToastId = 0;
 
@@ -4607,6 +4621,16 @@
 
         function handleMsg(c, d) {
             if (d.t === 'join' && isHost) {
+                // VALIDATION: Check Limit (18 Players Max)
+                if (state.players.length >= 18) {
+                    // Check if it's a rejoin (allowed)
+                    const isRejoin = state.players.some(p => p.name === d.name && p.isOffline);
+                    if (!isRejoin) {
+                        c.send({ t: 'error', msg: 'Stanza piena (Max 18)!' });
+                        return;
+                    }
+                }
+
                 // VALIDATION: Check Duplicate Name relative to ONLINE players
                 // If player exists but is OFFLINE, they can rejoin.
                 // If player exists and is ONLINE, it's a duplicate -> Error.
@@ -5040,8 +5064,19 @@
             qs('#roomInfo').style.display = 'block';
             if (!isHost) qs('.room-link').style.display = 'block'; // Now joiner can also invite others if they want
 
-            qs('#playersList').innerHTML = state.players.map((p, i) => `<div class="player-item ${i === 0 ? 'host' : ''}">${p.name}${p.id === myId ? ' (Tu)' : ''} ${i === 0 ? '👑' : ''}</div>`).join('');
-            if (isHost && state.players.length >= 2) qs('#btnStartGame').style.display = 'block';
+            qs('#playersList').innerHTML = state.players.map((p, i) => {
+                const isBot = p.isBot;
+                const icon = isBot ? '<img src="https://raw.githubusercontent.com/sjmvne/Animated-Fluent-Emojis/master/Emojis/Smilies/Robot.png" style="height:20px; vertical-align:middle; margin-left:5px;">' : '';
+                return `<div class="player-item ${i === 0 ? 'host' : ''}">${p.name}${icon}${p.id === myId ? ' (Tu)' : ''} ${i === 0 ? '👑' : ''}</div>`
+            }).join('');
+            
+            if (isHost) {
+                qs('#btnAddBot').style.display = 'block';
+                qs('#btnStartGame').style.display = state.players.length >= 2 ? 'block' : 'none';
+            } else {
+                qs('#btnAddBot').style.display = 'none';
+                qs('#btnStartGame').style.display = 'none';
+            }
 
             // UPDATE MEME SWITCH STATE
             const lobbySwitch = qs('#memeSwitchContainer');
@@ -5573,6 +5608,7 @@
                             if (bustIdx > -1) p.cards.splice(bustIdx, 1);
 
                             p.sc = false;
+                            p.scUsed = true; // Mark as used for bot/game logic
                             p.scBurn = false;
 
                             state.discards.push({ type: 'action', value: 'second_chance' }, c);
@@ -5922,10 +5958,11 @@
             state.players.forEach(p => {
                 p.cards = []; p.mods = []; p.nums = new Set(); p.pts = 0; p.st = 'active'; p.sc = false;
                 // Reset statuses
-                p.frozen = false; p.flip3Active = false;
+                p.frozen = false; p.flip3Active = false; p.scUsed = false;
                 p.bustTime = 0; // State cleanup
             });
             state.last = null; state.pending = null; state.flip3 = 0;
+            state.flip3Queue = []; // Clear queue
             localPlayerCardCounts = {}; localAnimatingCards = {};
             // Cleanup visual artifacts (Ghost Skulls)
             document.querySelectorAll('.bust-reaction, .reaction-bubble').forEach(e => e.remove());
@@ -6544,7 +6581,8 @@
             const nameEl = zone.querySelector('.p-name');
             const suffix = isMe ? ' (Tu)' : '';
             const dealerIcon = p.id === state.dealer ? `<img src="${ASSETS.crown}" style="height:16px;" title="Dealer">` : '';
-            const nameHtml = `${p.name} ${suffix} ${dealerIcon}`;
+            const botIcon = p.isBot ? '<img src="https://raw.githubusercontent.com/sjmvne/Animated-Fluent-Emojis/master/Emojis/Smilies/Robot.png" style="height:18px;" title="Bot">' : '';
+            const nameHtml = `${p.name} ${botIcon} ${suffix} ${dealerIcon}`;
             if (nameEl.innerHTML !== nameHtml) nameEl.innerHTML = nameHtml;
             nameEl.style.fontSize = isMe ? '16px' : '14px';
 
@@ -6692,6 +6730,219 @@
             while (container.children.length > totalSlots) {
                 container.lastChild.remove();
             }
+        }
+
+        // ================= BOT LOGIC =================
+        // ================= BOT LOGIC =================
+        const BOT_NAMES = [
+             // CLASSIC ITALIAN
+             "Gerry Scotti", "Il Gabibbo", "Don Matteo", "Pippo Baudo", "Young Signorino", 
+             "Brumotti 100%", "Capitan Findus", "Mastro Lindo", "Peppa Pig", "Ruspa", 
+             "Mio Cuggino", "La Guardia di Finanza", "Il Preside", "Sbirulino", 
+             "Topo Gigio", "Uan", "Dibba", "Berlu", "Vessicchio",
+
+             // BRAINROT & GEN Z
+             "Skibidi Toilet", "Fanum Tax", "Rizzler", "Sigma Male", "Gigachad", 
+             "Ohio Final Boss", "Baby Gronk", "Livvy Dunne", "Grimace Shake", 
+             "Amogus", "Sussy Baka", "Quandale Dingle", "Morbius", "Big Chungus", 
+             "Ugandan Knuckles", "Sanic", "Shrek", "Wojak", "Pepe", "Doge",
+             "Cheems", "Nyan Cat", "Trollface", "Derp", "Overly Attached GF",
+             "Bad Luck Brian", "Scumbag Steve", "Success Kid", "Grumpy Cat",
+             
+             // INTERNET LEGENDS
+             "Rick Astley", "John Cena", "Chuck Norris", "Leeroy Jenkins", 
+             "Technoblade", "Dream", "MrBeast", "PewDiePie", "Markiplier",
+             "Ninja", "IShowSpeed", "Kai Cenat", "XQC", "Hasbulla",
+             
+             // NPC & GLITCHES
+             "NPC #42", "NPC #001", "Enemy_01", "Bot_v2.0", "Error 404", 
+             "Null Reference", "Undefined", "NaN", "Object Object", 
+             "Windows Vista", "Internet Explorer", "System32", "Blue Screen",
+             "Lag Switch", "Ping 999", "Hackerino", "Aimbot 3000",
+             
+             // RANDOM CHAOS
+             "Karen", "Boomer", "Zoomer", "Doomer", "Trad Wife", 
+             "Titanic Swim Team", "JFK Peekaboo", "Dad went for milk", 
+             "Error 404 Father", "Depression", "Anxiety", "Student Debt", 
+             "Tax Evasion", "Inflation", "Crypto Bro", "NFT Owner", 
+             "Alpha Male", "Beta Cuck", "Simp", "Incel", "Femcel",
+             
+             // FOOD & OBJECTS
+             "Spicy Meatball", "Pineapple Pizza", "Forbidden Soup", 
+             "Expired Milk", "Radioactive Banana", "Concrete Eaters",
+             "Floor Inspector", "Wall Stare Champion", "Oxygen Consumer"
+        ];
+
+        function addBot() {
+            if (!isHost) return;
+            const botId = 'bot-' + Date.now() + Math.floor(Math.random() * 1000);
+            
+            // Unique Name Selection
+            let botName;
+            const existingNames = new Set(state.players.map(p => p.name));
+            const availableNames = BOT_NAMES.filter(n => !existingNames.has(n));
+            
+            if (availableNames.length > 0) {
+                botName = availableNames[Math.floor(Math.random() * availableNames.length)];
+            } else {
+                botName = 'Bot ' + Math.floor(Math.random() * 1000);
+            }
+
+            state.players.push({
+                id: botId,
+                name: botName,
+                isBot: true,
+                cards: [], mods: [], nums: new Set(),
+                pts: 0, tot: 0,
+                st: 'active',
+                frozen: false, flip3Active: false, sc: false
+            });
+            
+            // LOG
+            console.log(`[BOT] Added ${botName} (${botId})`);
+            bc({ t: 'lobby_update', players: state.players });
+            updateLobby();
+            showToast(`${botName} aggiunto! 🤖`);
+        }
+
+        function removeBot(botId) {
+            if (!isHost) return;
+            const idx = state.players.findIndex(p => p.id === botId);
+            if (idx > -1) {
+                const name = state.players[idx].name;
+                state.players.splice(idx, 1);
+                bc({ t: 'lobby_update', players: state.players });
+                updateLobby();
+                showToast(`${name} rimosso! 🗑️`);
+            }
+        }
+
+        let isBotThinking = false;
+        
+        function checkBotTurn() {
+            // LOGGING
+            // console.log(`[BOT_CHECK] Phase:${state.phase} Thinking:${isBotThinking}`);
+
+            if (!isHost || state.phase !== 'game' || isBotThinking) return;
+            
+            // 1. Check Pending Action (Targeting) - PRIORITY: Resolve interrupts even during animations if needed
+            if (state.pending && state.pending.from !== undefined) {
+                const pendingP = state.players[state.pending.from];
+                if (pendingP && pendingP.isBot) {
+                    console.log(`[BOT] Pending action for ${pendingP.name}: ${state.pending.t}`);
+                    processBotTarget(pendingP, state.pending);
+                    return;
+                }
+            }
+
+            // Prevent bot action during dealing or shuffling OR active animations
+            const isFlip3Active = state.players.some(p => p.flip3Active) || state.flip3Queue.length > 0;
+            if (state.dealingPhase || state.isShuffling || state.dealingPaused || isFlip3Active) {
+                // console.log(`[BOT_CHECK] Paused due to game state (Deal/Flip3)`);
+                return;
+            }
+
+            // 2. Check Standard Turn
+            const turnP = state.players[state.turn];
+            if (turnP && turnP.isBot && turnP.st === 'active' && !state.pending) {
+                console.log(`[BOT] Turn detected for ${turnP.name}. Pts: ${turnP.pts}`);
+                processBotDecision(turnP);
+            }
+        }
+
+        function processBotDecision(p) {
+            isBotThinking = true;
+            console.log(`[BOT] ${p.name} is thinking...`);
+            
+            // Simulated thinking time
+            setTimeout(() => {
+                // Re-validate state after delay
+                if (state.turn !== state.players.findIndex(x => x.id === p.id) || p.st !== 'active' || state.pending) {
+                    console.log(`[BOT] State changed during thought, aborting.`);
+                    isBotThinking = false; return;
+                }
+
+                // RISK LOGIC: Hit if < 15, Stay if >= 15
+                // Flip7 Strategy: Aggression boost if close to 7 unique nums
+                let threshold = 15;
+                if (p.nums.size >= 5) threshold = 17; // Risk more if close to Flip7
+
+                // NEW STRATEGIES:
+                // 1. If I have Second Chance (p.sc), I am IMMORTAL (kinda). HIT ALWAYS (Aggressive).
+                // 2. If I USED Second Chance (p.scUsed), I am terrified. STAY ALWAYS (Conservative).
+                
+                let action = 'stay';
+
+                if (p.scUsed) {
+                    // Burned my extra life? Safe mode ON.
+                    action = 'stay';
+                } else if (p.sc) {
+                    // Have extra life? YOLO mode ON.
+                    // Hit unless I already have Flip 7 (obviously)
+                    action = 'hit';
+                } else {
+                    // Standard Logic
+                    action = p.pts < threshold ? 'hit' : 'stay';
+                }
+                
+                console.log(`[BOT] ${p.name} decides: ${action.toUpperCase()} (Pts: ${p.pts}, SC: ${p.sc}, SC_Used: ${p.scUsed})`);
+                
+                // CRITICAL FIX: Reset flag BEFORE action to avoid race condition if updateGame happens synchronously
+                isBotThinking = false;
+                
+                handleAct(p.id, action);
+                
+                // Extra check to ensure loop continues if still active (e.g. after hit)
+                setTimeout(checkBotTurn, 500);
+            }, 1500);
+        }
+
+        function processBotTarget(p, pending) {
+            isBotThinking = true;
+            console.log(`[BOT] ${p.name} selecting target for ${pending.t}...`);
+            
+            setTimeout(() => {
+                // Validate
+                if (!state.pending || state.pending.from !== state.players.findIndex(x => x.id === p.id)) {
+                    isBotThinking = false; return;
+                }
+
+                let targets = state.players.map((pl, i) => ({ pl, i })).filter(x => x.pl.st === 'active' && x.pl.id !== p.id);
+                let chosenIdx = -1;
+
+                if (pending.t === 'give_sc') {
+                     // Benevolent: Give to lowest Score
+                     // Filter out those who have SC is handled by UI logic usually, but here manually
+                     targets = targets.filter(x => !x.pl.sc);
+                     // Sort Ascending Score (Help weak)
+                     targets.sort((a, b) => a.pl.tot - b.pl.tot);
+                     if (targets.length) chosenIdx = targets[0].i;
+                } else {
+                    // Aggressive: Freeze / Flip3 -> Highest Score
+                    targets.sort((a, b) => b.pl.tot - a.pl.tot);
+                    if (targets.length) chosenIdx = targets[0].i;
+                }
+
+                if (chosenIdx !== -1) {
+                    const tgtP = state.players[chosenIdx];
+                    console.log(`[BOT] Target selected: ${tgtP.name}`);
+                    isBotThinking = false;
+                    handleAct(p.id, 'tgt', chosenIdx);
+                } else {
+                    // Fallback to random if logic fails (shouldn't happen if targets exist)
+                    const fallback = targets[0];
+                    if (fallback) {
+                         console.log(`[BOT] Fallback target: ${fallback.pl.name}`);
+                         isBotThinking = false;
+                         handleAct(p.id, 'tgt', fallback.i);
+                    } else {
+                         console.log(`[BOT] No targets available?!`);
+                         isBotThinking = false;
+                    }
+                }
+                
+                setTimeout(checkBotTurn, 500);
+            }, 2000);
         }
 
         let localLastRound = 0;
@@ -6900,6 +7151,9 @@
                 layers[2].style.opacity = remaining > 0 ? 1 : 0.3; // Top layer (always somewhat visible)
             }
 
+            // BOT TRIGGER
+            checkBotTurn();
+
             // Global Toast - visible to all clients
             if (state.globalToast && state.globalToast.id > localLastToastId) {
                 showToast(state.globalToast.msg);
@@ -6969,7 +7223,7 @@
                     text = text.replace(/⚡/g, '').trim();
                 }
                 else if (text.includes('Second Chance') || text.includes('❤️')) {
-                    const heartIcon = ASSETS.sc || ASSETS.heart || 'https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Red%20Heart.png';
+                    const heartIcon = ASSETS.sc || ASSETS.heart || 'https://raw.githubusercontent.com/sjmvne/Animated-Fluent-Emojis/master/Emojis/Smilies/Red%20Heart.png';
                     iconSrc = heartIcon;
                     style += 'background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); color:#fff;'; // Red
                     text = text.replace(/❤️/g, '').trim();
@@ -7092,6 +7346,11 @@
         function updateLobby() {
             // FIX: Only show roomInfo if I am the host OR if I am in the player list (joined)
             const amIInList = state.players.some(p => p.id === myId);
+            
+            // Check if I am the first player (Host)
+            if (state.players.length > 0 && state.players[0].id === myId) {
+                isHost = true;
+            }
 
             if (isHost || amIInList) {
                 qs('#roomInfo').style.display = 'block';
@@ -7101,11 +7360,72 @@
 
             qs('.room-link').style.display = 'block';
             if (qs('#qrcode').innerHTML === '') updateRoomLinkInfo();
-            qs('#playersList').innerHTML = state.players.map((p, i) => `<div class="player-item ${i === 0 ? 'host' : ''}">${p.name}${p.id === myId ? ' (Tu)' : ''} ${i === 0 ? '👑' : ''}</div>`).join('');
+            qs('#playersList').innerHTML = state.players.map((p, i) => {
+                const isBot = p.isBot;
+                const icon = isBot ? '<img src="https://raw.githubusercontent.com/sjmvne/Animated-Fluent-Emojis/master/Emojis/Smilies/Robot.png" style="height:20px; vertical-align:middle; margin-left:5px;">' : '';
+                
+                // Animation Logic
+                let animClass = '';
+                if (!renderedPlayerIds.has(p.id)) {
+                    renderedPlayerIds.add(p.id);
+                    animClass = 'pop-in';
+                }
+
+                // REMOVE BUTTON (Host Only, for Bots)
+                let removeBtn = '';
+                if (isHost && isBot) {
+                    removeBtn = `<span onclick="removeBot('${p.id}')" style="cursor:pointer; margin-left:auto; opacity:0.6; font-size:16px; width:24px; height:24px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:rgba(255,255,255,0.1); transition:all 0.2s;" onmouseenter="this.style.background='rgba(239,68,68,0.5)'; this.style.opacity='1'" onmouseleave="this.style.background='rgba(255,255,255,0.1)'; this.style.opacity='0.6'" title="Rimuovi Bot">✕</span>`;
+                }
+
+                return `<div class="player-item ${i === 0 ? 'host' : ''} ${animClass}" style="display:flex; align-items:center; justify-content:space-between;">
+                    <div style="display:flex; align-items:center;">
+                        ${p.name}${icon}${p.id === myId ? ' (Tu)' : ''} ${i === 0 ? '👑' : ''}
+                    </div>
+                    ${removeBtn}
+                </div>`
+            }).join('');
+
+            // ADD BOT BUTTON (Only for Host)
+            if (isHost && state.players.length < 18) {
+                const addBotBtn = document.createElement('div');
+                addBotBtn.className = 'player-item add-bot-btn';
+                // Apple Style Row: Transparent background, flex layout
+                addBotBtn.style.cssText = 'display:flex; align-items:center; justify-content:center; gap:12px; cursor:pointer; opacity:1; transition:all 0.2s; background:transparent; border:none; padding:12px;';
+                
+                // Icon: Green Circle with Plus
+                const iconHtml = `
+                    <div style="
+                        width: 32px; height: 32px; 
+                        background: linear-gradient(135deg, #34C759, #30D158); 
+                        border-radius: 50%; 
+                        display: flex; align-items: center; justify-content: center; 
+                        box-shadow: 0 4px 10px rgba(52, 199, 89, 0.3);
+                        font-size: 20px; font-weight: bold; color: white;
+                        text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+                    ">+</div>
+                `;
+                
+                // Text: Clean, Apple-like font
+                const textHtml = `
+                    <span style="font-size:16px; font-weight:600; color:rgba(255,255,255,0.9);">
+                        Aggiungi Bot
+                    </span>
+                `;
+                
+                addBotBtn.innerHTML = iconHtml + textHtml;
+                
+                addBotBtn.onclick = addBot;
+                addBotBtn.onmouseenter = () => { addBotBtn.style.transform = 'scale(1.05)'; addBotBtn.style.opacity = '1'; };
+                addBotBtn.onmouseleave = () => { addBotBtn.style.transform = 'scale(1)'; addBotBtn.style.opacity = '0.9'; };
+                qs('#playersList').appendChild(addBotBtn);
+            }
 
             const statusMsg = isHost ? "In attesa di partecipanti..." : "In attesa che l'host avvii la partita...";
             qs('#lobbyStatusMsg').innerText = statusMsg;
 
+            // HIDE OLD BUTTONS
+            qs('#btnAddBot').style.display = 'none'; // Force hide old
+            
             if (isHost && state.players.length >= 2) qs('#btnStartGame').style.display = 'inline-block';
             else qs('#btnStartGame').style.display = 'none';
 

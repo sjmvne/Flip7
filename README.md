@@ -2,7 +2,7 @@
 
 ![Flip 7 Logo](assets/Flip7%20Logo.webp)
 
-**Flip 7** è un gioco di carte strategico multiplayer "push-your-luck", sviluppato come Web App moderna (PWA). Sfida i tuoi amici in tempo reale, ovunque voi siate, senza scaricare nulla!
+**Flip 7** è un gioco di carte strategico multiplayer "push-your-luck", sviluppato come Web App moderna (PWA). Sfida i tuoi amici in tempo reale o gioca contro l'IA, ovunque tu sia!
 
 > **Obiettivo**: Essere il primo a raggiungere **200 punti** sommando il valore delle carte pescate... ma attenzione a non sballare!
 
@@ -10,103 +10,89 @@
 
 ## ✨ Funzionalità Principali
 
+### 🤖 Smart Bots (Nuovo!)
+Non hai amici online? Nessun problema!
+*   **30+ Personalità**: Da "Gerry Scotti" a "Skibidi Toilet", ogni bot ha un nome unico e divertente.
+*   **Intelligenza Strategica**:
+    *   ⚡ **YOLO Mode**: Se hanno una *Second Chance*, rischiano tutto e pescano aggressivamente.
+    *   🛡️ **Panic Mode**: Se bruciano la *Second Chance*, diventano super conservativi e si fermano subito.
+*   **Animazioni**: Ingresso in lobby fluido con effetto "Pop-in".
+*   **Gestione Host**: L'host può aggiungere fino a **18 giocatori** (misti umani/bot) e rimuovere i bot indesiderati.
+
+### 🎨 UI & Design Premium
+*   **Apple-Style UI**: Pulsanti ed elementi con design moderno, sfumature ed effetti glassmorphism.
+*   **Animazioni 3D**: Carte che volano, mescolamento deck realistico e feedback visivi fluidi.
+*   **Icone Animate**: Emoji animate Fluent.
+*   **Temi & Dorsi**:
+    *   7 Temi (Notte, Casinò, Deep Blue, ecc.).
+    *   12 Dorsi carte (Cyberpunk, Retro '30s, Vaporwave, ecc.).
+
 ### 🎮 Gameplay Immersivo
-*   **Multiplayer P2P**: Gioca con amici tramite connessione Peer-to-Peer (PeerJS). Nessun server centrale, bassa latenza.
+*   **Multiplayer P2P**: Bassissima latenza grazie a PeerJS (WebRTC). Nessun server centrale.
 *   **Carte Speciali**:
     *   ❄️ **Freeze**: Congela un avversario per un turno.
-    *   ⚡ **Flip 3**: Costringi un avversario a pescare 3 carte.
+    *   ⚡ **Flip 3**: Costringi un nemico a pescare 3 carte (fai rischiare lui!).
     *   ❤️ **Second Chance**: Una vita extra se sballi.
     *   ➕ **Modificatori**: Moltiplicatori e bonus punti.
-*   **Animazioni 3D**: Carte che volano, mescolamento realistico (CSS 3D), e feedback visivi fluidi.
-*   **Audio Spaziale & SFX**: Suoni dinamici per ogni azione, con toggle rapido.
-
-### 🎭 Meme Mode
-Una modalità caotica nascosta (attivabile dall'Host) che trasforma il gioco in un'esperienza esilarante:
-*   💥 **Audio Meme**: Suoni virali ("He he yeah boy", "Bruh", ecc.) triggerati da eventi di gioco.
-*   🌈 **Effetti Visivi**: Splash screen più lunghi e intensi.
-
-### 🛠️ Personalizzazione & Tech
-*   **Temi Tavolo**: Viola Notte (Default), Verde Casinò, Blu Profondo.
-*   **Dorsi Personalizzati**: 13+ stili di carte (Cyberpunk, Retro '30s, Vaporwave, ecc.).
-*   **Statistiche**: Dashboard completa con grafici (Chart.js) a fine partita.
-*   **PWA Ready**: Installabile come app nativa su iOS e Android.
-*   **Emoji Mapping**: Integrazione di 3000+ emoji animate tramite mapping JSON e CDN (GitHub).
-
+*   **Meme Mode 🎭**: Una modalità caotica con suoni virali ("Bruh", "He he yeah boy") ed effetti visivi esagerati.
 
 ---
 
-## 🚀 Come Avviare (Sviluppo Locale)
+## 🚀 Come Avviare (Locale)
 
-Il progetto è una **Single Page Application (SPA)** basata su Vanilla JS. Non richiede build process complessi.
+Il progetto è una **Single Page Application (SPA)** basata su Vanilla JS. Zero dipendenze di build.
 
-### Prerequisiti
-*   [Node.js](https://nodejs.org/) (opzionale, solo per servire i file in locale).
-
-### Avvio Veloce
-1.  Clona o scarica la cartella.
-2.  Apri un terminale nella cartella del progetto.
-3.  Esegui un server locale (es. con `http-server`):
+1.  **Clona** la repository.
+2.  **Apri** un terminale nella cartella.
+3.  **Avvia** un server locale (es. con `npx` o Python):
     ```bash
     npx http-server -p 8080
+    # oppure
+    python -m http.server 8080
     ```
-4.  Apri il browser su `http://localhost:8080`.
+4.  Apri `http://localhost:8080` nel browser.
 
 ---
 
-## 🕹️ Come Giocare
+## 🕹️ Guida Rapida
 
-1.  **Crea Stanza**: Un giocatore fa da Host e crea la stanza.
-2.  **Unisciti**: Gli altri scansionano il QR Code o inseriscono il codice stanza.
-3.  **Turno di Gioco**:
-    *   **Hit (Pesca)**: Pesca una carta dal mazzo.
-    *   **Stay (Fermati)**: Banka i punti accumulati nel round.
-4.  **Regole di Base**:
-    *   Le carte 0-12 valgono i loro punti.
-    *   Se peschi un numero che **hai già** in mano -> **SBALLI (BUST)!** Perdi i punti del round.
-    *   Ottieni un **Flip 7** (7 carte uniche in mano) per un bonus di +15 punti!
-
----
-
-## 📂 Struttura Progetto
-
-```
-Flip7/
-├── assets/                  # Immagini, Suoni, Icone
-│   ├── cards/               # Asset carte (front/back)
-│   ├── sounds/              # Effetti sonori (mp3/wav)
-│   │   └── meme_mode/       # SFX per Meme Mode
-│   └── ...
-├── index.html               # Entry point (Logica JS inclusa)
-├── emoji_mapping.json       # Mapping programmatico emoji animate
-├── EMOJI_INVENTORY.md       # Catalogo visuale delle emoji disponibili
-├── manifest.json            # Configurazione PWA
-├── Flip7Rules.txt           # Regole complete
-└── README.md                # Questo file
-
-```
+1.  **Lobby**: Crea una stanza e condividi il Link/QR Code.
+2.  **Aggiungi Bot**: Usa il tasto 🟢 **+** per riempire la stanza (fino a 18 giocatori).
+3.  **Gioca**:
+    *   **Hit (Pesca)**: Tenta la fortuna.
+    *   **Stay (Fermati)**: Metti al sicuro i punti.
+4.  **Regole**:
+    *   Se peschi un numero che **hai già** in mano -> **SBALLI (BUST)!**
+    *   Colleziona **7 carte uniche** per fare **FLIP 7** (+15 punti bonus).
 
 ---
 
-## 🛠️ Tecnologie Usate
+## 🛠️ Stack Tecnologico
 
-*   **HTML5 / CSS3**: Layout responsivo, variabili CSS, animazioni keyframe.
-*   **JavaScript (ES6+)**: Logica di gioco, gestione stato.
-*   **PeerJS**: Networking WebRTC per il multiplayer.
-*   **Howler.js**: Gestione audio avanzata.
-*   **Chart.js**: Grafici statistiche.
-*   **Anime.js / Canvas Confetti**: Effetti particellari.
+*   **Core**: HTML5, CSS3 (Variables, Flexbox/Grid), Vanilla JS (ES6+).
+*   **Network**: [PeerJS](https://peerjs.com/) (WebRTC Data Channels).
+*   **Audio**: [Howler.js](https://howlerjs.com/) per audio spaziale e SFX.
+*   **Grafica**: Chart.js (Stats), Canvas Confetti.
+*   **Assets**: [Animated Fluent Emojis](https://github.com/sjmvne/Animated-Fluent-Emojis).
 
 ---
 
 ## ℹ️ Crediti
 
-*   **Sviluppo & Adattamento**: Simone Pepe
-*   **Idea Originale**: Basato sul gioco di carte "Flip 7" di Eric Olsen.
-*   **Asset Audio**: Mixkit & Risorse Meme Community.
-*   **Animated Emojis**: [Tarikul-Islam-Anik](https://github.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis) per la splendida collezione di Fluent Emojis.
-*   **Librerie**: Vedere sezione Tecnologie.
-
+*   **Sviluppo**: Simone Pepe
+*   **Concept Originale**: Basato sul gioco di carte "Flip 7" di Eric Olsen.
+*   **Meme & Audio**: Community Internet Archives.
 
 ---
 
-Made with 💜 by **Simone Pepe**
+## ⚠️ Disclaimer
+
+Questo progetto è una riproduzione **fan-made a scopo non di lucro**, creata esclusivamente per permettere di giocare a distanza con amici.
+
+Tutti i diritti, le meccaniche di gioco e il concept originale appartengono a **Eric Olsen** e agli editori ufficiali di **"Flip 7"**.
+Questa Web App **non** intende sostituire il gioco fisico né appropriarsene.
+
+👉 **Se ti piace questo gioco, supporta gli autori acquistando la versione fisica originale!**
+
+---
+*Made with 💜 and too much caffeine.*
