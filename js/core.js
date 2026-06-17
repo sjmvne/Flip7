@@ -3058,7 +3058,7 @@
 
 
         // LEFT SIDEBAR LOGIC
-        window.toggleLeftSidebar = () => {
+        window['toggleLeftSidebar'] = () => {
             const sidebar = qs('#leftSidebarDisplay');
             if (!sidebar) return;
             const content = sidebar.querySelector('.sidebar-content');
