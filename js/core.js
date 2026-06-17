@@ -827,41 +827,7 @@
             if (statsBtn) statsBtn.onclick = toggleStatsSheet;
         }, 500);
 
-        function showCardSplash(type, who) {
-            const overlay = document.createElement('div');
-            overlay.className = 'action-splash';
-            document.body.appendChild(overlay);
-
-            // Use getRandAsset to pick varied 3D emojis
-            // If type is a URL (from showCardSplash call), use it directly.
-            // If type is a key (bust, flip7), use getRandAsset.
-            // MOD: Use Flip7 Logo for star/flip7
-            const src = (type === 'star' || type === 'flip7') ? 'assets/Flip7 Logo.webp' : (type.startsWith('http') ? type : (getRandAsset(type) || ASSETS[type] || ASSETS.warning));
-
-            let html = `<div class="card action" style="transform:scale(1.8); box-shadow:0 0 30px rgba(0,0,0,0.5); background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);">
-                <img src="${src}" style="width:80%; height:auto; filter:drop-shadow(0 0 10px rgba(255,255,255,0.5));">
-            </div>`;
-
-            if (who && who !== myName) {
-                const prettyNames = { 'freeze': 'Freeze', 'flip3': 'Flip 3', 'second_chance': 'Second Chance', 'bust': 'BUST!', 'hot': '2nd Chance!', 'star': 'FLIP 7!' };
-                // If type is URL, default name
-                const nameStr = prettyNames[type] || (type.startsWith('http') ? 'Evento!' : type.toUpperCase());
-
-                html += `<div style="color:white; font-size:28px; margin-top:50px; text-shadow:0 2px 10px black; font-weight:800; text-align:center; animation:fadeIn 0.5s 0.3s both; background:rgba(0,0,0,0.4); padding:10px 20px; border-radius:15px; border:1px solid rgba(255,255,255,0.2);">
-                    ${who} 
-                    <div style="display:flex; align-items:center; justify-content:center; gap:8px; font-size:18px; font-weight:400; opacity:0.9; margin-top:5px;">
-                        ${nameStr} 
-                        <img src="${src}" style="height:24px;">
-                    </div>
-                </div>`;
-            }
-            overlay.innerHTML = `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center;">${html}</div>`;
-
-            setTimeout(() => {
-                overlay.style.opacity = '0';
-                setTimeout(() => overlay.remove(), 500);
-            }, 2000);
-        }
+        // showCardSplash duplicate definition removed (consolidated at the end of the file)
 
         function spawnSmokeOnPlayer(pId) {
             const pIdx = state.players.findIndex(p => p.id === pId);
@@ -947,15 +913,7 @@
         };
 
 
-        function showRoom() {
-            qs('#hostControls').style.display = 'none';
-            qs('#roomInfo').style.display = 'block';
-            const url = location.href;
-            qs('#qrcode').innerHTML = '';
-            new QRCode(qs('#qrcode'), { text: url, width: 128, height: 128 });
-            updateLobby();
-            SFX.play('popup_open');
-        }
+        // showRoom duplicate definition removed (consolidated below)
 
         // MEME MODE TOGGLE FUNCTION
         window.toggleMemeMode = () => {
@@ -976,52 +934,7 @@
 
         window.copyRoomLink = () => { navigator.clipboard.writeText(location.href); alert('Link copiato!'); };
 
-        function updateLobby() {
-            // CRITICAL: Ensure isHost is correct (if I am the owner of the roomId)
-            if (roomId && myId && roomId === myId) isHost = true;
-
-            // Ensure container is visible for joiners receiving updates
-            qs('#roomInfo').style.display = 'block';
-            if (!isHost) qs('.room-link').style.display = 'block'; // Now joiner can also invite others if they want
-
-            qs('#playersList').innerHTML = state.players.map((p, i) => {
-                const isBot = p.isBot;
-                const icon = isBot ? '<img src="https://raw.githubusercontent.com/sjmvne/Animated-Fluent-Emojis/master/Emojis/Smilies/Robot.png" style="height:20px; vertical-align:middle; margin-left:5px;">' : '';
-                return `<div class="player-item ${i === 0 ? 'host' : ''}">${p.name}${icon}${p.id === myId ? ' (Tu)' : ''} ${i === 0 ? '👑' : ''}</div>`
-            }).join('');
-            
-            if (isHost) {
-                qs('#btnAddBot').style.display = 'block';
-                qs('#btnStartGame').style.display = state.players.length >= 2 ? 'block' : 'none';
-            } else {
-                qs('#btnAddBot').style.display = 'none';
-                qs('#btnStartGame').style.display = 'none';
-            }
-
-            // UPDATE MEME SWITCH STATE
-            const lobbySwitch = qs('#memeSwitchContainer');
-            const lobbyCheck = qs('#memeCheckbox');
-
-            if (lobbyCheck) lobbyCheck.checked = !!state.memeMode;
-
-            if (lobbySwitch && lobbyCheck) {
-                lobbySwitch.style.display = 'flex';
-
-                if (isHost) {
-                    lobbySwitch.style.opacity = '1';
-                    lobbySwitch.style.pointerEvents = 'auto';
-                    lobbySwitch.style.filter = 'none';
-                    lobbySwitch.style.cursor = 'pointer';
-                    lobbyCheck.disabled = false;
-                } else {
-                    lobbySwitch.style.opacity = '0.7';
-                    lobbySwitch.style.pointerEvents = 'none'; // CRITICAL: Stop all clicks
-                    lobbySwitch.style.filter = 'grayscale(0.3)';
-                    lobbySwitch.style.cursor = 'default';
-                    lobbyCheck.disabled = true; // Extra logical safety
-                }
-            }
-        }
+        // updateLobby duplicate definition removed (consolidated below)
 
         qs('#btnStartGame').onclick = function () {
             if (this.disabled) return;
@@ -1108,20 +1021,7 @@
             showToast('🎮 Nuova partita iniziata!');
         }
 
-        function resetRound() {
-            state.players.forEach(p => {
-                p.cards = []; p.mods = []; p.nums = new Set(); p.pts = 0;
-                p.st = 'active'; p.sc = false; p.frozen = false; p.flip3Active = false;
-            });
-            state.last = null; state.pending = null;
-            state.dealingPhase = false; state.flip3Queue = [];
-            state.dealingPhase = false; state.flip3Queue = [];
-            state.dealingPaused = false; // FIX: Prevent race condition in deal loop
-            state.flip3State = null; // FIX: Queue/Pause state for Flip3
-            state.isShuffling = false; // Reset shuffle state
-            localPlayerCardCounts = {}; // Reset local animation tracking
-            qs('body').classList.remove('animation-blocked'); // Ensure UI is unlocked
-        }
+        // resetRound duplicate definition removed (consolidated below)
 
         function dealInit() {
             // Build Turn Order: Dealer+1 ... End, then 0 ... Dealer
@@ -1322,63 +1222,7 @@
             setTimeout(dealLoop, delay);
         }
 
-        function showCardSplash(type, who = null) {
-            // BLOCK UI FOR EVERYONE
-            qs('body').classList.add('animation-blocked');
-
-            const overlay = document.createElement('div');
-            overlay.className = 'action-splash';
-
-            let html = `<div class="card action" style="transform:scale(1.8); box-shadow:0 0 30px rgba(0,0,0,0.5); background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);">
-                <img src="${ASSETS[type] || ASSETS.warning}" style="width:80%; height:auto; filter:drop-shadow(0 0 10px rgba(255,255,255,0.5));">
-            </div>`;
-
-            if (who && who !== myName) {
-                const prettyNames = { 'freeze': 'Freeze', 'flip3': 'Flip 3', 'second_chance': 'Second Chance' };
-                html += `<div style="color:white; font-size:28px; margin-top:50px; text-shadow:0 2px 10px black; font-weight:800; text-align:center; animation:fadeIn 0.5s 0.3s both; background:rgba(0,0,0,0.4); padding:10px 20px; border-radius:15px; border:1px solid rgba(255,255,255,0.2);">
-                    ${who} 
-                    <div style="display:flex; align-items:center; justify-content:center; gap:8px; font-size:18px; font-weight:400; opacity:0.9; margin-top:5px;">
-                        ha pescato ${prettyNames[type] || type}! 
-                        <img src="${ASSETS[type]}" style="height:24px;">
-                    </div>
-                </div>`;
-            }
-            overlay.innerHTML = `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center;">${html}</div>`;
-
-            document.body.appendChild(overlay);
-
-            // Duration Logic
-            let duration = 2000;
-            if (window.GAME_STATE && window.GAME_STATE.memeMode) {
-                if (['star', 'flip7', 'second_chance'].includes(type)) {
-                    duration = 10000;
-                }
-                // Also modifiers splash? If we splash them?
-                // Currently modifiers don't splash, only actions.
-            }
-
-            // Animation styles for splash
-            overlay.style.position = 'fixed';
-            overlay.style.top = '0';
-            overlay.style.left = '0';
-            overlay.style.width = '100%';
-            overlay.style.height = '100%';
-            overlay.style.display = 'flex';
-            overlay.style.alignItems = 'center';
-            overlay.style.justifyContent = 'center';
-            overlay.style.background = 'rgba(0,0,0,0.6)';
-            overlay.style.zIndex = '5000';
-            overlay.style.backdropFilter = 'blur(5px)';
-            overlay.style.animation = 'fadeIn 0.3s forwards';
-
-            setTimeout(() => {
-                overlay.style.opacity = '0';
-                setTimeout(() => {
-                    overlay.remove();
-                    qs('body').classList.remove('animation-blocked');
-                }, 300);
-            }, duration); // Dynamic duration
-        }
+        // showCardSplash second duplicate removed (consolidated at the end of the file)
 
         // Helper for Buttons - reset 3D state
         function resetButton(btn) {
@@ -1459,7 +1303,7 @@
                     sync(); updateGame();
 
                     setTimeout(() => {
-                        state.deck = shuffle([...state.discards]);
+                        state.deck = shuffle(state.discards.map(c => ({ type: c.type, value: c.value })));
                         state.discards = [];
                         state.isShuffling = false;
                         if (deckEl) deckEl.classList.remove('shuffling');
@@ -1876,16 +1720,19 @@
 
         function resetRound() {
             state.players.forEach(p => {
-                p.cards = []; p.mods = []; p.nums = new Set(); p.pts = 0; p.st = 'active'; p.sc = false;
-                // Reset statuses
-                p.frozen = false; p.flip3Active = false; p.scUsed = false;
-                p.bustTime = 0; // State cleanup
+                p.cards = []; p.mods = []; p.nums = new Set(); p.pts = 0;
+                p.st = 'active'; p.sc = false; p.frozen = false; p.flip3Active = false; p.scUsed = false;
+                p.bustTime = 0; p.scBurn = false; // Reset SC burn state
             });
             state.last = null; state.pending = null; state.flip3 = 0;
-            state.flip3Queue = []; // Clear queue
+            state.dealingPhase = false; state.flip3Queue = [];
+            state.dealingPaused = false; // Prevent race condition in deal loop
+            state.flip3State = null; // Queue/Pause state for Flip3
+            state.isShuffling = false; // Reset shuffle state
             localPlayerCardCounts = {}; localAnimatingCards = {};
             // Cleanup visual artifacts (Ghost Skulls)
             document.querySelectorAll('.bust-reaction, .reaction-bubble').forEach(e => e.remove());
+            qs('body').classList.remove('animation-blocked', 'shake', 'flip7-glow'); // Ensure UI is unlocked
         }
 
         // Duplicate endRound removed - see startRecapSequence below
@@ -2029,41 +1876,7 @@
             tm.classList.add('active');
         }
 
-        function startFlip3Sequence(tgtIdx, fromIdx) {
-            const tgt = state.players[tgtIdx];
-            tgt.flip3Active = true;
-            trackAction('flip3'); // Stats tracking
-
-            // Auto Reaction Flip 3 (Anxiety!)
-            showReaction(tgt.id, 'shock');
-            bc({ t: 'reaction', who: tgt.id, id: 'shock' });
-
-            // Set Context for queue processing
-            state.flip3Context = { from: fromIdx, to: tgtIdx };
-
-            sync(); updateGame();
-
-            let count = 0;
-            function flip3Loop() {
-                if (count < 3 && tgt.st === 'active') {
-                    drawCard(tgtIdx, true);
-                    count++;
-                    sync(); updateGame();
-
-                    // Check if last card was Action (triggered 2s splash)
-                    const isAction = state.last && state.last.type === 'action';
-                    const delay = isAction ? 3600 : 2200;
-
-                    setTimeout(flip3Loop, delay);
-                } else {
-                    tgt.flip3Active = false;
-                    // Check logic queue via Global function
-                    processFlip3Queue();
-                }
-            }
-
-            setTimeout(flip3Loop, 1500);
-        }
+        // startFlip3Sequence duplicate definition and local loop removed (consolidated above)
 
         // Global definition for processing queue and finishing sequence
         function processFlip3Queue() {
@@ -3216,6 +3029,7 @@
             qs('#roomInfo').style.display = 'block';
             updateRoomLinkInfo();
             updateLobby();
+            SFX.play('popup_open');
         }
 
         function updateRoomLinkInfo() {
@@ -3335,6 +3149,10 @@
             if (qrLabel && qrLabel.innerText.includes('Scansiona')) {
                 qrLabel.innerText = "Fai scansionare ad un amico per farlo unire!";
             }
+
+            // UPDATE MEME SWITCH STATE
+            const lobbyCheck = qs('#memeCheckbox');
+            if (lobbyCheck) lobbyCheck.checked = !!state.memeMode;
         }
 
 
@@ -3713,24 +3531,37 @@
 
         // FIX 2: Personalized splashscreen - shows WHO drew the action card
         function showCardSplash(cardValue, whoName = null) {
+            // BLOCK UI FOR ALL ANIMATIONS
+            qs('body').classList.add('animation-blocked');
+
             const names = { freeze: 'FREEZE!', flip3: 'FLIP THREE!', second_chance: 'SECOND CHANCE!' };
             const splash = qs('#cardSplash');
+            if (!splash) return;
 
             // Determine if this is me or another player
             const isMe = whoName && state.players.find(p => p.name === whoName)?.id === myId;
             const whoText = isMe ? 'Hai pescato' : (whoName ? `${whoName} ha pescato` : 'Pescata');
+            const isStar = (cardValue === 'star' || cardValue === 'flip7');
+
+            // Use Flip 7 Logo for star, action card otherwise
+            const imgPath = isStar ? 'assets/Flip7 Logo.webp' : `assets/cards/action_${cardValue}.webp`;
 
             splash.innerHTML = `
-                <div class="splash-title ${cardValue}">${names[cardValue] || cardValue.toUpperCase()}</div>
+                <div class="splash-title ${cardValue}">${isStar ? 'FLIP 7!' : (names[cardValue] || cardValue.toUpperCase())}</div>
                 <div class="splash-card">
-                    <img src="assets/cards/action_${cardValue}.webp" style="width:100%; height:100%; object-fit:contain; border-radius:10px;">
+                    <img src="${imgPath}" style="width:100%; height:100%; object-fit:contain; border-radius:10px;">
                 </div>
                 <div style="color: white; font-size: 18px; margin-top: 12px; font-weight: 600; text-shadow: 0 2px 8px rgba(0,0,0,0.5);">
-                    ${whoText} ${names[cardValue] || cardValue}!
+                    ${whoText} ${isStar ? 'FLIP 7!' : (names[cardValue] || cardValue)}!
                 </div>
             `;
             splash.classList.add('active');
-            setTimeout(() => splash.classList.remove('active'), (state && state.memeMode) ? 10000 : 2000);
+
+            const duration = (state && state.memeMode) ? 10000 : 2000;
+            setTimeout(() => {
+                splash.classList.remove('active');
+                qs('body').classList.remove('animation-blocked');
+            }, duration);
         }
 
         // PWA INSTALL LOGIC
