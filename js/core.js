@@ -2931,6 +2931,7 @@
         }
 
         window.copyRoomLink = () => { navigator.clipboard.writeText(location.href); showToast('Link copiato!'); };
+        window.goHome = () => { window.location.hash = ''; window.location.reload(); };
 
         function updateLobby() {
             // FIX: Only show roomInfo if I am the host OR if I am in the player list (joined)
@@ -3044,7 +3045,14 @@
 
             // UPDATE MEME SWITCH STATE
             const lobbyCheck = qs('#memeCheckbox');
-            if (lobbyCheck) lobbyCheck.checked = !!state.memeMode;
+            const memeSubtitle = qs('#memeSubtitle');
+            if (lobbyCheck) {
+                lobbyCheck.checked = !!state.memeMode;
+                lobbyCheck.disabled = !isHost;
+                if (memeSubtitle) {
+                    memeSubtitle.innerText = isHost ? "Suoni e splash divertenti" : "Gestito solo dall'host";
+                }
+            }
         }
 
 
@@ -3389,7 +3397,7 @@
                 // deal_resume: { icon: '🎴', msg: 'Azione risolta, riprendiamo il dealing!', cls: 'freeze' },
                 rejoin: { icon: getE('waving hand', '👋'), msg: `${fromName} è tornato in partita!`, cls: 'second-chance' },
                 disconnect: { icon: getE('warning', '⚠️'), msg: `${fromName} disconnesso (Auto-Stay)`, cls: 'freeze' },
-                meme_mode: { icon: getE('performing arts', '🎭'), msg: `MEME MODE ATTIVATA DA ${fromName}!`, cls: 'flip3' }
+                meme_mode: { icon: getE('performing arts', '🎭'), msg: isHost ? `MEME MODE ATTIVATA DA ${fromName}!` : "MEME MODE ATTIVATA DALL'HOST!", cls: 'flip3' }
             };
             const cfg = configs[type];
             if (!cfg) return;
