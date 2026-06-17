@@ -635,8 +635,12 @@
         <div id="endGameLeaderboard"
             style="width:100%; max-width:400px; background:rgba(255,255,255,0.08); border-radius:16px; padding:20px; border:1px solid rgba(255,255,255,0.1);">
         </div>
-        <div id="endgameStatsContainer" class="endgame-stats"
-            style="width:100%; max-width:500px; max-height:300px; overflow-y:auto;"></div>
+        <div id="endgameStatsContainer" class="endgame-stats" style="width:100%; max-width:400px; margin-top:15px; display:flex; justify-content:center;">
+            <button class="btn btn-secondary" onclick="openStatsSheet()" style="width:100%; display:flex; align-items:center; justify-content:center; gap:10px; padding:12px; margin:0;">
+                <span style="font-size:20px;">📊</span>
+                <span style="font-size:14px; font-weight:600;">Statistiche Dettagliate</span>
+            </button>
+        </div>
         <button class="btn" id="btnRestartGame" onclick="restartGame()" style="margin-top:25px;">🔄 Nuova
             Partita</button>
     </div>

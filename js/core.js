@@ -343,113 +343,7 @@
             }
         }
 
-        // END-GAME STATS RENDER
-        function renderEndgameStats(container) {
-            if (!window.Chart || !container) return;
-
-            container.innerHTML = `
-                <h3>📊 Statistiche Finali</h3>
-                <div class="stats-grid">
-                    <div class="chart-card full-width"><h4>📈 Punteggio Cumulativo</h4><canvas id="endChartLine"></canvas></div>
-                    <div class="chart-card"><h4>📊 Azioni per Giocatore</h4><canvas id="endChartBar"></canvas></div>
-                    <div class="chart-card"><h4>🎯 Distribuzione Azioni</h4><canvas id="endChartDonut"></canvas></div>
-                    <div class="chart-card"><h4>⚖️ Carte vs Punti</h4><canvas id="endChartHeatmap"></canvas></div>
-                    <div class="chart-card"><h4>🕸️ Performance Radar</h4><canvas id="endChartRadar"></canvas></div>
-                </div>
-            `;
-
-            // Re-render simplified charts
-            setTimeout(() => {
-                const playerColors = ['#FF6B35', '#8B5CF6', '#10B981', '#3B82F6', '#F59E0B', '#EC4899'];
-                const playerNames = gameStats.players.map(p => p.name);
-                const roundLabels = Array.from({ length: gameStats.rounds || 1 }, (_, i) => `R${i + 1}`);
-
-                // Line
-                const lineData = gameStats.players.map((p, i) => {
-                    let cum = 0;
-                    return {
-                        label: p.name,
-                        data: p.rounds.map(r => { if (r !== 'bust') cum += r; return cum; }),
-                        borderColor: playerColors[i % playerColors.length],
-                        tension: 0.3, fill: false
-                    };
-                });
-                new Chart(document.getElementById('endChartLine'), {
-                    type: 'line',
-                    data: { labels: roundLabels.length ? roundLabels : ['R1'], datasets: lineData },
-                    options: {
-                        responsive: true, plugins: { legend: { labels: { usePointStyle: true, color: '#fff' } } },
-                        scales: { x: { ticks: { color: '#aaa' } }, y: { ticks: { color: '#aaa' } } }
-                    }
-                });
-
-                // Bar
-                new Chart(document.getElementById('endChartBar'), {
-                    type: 'bar',
-                    data: {
-                        labels: playerNames,
-                        datasets: [
-                            { label: 'Bust', data: gameStats.players.map(p => p.bust), backgroundColor: '#EF4444' },
-                            { label: 'Stay', data: gameStats.players.map(p => p.stay), backgroundColor: '#10B981' }
-                        ]
-                    },
-                    options: { responsive: true, plugins: { legend: { labels: { usePointStyle: true, color: '#fff' } } } }
-                });
-
-                // Donut
-                new Chart(document.getElementById('endChartDonut'), {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Freeze', 'Flip3', 'Second Chance', 'Flip7'],
-                        datasets: [{ data: [gameStats.actionTypes.freeze, gameStats.actionTypes.flip3, gameStats.actionTypes.secondChance, gameStats.flip7Total], backgroundColor: ['#38BDF8', '#FBBF24', '#F87171', '#A78BFA'] }]
-                    },
-                    options: { responsive: true, plugins: { legend: { labels: { usePointStyle: true, color: '#fff' } } } }
-                });
-
-                // Heatmap (Stacked Bar)
-                new Chart(document.getElementById('endChartHeatmap'), {
-                    type: 'bar',
-                    data: {
-                        labels: playerNames,
-                        datasets: [
-                            { label: 'Carte Pescate', data: gameStats.players.map(p => p.totalCards), backgroundColor: '#3B82F6' },
-                            { label: 'Punti Totali', data: gameStats.players.map(p => p.totalScore), backgroundColor: '#10B981' }
-                        ]
-                    },
-                    options: {
-                        responsive: true, plugins: { legend: { labels: { usePointStyle: true, color: '#fff' } } },
-                        scales: { x: { ticks: { color: '#aaa' } }, y: { ticks: { color: '#aaa' } } }
-                    }
-                });
-
-                // Radar
-                const radarDatasets = gameStats.players.map((p, i) => ({
-                    label: p.name,
-                    data: [p.bust, p.stay, p.totalCards / 10, p.totalScore / 20, p.flip7],
-                    borderColor: playerColors[i % playerColors.length],
-                    backgroundColor: playerColors[i % playerColors.length] + '44'
-                }));
-                new Chart(document.getElementById('endChartRadar'), {
-                    type: 'radar',
-                    data: {
-                        labels: ['Bust', 'Stay', 'Carte/10', 'Punti/20', 'Flip7'],
-                        datasets: radarDatasets
-                    },
-                    options: {
-                        responsive: true, plugins: { legend: { labels: { usePointStyle: true, color: '#fff' } } },
-                        scales: {
-                            r: {
-                                angleLines: { color: 'rgba(255,255,255,0.2)' },
-                                grid: { color: 'rgba(255,255,255,0.1)' },
-                                pointLabels: { color: '#aaa' },
-                                ticks: { display: false }
-                            }
-                        }
-                    }
-                });
-            }, 100);
-        }
-        // ========== END STATS DASHBOARD ==========
+        // Old inline renderEndgameStats removed to use statsSheet instead.
 
 
         function toggleSidebar(id) {
@@ -2812,9 +2706,7 @@
 
                     ego.style.display = 'flex';
 
-                    // Render end-game stats charts
-                    const statsContainer = qs('#endgameStatsContainer');
-                    if (statsContainer) renderEndgameStats(statsContainer);
+                    // Stats are now manually accessible via the "Statistiche Dettagliate" button
 
                     // Effects only for winner
                     if (amIWinner) {
@@ -2977,8 +2869,8 @@
             qs('#btnStay').disabled = !canAct || state.pending || !isGame;
             if (state.pending?.from === meIdx) showTgt();
 
-            // Enable Reaction Button if game is active OR in recap
-            if (state.phase === 'game' || state.phase === 'recap') {
+            // Enable Reaction and Stats Buttons if game is active, recap, or ended
+            if (state.phase === 'game' || state.phase === 'recap' || state.phase === 'end') {
                 qs('#btnReact').disabled = false;
                 qs('#btnStats').disabled = false;
             } else {
